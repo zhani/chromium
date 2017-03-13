@@ -1123,8 +1123,11 @@ bool ChromeMainDelegate::ShouldTerminateServiceManagerOnInstanceQuit(
     const service_manager::Identity& identity,
     int* exit_code) {
 #if BUILDFLAG(ENABLE_PACKAGE_MASH_SERVICES)
-  if (identity.name() == mash::common::GetWindowManagerServiceName() ||
+  if (
+#if defined(OS_CHROMEOS)
+      identity.name() == mash::common::GetWindowManagerServiceName() ||
       identity.name() == ui::mojom::kServiceName ||
+#endif  // defined(OS_CHROMEOS)
       identity.name() == content::mojom::kPackagedServicesServiceName) {
     // Quit the main process if an important child (e.g. window manager) dies.
     // On Chrome OS the OS-level session_manager will restart the main process.
