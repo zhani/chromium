@@ -79,7 +79,8 @@ if (enable_package_mash_services) {
     "//services/ui/public/interfaces:constants",
   ]
 
-  if (is_chromeos) {
+  # TODO(tonikitoo,fwang,msisov): Make this non-chromeos specific
+  if (is_chromeos || true) {
     embedded_mash_service_deps += [ "//chrome/app/mash:chrome_mus_catalog" ]
   }
 }
