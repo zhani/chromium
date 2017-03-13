@@ -108,11 +108,24 @@ MusClient::MusClient(service_manager::Connector* connector,
                              &remote_event_dispatcher_ptr_);
   }
 
+#if defined(OS_LINUX) && defined(USE_OZONE) && !defined(OS_CHROMEOS)
+  // When running Mus in the same service as chrome, content creates the
+  // DiscardableSharedMemoryManager.
+  const bool create_discardable_memory = false;
+
+  window_tree_client_ = base::MakeUnique<aura::WindowTreeClient>(
+      connector, this, nullptr /* window_manager_delegate */,
+      nullptr /* window_tree_client_request */, std::move(io_task_runner),
+      create_discardable_memory);
+  aura::Env::GetInstance()->SetWindowTreeClient(window_tree_client_.get());
+  window_tree_client_->ConnectViaWindowTreeHostFactory();
+#else
   window_tree_client_ = base::MakeUnique<aura::WindowTreeClient>(
       connector, this, nullptr /* window_manager_delegate */,
       nullptr /* window_tree_client_request */, std::move(io_task_runner));
   aura::Env::GetInstance()->SetWindowTreeClient(window_tree_client_.get());
   window_tree_client_->ConnectViaWindowTreeFactory();
+#endif
 
   pointer_watcher_event_router_ =
       base::MakeUnique<PointerWatcherEventRouter>(window_tree_client_.get());
@@ -298,7 +311,6 @@ std::unique_ptr<DesktopWindowTreeHost> MusClient::CreateDesktopWindowTreeHost(
 
 void MusClient::OnEmbed(
     std::unique_ptr<aura::WindowTreeHostMus> window_tree_host) {
-  NOTREACHED();
 }
 
 void MusClient::OnLostConnection(aura::WindowTreeClient* client) {}
