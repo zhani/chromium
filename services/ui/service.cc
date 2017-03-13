@@ -240,8 +240,9 @@ void Service::OnStart() {
       &Service::BindUserAccessManagerRequest, base::Unretained(this)));
   registry_.AddInterface<mojom::UserActivityMonitor>(base::Bind(
       &Service::BindUserActivityMonitorRequest, base::Unretained(this)));
-  registry_.AddInterface<mojom::WindowTreeHostFactoryRegistrar>(base::Bind(
-      &Service::BindWindowTreeHostFactoryRegistrarRequest, base::Unretained(this)));
+  registry_.AddInterface<mojom::WindowTreeHostFactoryRegistrar>(
+      base::Bind(&Service::BindWindowTreeHostFactoryRegistrarRequest,
+                 base::Unretained(this)));
   registry_.AddInterface<mojom::WindowManagerWindowTreeFactory>(
       base::Bind(&Service::BindWindowManagerWindowTreeFactoryRequest,
                  base::Unretained(this)));
@@ -436,9 +437,10 @@ void Service::BindWindowTreeHostFactoryRegistrarRequest(
     const service_manager::BindSourceInfo& source_info,
     mojom::WindowTreeHostFactoryRegistrarRequest request) {
   AddUserIfNecessary(source_info.identity);
-  mojo::MakeStrongBinding(base::MakeUnique<ws::WindowTreeHostFactoryRegistrar>(
-                              window_server_.get(), source_info.identity.user_id()),
-                          std::move(request));
+  mojo::MakeStrongBinding(
+      base::MakeUnique<ws::WindowTreeHostFactoryRegistrar>(
+          window_server_.get(), source_info.identity.user_id()),
+      std::move(request));
   window_server_->SetInExternalWindowMode();
 }
 
