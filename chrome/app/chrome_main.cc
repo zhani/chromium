@@ -102,7 +102,7 @@ int ChromeMain(int argc, const char** argv) {
   }
 #endif  // defined(OS_LINUX) || defined(OS_MACOSX) || defined(OS_WIN)
 
-#if defined(OS_CHROMEOS) && BUILDFLAG(ENABLE_PACKAGE_MASH_SERVICES)
+#if BUILDFLAG(ENABLE_PACKAGE_MASH_SERVICES)
   if (service_manager::ServiceManagerIsRemote() ||
       command_line->HasSwitch(switches::kMash)) {
     params.create_discardable_memory = false;
