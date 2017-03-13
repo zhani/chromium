@@ -16,6 +16,8 @@
 #include "chrome/browser/browser_process_platform_part_mac.h"
 #elif defined(OS_WIN)
 #include "chrome/browser/browser_process_platform_part_win.h"
+#elif defined(USE_OZONE) && defined(OS_LINUX)
+#include "chrome/browser/browser_process_platform_part_ozone.h"
 #else
 #include "chrome/browser/browser_process_platform_part_base.h"
 typedef BrowserProcessPlatformPartBase BrowserProcessPlatformPart;
