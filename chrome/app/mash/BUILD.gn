@@ -63,6 +63,10 @@ source_set("embedded_services") {
   if (is_linux && !is_android) {
     deps += [ "//components/font_service:lib" ]
   }
+
+  if (is_linux && use_ozone && !is_chromeos) {
+    deps += [ ":chrome_mus_catalog" ]
+  }
 }
 
 catalog("catalog_common") {
@@ -118,7 +122,8 @@ catalog_cpp_source("chrome_test_catalog") {
   generated_function_name = "CreateChromeTestCatalog"
 }
 
-if (is_chromeos) {
+# TODO(tonikitoo,msisov): Upstream and non-chromeos bits.
+if (is_chromeos || (use_ozone && is_linux)) {
   catalog("catalog_mus") {
     catalog_deps = [ "//chrome/app:catalog" ]
     embedded_services = [
