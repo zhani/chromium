@@ -116,7 +116,7 @@
 #include "mash/quick_launch/public/interfaces/constants.mojom.h"  // nogncheck
 #include "services/ui/public/interfaces/constants.mojom.h"        // nogncheck
 
-#if defined(OS_CHROMEOS)
+#if defined(OS_CHROMEOS) || (defined(OS_LINUX) && defined(USE_OZONE))
 #include "chrome/app/mash/chrome_mus_catalog.h"
 #endif
 
@@ -1149,7 +1149,7 @@ std::unique_ptr<base::Value> ChromeMainDelegate::CreateServiceCatalog() {
     return g_service_catalog_factory.Get().Run();
 #if BUILDFLAG(ENABLE_PACKAGE_MASH_SERVICES)
   const auto& command_line = *base::CommandLine::ForCurrentProcess();
-#if defined(OS_CHROMEOS)
+#if defined(OS_CHROMEOS) || (defined(OS_LINUX) && defined(USE_OZONE))
   if (command_line.HasSwitch(switches::kMus))
     return CreateChromeMusCatalog();
 #endif  // defined(OS_CHROMEOS)
@@ -1186,8 +1186,11 @@ bool ChromeMainDelegate::ShouldTerminateServiceManagerOnInstanceQuit(
     const service_manager::Identity& identity,
     int* exit_code) {
 #if BUILDFLAG(ENABLE_PACKAGE_MASH_SERVICES)
-  if (identity.name() == mash::common::GetWindowManagerServiceName() ||
+  if (
+#if defined(OS_CHROMEOS)
+      identity.name() == mash::common::GetWindowManagerServiceName() ||
       identity.name() == ui::mojom::kServiceName ||
+#endif  // defined(OS_CHROMEOS)
       identity.name() == content::mojom::kPackagedServicesServiceName) {
     // Quit the main process if an important child (e.g. window manager) dies.
     // On Chrome OS the OS-level session_manager will restart the main process.
