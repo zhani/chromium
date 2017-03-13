@@ -9,6 +9,12 @@ import("//services/service_manager/public/service_manifest.gni")
 
 assert(enable_package_mash_services)
 
+# Disallow to use mash packages in Linux OS without use_ozone flag.
+# Otherwise, mus catalog is not created and compilation failes in the end.
+if (is_linux && !is_chromeos) {
+  assert(use_ozone)
+}
+
 source_set("embedded_services") {
   sources = [
     "embedded_services.cc",
@@ -62,6 +68,10 @@ source_set("embedded_services") {
 
   if (is_linux && !is_android) {
     deps += [ "//components/font_service:lib" ]
+  }
+
+  if (is_linux && use_ozone && !is_chromeos) {
+    deps += [ ":chrome_mus_catalog" ]
   }
 }
 
@@ -118,14 +128,14 @@ catalog_cpp_source("chrome_test_catalog") {
   generated_function_name = "CreateChromeTestCatalog"
 }
 
-if (is_chromeos) {
+# TODO(tonikitoo,msisov): Upstream and non-chromeos bits.
+if (is_chromeos || (use_ozone && is_linux)) {
   catalog("catalog_mus") {
     catalog_deps = [ "//chrome/app:catalog" ]
     embedded_services = [
       # TODO(sky): verify if we need this.
       "//services/ui/ime/test_ime_driver:manifest",
     ]
-
     if (enable_nacl) {
       embedded_services += [ "//components/nacl/loader:nacl_loader_manifest" ]
     }
