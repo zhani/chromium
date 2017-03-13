@@ -43,7 +43,8 @@
           "display_controller",
           "ime_registrar",
           "input_device_controller",
-          "window_manager"
+          "window_manager",
+          "window_tree_host_factory_registrar"
         ]
       }
     },
