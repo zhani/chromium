@@ -41,7 +41,6 @@ void WindowTreeHostFactory::CreatePlatformWindow(
   metrics.bounds_in_pixels = gfx::Rect(1024, 768);
   metrics.device_scale_factor = 1.0f;
   metrics.ui_scale_factor = 1.0f;
-
   ws_display->Init(metrics, std::move(display_binding));
 }
 
