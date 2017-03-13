@@ -82,7 +82,8 @@ if (enable_package_mash_services) {
     "//services/ui/public/interfaces:constants",
   ]
 
-  if (is_chromeos) {
+  # TODO(tonikitoo,msisov): Upstream and non-chromeos bits.
+  if (is_chromeos || (use_ozone && is_linux)) {
     embedded_mash_service_deps += [ "//chrome/app/mash:chrome_mus_catalog" ]
   }
 }
