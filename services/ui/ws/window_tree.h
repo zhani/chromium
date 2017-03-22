@@ -82,6 +82,9 @@ class WindowTree : public mojom::WindowTree,
   // on |automatically_create_display_roots|.
   void ConfigureWindowManager(bool automatically_create_display_roots);
 
+  // Called if this WindowTree is a root one, in external window mode.
+  void ConfigureRootWindowTreeClient(bool automatically_create_display_roots);
+
   bool automatically_create_display_roots() const {
     return automatically_create_display_roots_;
   }
@@ -155,9 +158,19 @@ class WindowTree : public mojom::WindowTree,
   WindowServer* window_server() { return window_server_; }
   const WindowServer* window_server() const { return window_server_; }
 
+  void WillCreateRootDisplay(Id transport_window_id) {
+    pending_client_window_id_ = transport_window_id;
+  }
+
+  // Calls WindowTreeClient::OnEmbed.
+  void DoOnEmbed(mojom::WindowTreePtr tree, ServerWindow* root);
+
   // Called from ~WindowServer. Reset WindowTreeClient so that it no longer gets
   // any messages.
   void PrepareForWindowServerShutdown();
+
+  // Adds a new root to this tree.
+  void AddRoot(const ServerWindow* root);
 
   // Adds a new root to this tree. This is only valid for window managers.
   void AddRootForWindowManager(const ServerWindow* root);
@@ -663,6 +676,8 @@ class WindowTree : public mojom::WindowTree,
   // WmMoveDragImage. Non-null while we're waiting for a response.
   struct DragMoveState;
   std::unique_ptr<DragMoveState> drag_move_state_;
+
+  Id pending_client_window_id_ = kInvalidClientId;
 
   // A weak ptr factory for callbacks from the window manager for when we send
   // a image move. All weak ptrs are invalidated when a drag is completed.
