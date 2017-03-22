@@ -162,8 +162,8 @@ class Service : public service_manager::Service,
       mojom::WindowTreeFactoryRequest request,
       const service_manager::BindSourceInfo& source_info);
 
-  void BindWindowTreeHostFactoryRequest(
-      mojom::WindowTreeHostFactoryRequest request,
+  void BindWindowTreeHostFactoryRegistrarRequest(
+      mojom::WindowTreeHostFactoryRegistrarRequest request,
       const service_manager::BindSourceInfo& source_info);
 
   void BindDiscardableSharedMemoryManagerRequest(
