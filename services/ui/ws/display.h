@@ -41,6 +41,7 @@ class DisplayBinding;
 class DisplayManager;
 class FocusController;
 class WindowManagerDisplayRoot;
+class WindowManagerState;
 class WindowServer;
 class WindowTree;
 
@@ -237,8 +238,6 @@ class Display : public PlatformDisplayDelegate,
   viz::LocalSurfaceIdAllocator allocator_;
 
   WindowManagerDisplayRootMap window_manager_display_root_map_;
-
-  std::unique_ptr<WindowManagerDisplayRoot> external_mode_root_;
 
   DISALLOW_COPY_AND_ASSIGN(Display);
 };
