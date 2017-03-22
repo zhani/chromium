@@ -53,17 +53,27 @@ Display::~Display() {
     focus_controller_.reset();
   }
 
-  if (!binding_) {
-    for (auto& pair : window_manager_display_root_map_)
-      pair.second->window_manager_state()->OnDisplayDestroying(this);
-  } else if (!window_manager_display_root_map_.empty()) {
-    // If there is a |binding_| then the tree was created specifically for this
-    // display (which corresponds to a WindowTreeHost).
+  // Notify the window manager state that the display is being destroyed.
+  for (auto& pair : window_manager_display_root_map_)
+    pair.second->window_manager_state()->OnDisplayDestroying(this);
+
+  if (binding_ && !window_manager_display_root_map_.empty()) {
+    // If there is a |binding_| then the tree was created specifically for one
+    // or more displays, which correspond to WindowTreeHosts.
     WindowManagerDisplayRoot* display_root =
         window_manager_display_root_map_.begin()->second;
-    if (display_root->window_manager_state())
-      window_server_->DestroyTree(
-          display_root->window_manager_state()->window_tree());
+    WindowTree* tree = display_root->window_manager_state()->window_tree();
+    ServerWindow* root = display_root->root();
+    if (tree) {
+      // Delete the window root corresponding to that display.
+      ClientWindowId root_id;
+      if (tree->IsWindowKnown(root, &root_id))
+        tree->DeleteWindow(root_id);
+
+      // Destroy the tree once all the roots have been removed.
+      if (tree->roots().empty())
+        window_server_->DestroyTree(tree);
+    }
   }
 }
 
@@ -217,14 +227,26 @@ void Display::InitDisplayRoot() {
   DCHECK(window_server_->IsInExternalWindowMode());
   DCHECK(binding_);
 
-  external_mode_root_ = base::MakeUnique<WindowManagerDisplayRoot>(this);
+  std::unique_ptr<WindowManagerDisplayRoot> display_root_ptr(
+      new WindowManagerDisplayRoot(this));
   // TODO(tonikitoo): Code still has assumptions that even in external window
   // mode make 'window_manager_display_root_map_' needed.
   window_manager_display_root_map_[service_manager::mojom::kRootUserID] =
-      external_mode_root_.get();
+      display_root_ptr.get();
 
-  ServerWindow* server_window = external_mode_root_->root();
   WindowTree* window_tree = window_server_->GetTreeForExternalWindowMode();
+  ServerWindow* server_window = display_root_ptr->root();
+
+  std::unique_ptr<WindowManagerState> window_manager_state =
+      base::MakeUnique<WindowManagerState>(window_tree);
+  display_root_ptr->window_manager_state_ = window_manager_state.get();
+  window_tree->AddExternalModeWindowManagerState(
+      std::move(window_manager_state));
+
+  WindowManagerDisplayRoot* display_root = display_root_ptr.get();
+  display_root->window_manager_state_->AddWindowManagerDisplayRoot(
+      std::move(display_root_ptr));
+
   window_tree->AddRoot(server_window);
   window_tree->DoOnEmbed(nullptr /*mojom::WindowTreePtr*/, server_window);
 }
