@@ -321,6 +321,10 @@ class WindowTree : public mojom::WindowTree,
   // that created the window.
   Id ClientWindowIdToTransportId(const ClientWindowId& client_window_id) const;
 
+  // TODO(tonikitoo,msisov): Add a comment.
+  void AddExternalModeWindowManagerState(
+      std::unique_ptr<WindowManagerState> window_manager_state);
+
  private:
   friend class test::WindowTreeTestApi;
 
@@ -723,6 +727,8 @@ class WindowTree : public mojom::WindowTree,
 
   // See mojom for details.
   bool automatically_create_display_roots_ = true;
+
+  std::set<std::unique_ptr<WindowManagerState>> external_mode_wm_states_;
 
   std::unique_ptr<WaitingForTopLevelWindowInfo>
       waiting_for_top_level_window_info_;
