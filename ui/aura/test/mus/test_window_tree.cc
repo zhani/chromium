@@ -294,6 +294,10 @@ void TestWindowTree::GetWindowManagerClient(
     mojo::AssociatedInterfaceRequest<ui::mojom::WindowManagerClient> internal) {
 }
 
+void TestWindowTree::GetWindowTreeHostFactory(
+    mojo::AssociatedInterfaceRequest<ui::mojom::WindowTreeHostFactory>
+        request) {}
+
 void TestWindowTree::GetCursorLocationMemory(
     const GetCursorLocationMemoryCallback& callback) {
   callback.Run(mojo::ScopedSharedBufferHandle());
