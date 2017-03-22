@@ -74,7 +74,8 @@ class Service
       public service_manager::InterfaceFactory<
           mojom::WindowManagerWindowTreeFactory>,
       public service_manager::InterfaceFactory<mojom::WindowTreeFactory>,
-      public service_manager::InterfaceFactory<mojom::WindowTreeHostFactory>,
+      public service_manager::InterfaceFactory<
+          mojom::WindowTreeHostFactoryRegistrar>,
       public service_manager::InterfaceFactory<
           discardable_memory::mojom::DiscardableSharedMemoryManager>,
       public service_manager::InterfaceFactory<mojom::WindowServerTest> {
@@ -155,9 +156,9 @@ class Service
   void Create(const service_manager::Identity& remote_identity,
               mojom::WindowTreeFactoryRequest request) override;
 
-  // service_manager::InterfaceFactory<mojom::WindowTreeHostFactory>:
+  // service_manager::InterfaceFactory<mojom::WindowTreeHostFactoryRegistrar>:
   void Create(const service_manager::Identity& remote_identity,
-              mojom::WindowTreeHostFactoryRequest request) override;
+              mojom::WindowTreeHostFactoryRegistrarRequest request) override;
 
   // service_manager::InterfaceFactory<
   //    discardable_memory::mojom::DiscardableSharedMemoryManager>:
