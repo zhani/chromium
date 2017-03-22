@@ -11,6 +11,7 @@
 
 #include "base/macros.h"
 #include "services/ui/public/interfaces/window_tree.mojom.h"
+#include "services/ui/public/interfaces/window_tree_host.mojom.h"
 #include "ui/aura/mus/mus_types.h"
 
 namespace aura {
@@ -199,6 +200,9 @@ class TestWindowTree : public ui::mojom::WindowTree {
   void GetWindowManagerClient(
       mojo::AssociatedInterfaceRequest<ui::mojom::WindowManagerClient> internal)
       override;
+  void GetWindowTreeHostFactory(
+      mojo::AssociatedInterfaceRequest<ui::mojom::WindowTreeHostFactory>
+          request) override;
   void GetCursorLocationMemory(
       const GetCursorLocationMemoryCallback& callback) override;
   void PerformDragDrop(
