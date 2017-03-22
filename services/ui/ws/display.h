@@ -169,6 +169,10 @@ class Display : public PlatformDisplayDelegate,
   // Inits the necessary state once the display is ready.
   void InitWindowManagerDisplayRoots();
 
+  // Inits the display root once the display is ready in
+  // 'external window mode'.
+  void InitDisplayRoot();
+
   // Creates the set of WindowManagerDisplayRoots from the
   // WindowManagerWindowTreeFactorySet.
   void CreateWindowManagerDisplayRootsFromFactories();
@@ -220,6 +224,8 @@ class Display : public PlatformDisplayDelegate,
   viz::LocalSurfaceIdAllocator allocator_;
 
   WindowManagerDisplayRootMap window_manager_display_root_map_;
+
+  std::unique_ptr<WindowManagerDisplayRoot> external_mode_root_;
 
   DISALLOW_COPY_AND_ASSIGN(Display);
 };

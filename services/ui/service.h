@@ -25,6 +25,7 @@
 #include "services/ui/public/interfaces/accessibility_manager.mojom.h"
 #include "services/ui/public/interfaces/clipboard.mojom.h"
 #include "services/ui/public/interfaces/display_manager.mojom.h"
+#include "services/ui/public/interfaces/external_window_tree_factory.mojom.h"
 #include "services/ui/public/interfaces/gpu.mojom.h"
 #include "services/ui/public/interfaces/ime/ime.mojom.h"
 #include "services/ui/public/interfaces/user_access_manager.mojom.h"
@@ -32,7 +33,6 @@
 #include "services/ui/public/interfaces/window_manager_window_tree_factory.mojom.h"
 #include "services/ui/public/interfaces/window_server_test.mojom.h"
 #include "services/ui/public/interfaces/window_tree.mojom.h"
-#include "services/ui/public/interfaces/window_tree_host.mojom.h"
 #include "services/ui/ws/user_id.h"
 #include "services/ui/ws/window_server_delegate.h"
 
@@ -160,8 +160,8 @@ class Service : public service_manager::Service,
       mojom::WindowTreeFactoryRequest request,
       const service_manager::BindSourceInfo& source_info);
 
-  void BindWindowTreeHostFactoryRequest(
-      mojom::WindowTreeHostFactoryRequest request,
+  void BindExternalWindowTreeFactoryRequest(
+      mojom::ExternalWindowTreeFactoryRequest request,
       const service_manager::BindSourceInfo& source_info);
 
   void BindDiscardableSharedMemoryManagerRequest(

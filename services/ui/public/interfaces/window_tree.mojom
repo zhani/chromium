@@ -14,6 +14,7 @@ import "services/ui/public/interfaces/mus_constants.mojom";
 import "services/ui/public/interfaces/window_manager.mojom";
 import "services/ui/public/interfaces/window_manager_constants.mojom";
 import "services/ui/public/interfaces/window_tree_constants.mojom";
+import "services/ui/public/interfaces/window_tree_host.mojom";
 import "skia/public/interfaces/bitmap.mojom";
 import "ui/base/mojo/ui_base_types.mojom";
 import "ui/events/mojo/event.mojom";
@@ -286,6 +287,11 @@ interface WindowTree {
 
   // Stacks the window above all sibling windows.
   StackAtTop(uint32 change_id, uint32 window_id);
+
+  // Gets the (singleton) instance of WindowTreeHostFactory, as an associated
+  // interface of WindowTree. This allows them to share the same mojo message
+  // pipe, ensuring ordering of messages.
+  GetWindowTreeHostFactory(associated WindowTreeHostFactory& request);
 
   // See description of WindowManager for details.
   GetWindowManagerClient(associated WindowManagerClient& internal);
