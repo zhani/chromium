@@ -359,7 +359,8 @@ void WindowManagerState::OnDisplayDestroying(Display* display) {
       (*iter)->root()->AddObserver(this);
       orphaned_window_manager_display_roots_.push_back(std::move(*iter));
       window_manager_display_roots_.erase(iter);
-      window_tree_->OnDisplayDestroying(display->GetId());
+      if (!window_server()->IsInExternalWindowMode())
+        window_tree_->OnDisplayDestroying(display->GetId());
       return;
     }
   }
