@@ -47,9 +47,11 @@ void ExternalWindowTreeFactory::Register(
   // window mode, the WindowTreePtr is created on the aura/WindowTreeClient
   // side.
   //
-  // NOTE: This call to ::AddTree calls ::Init. However, it will not trigger a
-  // ::OnEmbed call because the WindowTree instance was created above passing
-  // 'nullptr' as the ServerWindow, hence there is no 'root' yet.
+  // NOTE: WindowServer::AddTree calls WindowTree::Init, which can trigger a
+  // WindowTreeClient::OnEmbed call. In the particular flow though, WTC::OnEmbed
+  // will not get called because the WindowTree instance was created above
+  // taking 'nullptr' as the ServerWindow parameter, hence the WindowTree has no
+  // 'root' yet.
   WindowTree* tree_ptr = tree.get();
   window_server_->AddTree(std::move(tree), std::move(tree_binding),
                           nullptr /*mojom::WindowTreePtr*/);
