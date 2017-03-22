@@ -115,6 +115,8 @@ class WindowServer : public ServerWindowDelegate,
 
   WindowTree* GetTreeWithClientName(const std::string& client_name);
 
+  WindowTree* GetTreeForExternalWindowMode();
+
   size_t num_trees() const { return tree_map_.size(); }
 
   // Returns the Window identified by |id|.
@@ -156,6 +158,9 @@ class WindowServer : public ServerWindowDelegate,
   // window to receive focus.
   bool SetFocusedWindow(ServerWindow* window);
   ServerWindow* GetFocusedWindow();
+
+  void SetInExternalWindowMode() { in_external_window_mode_ = true; }
+  bool IsInExternalWindowMode() const { return in_external_window_mode_; }
 
   void SetHighContrastMode(const UserId& user, bool enabled);
 
@@ -413,6 +418,8 @@ class WindowServer : public ServerWindowDelegate,
   // System modal windows not attached to a display are added here. Once
   // attached to a display they are removed.
   ServerWindowTracker pending_system_modal_windows_;
+
+  bool in_external_window_mode_ = false;
 
   DisplayCreationConfig display_creation_config_;
 
