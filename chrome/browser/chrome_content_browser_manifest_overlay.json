@@ -50,6 +50,7 @@
         "preferences": [ "pref_client", "pref_control" ],
         "ui": [
           "display_dev",
+          "external_window_tree_factory",
           "ime_registrar",
           "input_device_controller",
           "window_manager"
