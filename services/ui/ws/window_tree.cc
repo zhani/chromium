@@ -379,8 +379,6 @@ ServerWindow* WindowTree::ProcessSetDisplayRoot(
 bool WindowTree::SetCapture(const ClientWindowId& client_window_id) {
   ServerWindow* window = GetWindowByClientId(client_window_id);
   WindowManagerDisplayRoot* display_root = GetWindowManagerDisplayRoot(window);
-  if (display_root && !display_root->window_manager_state())
-    return false;
   ServerWindow* current_capture_window =
       display_root ? display_root->window_manager_state()->capture_window()
                    : nullptr;
@@ -398,8 +396,6 @@ bool WindowTree::SetCapture(const ClientWindowId& client_window_id) {
 bool WindowTree::ReleaseCapture(const ClientWindowId& client_window_id) {
   ServerWindow* window = GetWindowByClientId(client_window_id);
   WindowManagerDisplayRoot* display_root = GetWindowManagerDisplayRoot(window);
-  if (display_root && !display_root->window_manager_state())
-    return false;
   ServerWindow* current_capture_window =
       display_root ? display_root->window_manager_state()->capture_window()
                    : nullptr;
@@ -1029,6 +1025,11 @@ void WindowTree::SendToPointerWatcher(const ui::Event& event,
   IsWindowKnown(target_window, &client_window_id);
   client()->OnPointerEventObserved(ui::Event::Clone(event), client_window_id.id,
                                    display_id);
+}
+
+void WindowTree::AddExternalModeWindowManagerState(
+    std::unique_ptr<WindowManagerState> window_manager_state) {
+  external_mode_wm_states_.insert(std::move(window_manager_state));
 }
 
 bool WindowTree::ShouldRouteToWindowManager(const ServerWindow* window) const {
@@ -1938,6 +1939,8 @@ void WindowTree::DeactivateWindow(Id window_id) {
 }
 
 void WindowTree::StackAbove(uint32_t change_id, Id above_id, Id below_id) {
+  client()->OnChangeCompleted(change_id, true);
+  return;
   ServerWindow* above = GetWindowByClientId(ClientWindowId(above_id));
   if (!above) {
     DVLOG(1) << "StackAbove failed (invalid above id)";
@@ -1996,6 +1999,8 @@ void WindowTree::StackAbove(uint32_t change_id, Id above_id, Id below_id) {
 }
 
 void WindowTree::StackAtTop(uint32_t change_id, Id window_id) {
+  client()->OnChangeCompleted(change_id, true);
+  return;
   ServerWindow* window = GetWindowByClientId(ClientWindowId(window_id));
   if (!window) {
     DVLOG(1) << "StackAtTop failed (invalid id)";
