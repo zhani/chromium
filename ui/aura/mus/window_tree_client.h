@@ -22,8 +22,10 @@
 #include "components/viz/common/surfaces/local_surface_id_allocator.h"
 #include "mojo/public/cpp/bindings/associated_binding.h"
 #include "mojo/public/cpp/bindings/strong_binding.h"
+#include "services/ui/public/interfaces/external_window_tree_factory.mojom.h"
 #include "services/ui/public/interfaces/remote_event_dispatcher.mojom.h"
 #include "services/ui/public/interfaces/window_tree.mojom.h"
+#include "services/ui/public/interfaces/window_tree_host.mojom.h"
 #include "ui/aura/aura_export.h"
 #include "ui/aura/client/transient_window_client_observer.h"
 #include "ui/aura/mus/capture_synchronizer_delegate.h"
@@ -115,6 +117,9 @@ class AURA_EXPORT WindowTreeClient
 
   // Establishes the connection by way of the WindowTreeFactory.
   void ConnectViaWindowTreeFactory();
+
+  // Establishes the connection by way of the WindowTreeFactoryHost.
+  void ConnectViaWindowTreeHostFactory();
 
   // Establishes the connection by way of WindowManagerWindowTreeFactory.
   // See mojom for details on |automatically_create_display_roots|.
@@ -262,6 +267,11 @@ class AURA_EXPORT WindowTreeClient
       int64_t display_id,
       const base::Optional<viz::LocalSurfaceId>& local_surface_id =
           base::nullopt);
+
+  void ConfigureWindowDataFromServer(
+      WindowTreeHostMus* window_tree_host,
+      const ui::mojom::WindowData& window_data,
+      const base::Optional<viz::LocalSurfaceId>& local_surface_id);
 
   WindowMus* NewWindowFromWindowData(WindowMus* parent,
                                      const ui::mojom::WindowData& window_data);
@@ -643,6 +653,8 @@ class AURA_EXPORT WindowTreeClient
 
   bool has_pointer_watcher_ = false;
 
+  bool in_external_window_mode_ = false;
+
   // The current change id for the client.
   uint32_t current_move_loop_change_ = 0u;
 
@@ -687,6 +699,9 @@ class AURA_EXPORT WindowTreeClient
   // Temporary while we have mushrome, once we switch to mash this can be
   // removed.
   bool install_drag_drop_client_ = true;
+
+  ui::mojom::WindowTreeHostFactoryAssociatedPtr window_tree_host_factory_;
+  ui::mojom::WindowTreeHostFactory* window_tree_host_factory_ptr_ = nullptr;
 
   base::WeakPtrFactory<WindowTreeClient> weak_factory_;
 
