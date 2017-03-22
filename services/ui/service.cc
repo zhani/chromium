@@ -42,6 +42,7 @@
 #include "services/ui/ws/window_tree_binding.h"
 #include "services/ui/ws/window_tree_factory.h"
 #include "services/ui/ws/window_tree_host_factory.h"
+#include "services/ui/ws/window_tree_host_factory_registrar.h"
 #include "ui/base/cursor/image_cursors.h"
 #include "ui/base/platform_window_defaults.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -68,7 +69,6 @@
 
 using mojo::InterfaceRequest;
 using ui::mojom::WindowServerTest;
-using ui::mojom::WindowTreeHostFactory;
 
 namespace ui {
 
@@ -132,7 +132,6 @@ struct Service::PendingRequest {
 struct Service::UserState {
   std::unique_ptr<clipboard::ClipboardImpl> clipboard;
   std::unique_ptr<ws::AccessibilityManager> accessibility;
-  std::unique_ptr<ws::WindowTreeHostFactory> window_tree_host_factory;
 };
 
 Service::InProcessConfig::InProcessConfig() = default;
@@ -298,8 +297,9 @@ void Service::OnStart() {
       &Service::BindUserAccessManagerRequest, base::Unretained(this)));
   registry_.AddInterface<mojom::UserActivityMonitor>(base::Bind(
       &Service::BindUserActivityMonitorRequest, base::Unretained(this)));
-  registry_.AddInterface<WindowTreeHostFactory>(base::Bind(
-      &Service::BindWindowTreeHostFactoryRequest, base::Unretained(this)));
+  registry_.AddInterface<mojom::WindowTreeHostFactoryRegistrar>(
+      base::Bind(&Service::BindWindowTreeHostFactoryRegistrarRequest,
+                 base::Unretained(this)));
   registry_.AddInterface<mojom::WindowManagerWindowTreeFactory>(
       base::Bind(&Service::BindWindowManagerWindowTreeFactoryRequest,
                  base::Unretained(this)));
@@ -498,15 +498,15 @@ void Service::BindWindowTreeFactoryRequest(
       std::move(request));
 }
 
-void Service::BindWindowTreeHostFactoryRequest(
-    mojom::WindowTreeHostFactoryRequest request,
+void Service::BindWindowTreeHostFactoryRegistrarRequest(
+    mojom::WindowTreeHostFactoryRegistrarRequest request,
     const service_manager::BindSourceInfo& source_info) {
-  UserState* user_state = GetUserState(source_info.identity);
-  if (!user_state->window_tree_host_factory) {
-    user_state->window_tree_host_factory.reset(new ws::WindowTreeHostFactory(
-        window_server_.get(), source_info.identity.user_id()));
-  }
-  user_state->window_tree_host_factory->AddBinding(std::move(request));
+  AddUserIfNecessary(source_info.identity);
+  mojo::MakeStrongBinding(
+      base::MakeUnique<ws::WindowTreeHostFactoryRegistrar>(
+          window_server_.get(), source_info.identity.user_id()),
+      std::move(request));
+  window_server_->SetInExternalWindowMode();
 }
 
 void Service::BindDiscardableSharedMemoryManagerRequest(
