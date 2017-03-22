@@ -394,8 +394,6 @@ ServerWindow* WindowTree::ProcessSetDisplayRoot(
 bool WindowTree::SetCapture(const ClientWindowId& client_window_id) {
   ServerWindow* window = GetWindowByClientId(client_window_id);
   WindowManagerDisplayRoot* display_root = GetWindowManagerDisplayRoot(window);
-  if (display_root && !display_root->window_manager_state())
-    return false;
   ServerWindow* current_capture_window =
       display_root ? display_root->window_manager_state()->capture_window()
                    : nullptr;
@@ -413,8 +411,6 @@ bool WindowTree::SetCapture(const ClientWindowId& client_window_id) {
 bool WindowTree::ReleaseCapture(const ClientWindowId& client_window_id) {
   ServerWindow* window = GetWindowByClientId(client_window_id);
   WindowManagerDisplayRoot* display_root = GetWindowManagerDisplayRoot(window);
-  if (display_root && !display_root->window_manager_state())
-    return false;
   ServerWindow* current_capture_window =
       display_root ? display_root->window_manager_state()->capture_window()
                    : nullptr;
@@ -1044,6 +1040,11 @@ void WindowTree::SendToPointerWatcher(const ui::Event& event,
   IsWindowKnown(target_window, &client_window_id);
   client()->OnPointerEventObserved(ui::Event::Clone(event), client_window_id.id,
                                    display_id);
+}
+
+void WindowTree::AddExternalModeWindowManagerState(
+    std::unique_ptr<WindowManagerState> window_manager_state) {
+  external_mode_wm_states_.insert(std::move(window_manager_state));
 }
 
 bool WindowTree::ShouldRouteToWindowManager(const ServerWindow* window) const {
