@@ -149,9 +149,19 @@ class WindowTree : public mojom::WindowTree,
   WindowServer* window_server() { return window_server_; }
   const WindowServer* window_server() const { return window_server_; }
 
+  void WillCreateRootDisplay(uint32_t transport_window_id) {
+    pending_client_id_ = transport_window_id;
+  }
+
+  // Calls WindowTreeClient::OnEmbed.
+  void DoOnEmbed(mojom::WindowTreePtr tree, ServerWindow* root);
+
   // Called from ~WindowServer. Reset WindowTreeClient so that it no longer gets
   // any messages.
   void PrepareForWindowServerShutdown();
+
+  // Adds a new root to this tree.
+  void AddRoot(const ServerWindow* root);
 
   // Adds a new root to this tree. This is only valid for window managers.
   void AddRootForWindowManager(const ServerWindow* root);
@@ -581,6 +591,8 @@ class WindowTree : public mojom::WindowTree,
   std::unique_ptr<WaitingForTopLevelWindowInfo>
       waiting_for_top_level_window_info_;
   bool embedder_intercepts_events_ = false;
+
+  uint32_t pending_client_id_ = kInvalidClientId;
 
   DISALLOW_COPY_AND_ASSIGN(WindowTree);
 };
