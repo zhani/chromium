@@ -149,8 +149,8 @@ class WindowTree : public mojom::WindowTree,
   WindowServer* window_server() { return window_server_; }
   const WindowServer* window_server() const { return window_server_; }
 
-  void WillCreateRootDisplay(uint32_t transport_window_id) {
-    pending_client_id_ = transport_window_id;
+  void WillCreateRootDisplay(Id transport_window_id) {
+    pending_client_window_id_ = transport_window_id;
   }
 
   // Calls WindowTreeClient::OnEmbed.
@@ -596,7 +596,7 @@ class WindowTree : public mojom::WindowTree,
       waiting_for_top_level_window_info_;
   bool embedder_intercepts_events_ = false;
 
-  uint32_t pending_client_id_ = kInvalidClientId;
+  Id pending_client_window_id_ = kInvalidClientId;
 
   DISALLOW_COPY_AND_ASSIGN(WindowTree);
 };
