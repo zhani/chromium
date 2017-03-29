@@ -765,6 +765,7 @@ void TestPlatformDisplay::SetCursorConfig(display::Display::Rotation rotation,
                                           float scale) {
   cursor_scale_ = scale;
 }
+void TestPlatformDisplay::SetViewportBounds(const gfx::Rect& rect) {}
 
 // -----------------------------------------------------------------------------
 
