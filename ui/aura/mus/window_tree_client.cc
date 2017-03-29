@@ -537,9 +537,17 @@ void WindowTreeClient::ConfigureWindowDataFromServer(
     SetWindowVisibleFromServer(WindowMus::Get(window_tree_host->window()),
                                true);
   }
+  gfx::Rect new_bounds = window_data.bounds;
+  // Disallow changing StubWindow's bounds in external window mode as long
+  // as the StubWindow's bounds are used as a origin reference of a real
+  // native window.
+  if (in_external_window_mode_ && new_bounds.origin() == gfx::Point()) {
+    gfx::Point old_origin = window_tree_host->GetBoundsInPixels().origin();
+    new_bounds.set_origin(old_origin);
+  }
   WindowMus* window = WindowMus::Get(window_tree_host->window());
 
-  SetWindowBoundsFromServer(window, window_data.bounds, local_surface_id);
+  SetWindowBoundsFromServer(window, new_bounds, local_surface_id);
   ui::Compositor* compositor =
       window_tree_host->window()->GetHost()->compositor();
   compositor->AddObserver(this);

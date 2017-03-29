@@ -142,6 +142,7 @@ class Display : public PlatformDisplayDelegate,
   void UpdateTextInputState(ServerWindow* window,
                             const ui::TextInputState& state);
   void SetImeVisibility(ServerWindow* window, bool visible);
+  void SetBounds(const gfx::Rect& bounds);
 
   // Called just before |tree| is destroyed.
   void OnWillDestroyTree(WindowTree* tree);
@@ -199,6 +200,8 @@ class Display : public PlatformDisplayDelegate,
   EventSink* GetEventSink() override;
   void OnAcceleratedWidgetAvailable() override;
   void OnNativeCaptureLost() override;
+  void OnBoundsChanged(const gfx::Rect& new_bounds) override;
+
   OzonePlatform* GetOzonePlatform() override;
 
   // FocusControllerDelegate:
