@@ -52,6 +52,7 @@ class PlatformDisplayDefault : public PlatformDisplay,
   void UpdateViewportMetrics(const display::ViewportMetrics& metrics) override;
   gfx::AcceleratedWidget GetAcceleratedWidget() const override;
   FrameGenerator* GetFrameGenerator() override;
+  void SetViewportBounds(const gfx::Rect& rect) override;
 
  private:
   // ui::PlatformWindowDelegate:

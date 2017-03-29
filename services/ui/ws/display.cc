@@ -187,6 +187,21 @@ void Display::SetImeVisibility(ServerWindow* window, bool visible) {
   platform_display_->SetImeVisibility(visible);
 }
 
+void Display::SetBounds(const gfx::Rect& bounds) {
+  platform_display_->SetViewportBounds(bounds);
+
+  if (root_->bounds() == bounds)
+    return;
+
+  root_->SetBounds(bounds, allocator_.GenerateId());
+
+  // WindowManagerDisplayRoot::root_ needs to be at 0,0 position relative
+  // to its parent not to break mouse/touch events.
+  for (auto& pair : window_manager_display_root_map_)
+    pair.second->root()->SetBounds(gfx::Rect(bounds.size()),
+                                   allocator_.GenerateId());
+}
+
 void Display::OnWillDestroyTree(WindowTree* tree) {
   for (auto it = window_manager_display_root_map_.begin();
        it != window_manager_display_root_map_.end(); ++it) {
@@ -336,6 +351,22 @@ void Display::OnNativeCaptureLost() {
   WindowManagerDisplayRoot* display_root = GetActiveWindowManagerDisplayRoot();
   if (display_root)
     display_root->window_manager_state()->SetCapture(nullptr, kInvalidClientId);
+}
+
+void Display::OnBoundsChanged(const gfx::Rect& new_bounds) {
+  if (!window_server_->IsInExternalWindowMode())
+    return;
+
+  if (root_->bounds() == new_bounds)
+    return;
+
+  root_->SetBounds(new_bounds, allocator_.GenerateId());
+
+  // WindowManagerDisplayRoot::root_ needs to be at 0,0 position relative
+  // to its parent not to break mouse/touch events.
+  for (auto& pair : window_manager_display_root_map_)
+    pair.second->root()->SetBounds(
+        gfx::Rect(new_bounds.size()), allocator_.GenerateId());
 }
 
 OzonePlatform* Display::GetOzonePlatform() {

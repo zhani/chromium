@@ -54,6 +54,7 @@ class TestPlatformDisplay : public PlatformDisplay {
   void SetCursorSize(const ui::CursorSize& cursor_size) override {}
   void MoveCursorTo(const gfx::Point& window_pixel_location) override {}
   void UpdateTextInputState(const ui::TextInputState& state) override {}
+  void SetViewportBounds(const gfx::Rect& rect) override {}
   void SetImeVisibility(bool visible) override {}
   void UpdateViewportMetrics(const display::ViewportMetrics& metrics) override {
     metrics_ = metrics;
