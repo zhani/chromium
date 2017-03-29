@@ -178,7 +178,29 @@ void ServerWindow::SetBounds(
     const base::Optional<cc::LocalSurfaceId>& local_surface_id) {
   if (bounds_ == bounds && current_local_surface_id_ == local_surface_id)
     return;
+  SetBoundsInternal(bounds, local_surface_id);
+}
 
+void ServerWindow::SetBoundsFromHostWindowManager(
+    const gfx::Rect& bounds,
+    const base::Optional<cc::LocalSurfaceId>& local_surface_id) {
+  if (bounds_ == bounds && current_local_surface_id_ == local_surface_id)
+    return;
+
+  gfx::Rect old_bounds = bounds_;
+  SetBoundsInternal(bounds, local_surface_id);
+  if (bounds.origin() != old_bounds.origin()) {
+	// The root_'s origin mustn't be changed here, so that events are correctly
+	// translated after bounds change.
+	// TODO(msisov): Maybe there is a better way than actually restore the
+	// original origin?
+    bounds_.set_origin(old_bounds.origin());
+  }
+}
+
+void ServerWindow::SetBoundsInternal(
+    const gfx::Rect& bounds,
+    const base::Optional<cc::LocalSurfaceId>& local_surface_id) {
   const gfx::Rect old_bounds = bounds_;
 
   current_local_surface_id_ = local_surface_id;
