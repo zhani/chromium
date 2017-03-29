@@ -7,6 +7,7 @@
 #include <inttypes.h>
 #include <stddef.h>
 
+#include "base/auto_reset.h"
 #include "base/memory/ptr_util.h"
 #include "base/strings/stringprintf.h"
 #include "components/viz/host/host_frame_sink_manager.h"
@@ -196,10 +197,9 @@ void ServerWindow::SetBounds(
   if (bounds_ == bounds && current_local_surface_id_ == local_surface_id)
     return;
 
-  const gfx::Rect old_bounds = bounds_;
-
   current_local_surface_id_ = local_surface_id;
 
+  gfx::Rect old_bounds = bounds_;
   bounds_ = bounds;
   for (auto& observer : observers_)
     observer.OnWindowBoundsChanged(this, old_bounds, bounds);
