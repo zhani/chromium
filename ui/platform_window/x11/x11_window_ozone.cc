@@ -70,7 +70,16 @@ bool X11WindowOzone::CanDispatchEvent(const PlatformEvent& platform_event) {
   if (grabber != None)
     return grabber == xwindow();
 
-  const Event* event = static_cast<const Event*>(platform_event);
+  // TODO(kylechar): We may need to do something special for TouchEvents similar
+  // to how DrmWindowHost handles them.
+  auto* ewpe = static_cast<EventWithPlatformEvent*>(platform_event);
+  auto* xev = static_cast<XEvent*>(ewpe->platform_event);
+  DCHECK(xev);
+  if (!IsEventForXWindow(*xev))
+    return false;
+
+  Event* event = ewpe->event;
+  DCHECK(event);
   if (event->IsLocatedEvent())
     return GetBounds().Contains(event->AsLocatedEvent()->root_location());
 
@@ -80,9 +89,11 @@ bool X11WindowOzone::CanDispatchEvent(const PlatformEvent& platform_event) {
 uint32_t X11WindowOzone::DispatchEvent(const PlatformEvent& platform_event) {
   // This is unfortunately needed otherwise events that depend on global state
   // (eg. double click) are broken.
+  auto* ewpe = static_cast<EventWithPlatformEvent*>(platform_event);
+  auto* event = static_cast<ui::Event*>(ewpe->event);
   DispatchEventFromNativeUiEvent(
-      platform_event, base::Bind(&PlatformWindowDelegate::DispatchEvent,
-                                 base::Unretained(delegate())));
+      event, base::Bind(&PlatformWindowDelegate::DispatchEvent,
+                        base::Unretained(delegate())));
   return POST_DISPATCH_STOP_PROPAGATION;
 }
 
