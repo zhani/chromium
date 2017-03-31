@@ -870,6 +870,24 @@ void WindowServer::OnWindowSharedPropertyChanged(
   }
 }
 
+void WindowServer::OnWindowEmbeddedAppDisconnected(ServerWindow* window) {
+  if (!IsInExternalWindowMode() || display_manager_->displays().size() <= 1)
+    return;
+
+  WindowManagerDisplayRoot* display_root =
+      display_manager_->GetWindowManagerDisplayRoot(window);
+  if (!display_root)
+    return;
+
+  const WindowId& id = display_root->root()->id();
+  display_manager_->DestroyDisplay(display_root->display());
+
+  WindowManagerState* wm_state = display_root->window_manager_state();
+  ServerWindow* orphaned_window = wm_state->GetOrphanedRootWithId(id);
+  DCHECK(orphaned_window);
+  wm_state->DeleteWindowManagerDisplayRoot(orphaned_window);
+}
+
 void WindowServer::OnWindowTextInputStateChanged(
     ServerWindow* window,
     const ui::TextInputState& state) {
@@ -961,7 +979,24 @@ void WindowServer::OnFirstSurfaceActivation(
 
 void WindowServer::OnClientConnectionClosed(
     const viz::FrameSinkId& frame_sink_id) {
-  // TODO(kylechar): Notify observers
+  if (!IsInExternalWindowMode() || display_manager_->displays().size() <= 1)
+    return;
+  WindowId window_id(WindowIdFromTransportId(frame_sink_id.client_id()));
+  ServerWindow* window = GetWindow(window_id);
+
+  WindowManagerDisplayRoot* display_root =
+      display_manager_->GetWindowManagerDisplayRoot(window);
+  if (!display_root)
+    return;
+
+  ServerWindow* root_window = display_root->display()->root_window();
+  // In external window mode, if two or more ws::Displays exist and client
+  // closes connection, invalidate the frame sink of ws::Display's root, which
+  // would destroy process gpu buffer and gl surface and then allows us to
+  // destroy ws::Display once OnWindowEmbeddedAppDisconnected is called. If just
+  // one ws::Display exists, Service will destroy this window server, which will
+  // destroy everything else at once.
+  frame_sink_manager_->InvalidateFrameSinkId(root_window->frame_sink_id());
 }
 
 void WindowServer::OnAggregatedHitTestRegionListUpdated(
