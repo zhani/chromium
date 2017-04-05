@@ -4,6 +4,8 @@
 
 #include "services/ui/ws/default_access_policy.h"
 
+#include "base/command_line.h"
+#include "services/ui/common/switches.h"
 #include "services/ui/ws/access_policy_delegate.h"
 #include "services/ui/ws/server_window.h"
 
@@ -111,7 +113,16 @@ bool DefaultAccessPolicy::CanSetWindowCompositorFrameSink(
 }
 
 bool DefaultAccessPolicy::CanSetWindowBounds(const ServerWindow* window) const {
-  return WasCreatedByThisClient(window);
+  base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
+  // TODO(tonikitoo, msisov): our access policy model is not good enough
+  // at the moment and we rely on |delegate_->HasRootForAccessPolicy(window)|,
+  // when the browser runs, otherwise we fail to change bounds. But in case of
+  // unittests, there shouldn't be a call to |delegate_|. Fix this as soon as
+  // we have refactored the way how windows are created.
+  if (cmd_line->HasSwitch(switches::kUseTestConfig))
+    return WasCreatedByThisClient(window);
+  return WasCreatedByThisClient(window) ||
+         delegate_->HasRootForAccessPolicy(window);
 }
 
 bool DefaultAccessPolicy::CanSetWindowTransform(
