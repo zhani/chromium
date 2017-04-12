@@ -76,11 +76,15 @@ void PlatformDisplayDefault::Init(PlatformDisplayDelegate* delegate) {
   NOTREACHED() << "Unsupported platform";
 #endif
 
-  platform_window_->Show();
   if (image_cursors_) {
     image_cursors_->SetDisplay(delegate_->GetDisplay(),
                                metrics_.device_scale_factor);
   }
+  // Show() must be called only after |image_cursors_| has created a
+  // a cursor loader after display is sent to it. Otherwise, Show()
+  // triggers a delegate call to OnBoundsChanged(), which end up to
+  // changing cursor location for not existing cursor loader.
+  platform_window_->Show();
 }
 
 void PlatformDisplayDefault::SetViewportSize(const gfx::Size& size) {
@@ -163,7 +167,7 @@ void PlatformDisplayDefault::UpdateEventRootLocation(ui::LocatedEvent* event) {
 
 void PlatformDisplayDefault::OnBoundsChanged(const gfx::Rect& new_bounds) {
   // We only care if the window size has changed.
-  if (new_bounds.size() == metrics_.bounds_in_pixels.size())
+  if (new_bounds == metrics_.bounds_in_pixels)
     return;
 
   metrics_.bounds_in_pixels = new_bounds;
