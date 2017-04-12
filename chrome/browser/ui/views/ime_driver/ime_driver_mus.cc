@@ -54,7 +54,8 @@ void IMEDriver::StartSession(int32_t session_id,
 #else
   input_method_bindings_[session_id] =
       base::MakeUnique<mojo::Binding<ui::mojom::InputMethod>>(
-          new SimpleInputMethod());
+          new SimpleInputMethod(std::move(details->client)),
+          std::move(details->input_method_request));
 #endif
 }
 
