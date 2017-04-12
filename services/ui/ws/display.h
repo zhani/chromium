@@ -216,7 +216,7 @@ class Display : public PlatformDisplayDelegate,
   // EventSink:
   EventDispatchDetails OnEventFromSource(Event* event) override;
 
-  void OnBoundsChangedImpl(const gfx::Rect& new_bounds);
+  void OnBoundsChangedInternal(const gfx::Rect& new_bounds);
 
   std::unique_ptr<DisplayBinding> binding_;
   WindowServer* const window_server_;

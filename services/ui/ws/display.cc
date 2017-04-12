@@ -343,10 +343,10 @@ void Display::OnNativeCaptureLost() {
 }
 
 void Display::OnBoundsChanged(const gfx::Rect& new_bounds) {
-  if (root_->bounds().size() == new_bounds.size())
+  if (root_->bounds() == new_bounds)
     return;
 
-  OnBoundsChangedImpl(new_bounds);
+  OnBoundsChangedInternal(new_bounds);
 }
 
 void Display::OnCloseRequest() {
@@ -378,7 +378,7 @@ void Display::OnViewportMetricsChanged(
   if (root_->bounds().size() == metrics.bounds_in_pixels.size())
     return;
 
-  OnBoundsChangedImpl(gfx::Rect(metrics.bounds_in_pixels.size()));
+  OnBoundsChangedInternal(gfx::Rect(metrics.bounds_in_pixels.size()));
 }
 
 ServerWindow* Display::GetActiveRootWindow() {
@@ -491,10 +491,11 @@ EventDispatchDetails Display::OnEventFromSource(Event* event) {
   return EventDispatchDetails();
 }
 
-void Display::OnBoundsChangedImpl(const gfx::Rect& new_bounds) {
-  root_->SetBounds(new_bounds, allocator_.GenerateId());
+void Display::OnBoundsChangedInternal(const gfx::Rect& new_bounds) {
+  root_->SetBoundsFromHostWindowManager(new_bounds, allocator_.GenerateId());
   for (auto& pair : window_manager_display_root_map_)
-    pair.second->root()->SetBounds(new_bounds, allocator_.GenerateId());
+    pair.second->root()->SetBoundsFromHostWindowManager(
+        new_bounds, allocator_.GenerateId());
 }
 
 }  // namespace ws
