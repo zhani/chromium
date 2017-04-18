@@ -6,6 +6,7 @@
 
 #include "services/ui/ws/default_access_policy.h"
 #include "services/ui/ws/window_server.h"
+#include "services/ui/ws/window_server_delegate.h"
 #include "services/ui/ws/window_tree.h"
 #include "services/ui/ws/window_tree_host_factory.h"
 
@@ -50,6 +51,11 @@ void WindowTreeHostFactoryRegistrar::Register(
   window_server_->AddTree(std::move(tree), std::move(tree_binding),
                           nullptr /*mojom::WindowTreePtr*/);
   window_server_->set_window_tree_host_factory(std::move(host_factory));
+
+  // TODO(tonikitoo,msisov): Maybe remove the "window manager" suffix
+  // if the method name?
+  window_server_->delegate()->OnWillCreateTreeForWindowManager(
+      true /*automatically_create_display_roots*/);
 }
 
 }  // namespace ws
