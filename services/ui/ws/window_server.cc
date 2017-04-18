@@ -546,6 +546,11 @@ cc::mojom::FrameSinkManager* WindowServer::GetFrameSinkManager() {
 bool WindowServer::GetFrameDecorationsForUser(
     const UserId& user_id,
     mojom::FrameDecorationValuesPtr* values) {
+  if (IsInExternalWindowMode()) {
+    *values = mojom::FrameDecorationValues::New().Clone();
+    return true;
+  }
+
   WindowManagerState* window_manager_state =
       window_manager_window_tree_factory_set_.GetWindowManagerStateForUser(
           user_id);
