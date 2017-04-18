@@ -74,6 +74,19 @@ class OzonePlatformWayland : public OzonePlatform {
     return base::MakeUnique<display::FakeDisplayDelegate>();
   }
 
+  void QueryHostDisplaysData(QueryHostDisplaysDataCallback callback) override {
+    // On Wayland, the screen dimensions come from WaylandOutput.
+    DCHECK(connection_->PrimaryOutput());
+    if (connection_->PrimaryOutput()) {
+      DCHECK(!callback.is_null());
+      gfx::Rect geometry = connection_->PrimaryOutput()->Geometry();
+      callback.Run(std::vector<gfx::Size>(1, geometry.size()));
+      return;
+    }
+
+    CHECK(false) << "Add support for asynchronous resolution fetch.";
+  }
+
   void InitializeUI(const InitParams& args) override {
     connection_.reset(new WaylandConnection);
     if (!connection_->Initialize())
