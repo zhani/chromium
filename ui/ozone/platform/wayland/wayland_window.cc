@@ -44,13 +44,23 @@ bool WaylandWindow::Initialize() {
     return false;
   }
   wl_surface_set_user_data(surface_.get(), this);
-  xdg_surface_.reset(
-      xdg_shell_get_xdg_surface(connection_->shell(), surface_.get()));
-  if (!xdg_surface_) {
-    LOG(ERROR) << "Failed to create xdg_surface";
+
+  // There is now default initialization for this type. Initialize it
+  // to ::WINDOW here. It will be changed by delelgate if it know the
+  // type of the window.
+  ui::mojom::WindowType window_type = ui::mojom::WindowType::WINDOW;
+  delegate_->GetWindowType(&window_type);
+  if (window_type == ui::mojom::WindowType::WINDOW) {
+    xdg_surface_.reset(
+        xdg_shell_get_xdg_surface(connection_->shell(), surface_.get()));
+    if (!xdg_surface_) {
+      LOG(ERROR) << "Failed to create xdg_surface";
+      return false;
+    }
+    xdg_surface_add_listener(xdg_surface_.get(), &xdg_surface_listener, this);
+  } else {
     return false;
   }
-  xdg_surface_add_listener(xdg_surface_.get(), &xdg_surface_listener, this);
   connection_->ScheduleFlush();
 
   connection_->AddWindow(surface_.id(), this);
