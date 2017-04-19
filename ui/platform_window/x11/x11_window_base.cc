@@ -13,6 +13,7 @@
 
 #include "base/strings/utf_string_conversions.h"
 #include "ui/base/platform_window_defaults.h"
+#include "ui/base/x/x11_util.h"
 #include "ui/base/x/x11_window_event_manager.h"
 #include "ui/events/event.h"
 #include "ui/events/event_utils.h"
@@ -72,6 +73,25 @@ void X11WindowBase::Create() {
   swa.background_pixmap = None;
   swa.bit_gravity = NorthWestGravity;
   swa.override_redirect = UseTestConfigForPlatformWindows();
+
+  ::Atom window_type;
+  // There is now default initialization for this type. Initialize it
+  // to ::WINDOW here. It will be changed by delelgate if it know the
+  // type of the window.
+  ui::PlatformWindowType ui_window_type =
+      ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_WINDOW;
+  delegate_->GetWindowType(&ui_window_type);
+  if (ui_window_type != ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_WINDOW) {
+    // Setting this to True, doesn't allow X server to set different
+    // properties, e.g. decorations.
+    // TODO(msisov): Investigate further.
+    // https://tronche.com/gui/x/xlib/window/attributes/override-redirect.html
+    swa.override_redirect = True;
+    window_type = gfx::GetAtom("_NET_WM_WINDOW_TYPE_MENU");
+  } else {
+    window_type = gfx::GetAtom("_NET_WM_WINDOW_TYPE_NORMAL");
+  }
+
   xwindow_ =
       XCreateWindow(xdisplay_, xroot_window_, bounds_.x(), bounds_.y(),
                     bounds_.width(), bounds_.height(),
@@ -80,6 +100,10 @@ void X11WindowBase::Create() {
                     InputOutput,
                     CopyFromParent,  // visual
                     CWBackPixmap | CWBitGravity | CWOverrideRedirect, &swa);
+
+  XChangeProperty(xdisplay_, xwindow_, gfx::GetAtom("_NET_WM_WINDOW_TYPE"),
+                  XA_ATOM, 32, PropModeReplace,
+                  reinterpret_cast<unsigned char*>(&window_type), 1);
 
   // Setup XInput event mask.
   long event_mask = ButtonPressMask | ButtonReleaseMask | FocusChangeMask |
@@ -138,6 +162,13 @@ void X11WindowBase::Create() {
   // frame width when running with window manager.
   size_hints.win_gravity = StaticGravity;
   XSetWMNormalHints(xdisplay_, xwindow_, &size_hints);
+
+// Disable native frame by default in non-ChromeOS builds for now.
+// TODO(msisov, tonikitoo): check if native frame should be used by checking
+// Widget::InitParams::remove_standard_frame.
+#if !defined(OS_CHROMEOS)
+  ui::SetUseOSWindowFrame(xwindow_, false);
+#endif
 
   // TODO(sky): provide real scale factor.
   delegate_->OnAcceleratedWidgetAvailable(xwindow_, 1.f);
