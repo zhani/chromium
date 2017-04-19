@@ -117,6 +117,12 @@ void PlatformDisplayDefault::SetWindowVisibility(bool visible) {
     platform_window_->Hide();
 }
 
+void PlatformDisplayDefault::GetWindowType(
+    ui::mojom::WindowType* result) {
+  DCHECK(result);
+  *result = metrics_.window_type;
+}
+
 void PlatformDisplayDefault::SetCursor(const ui::CursorData& cursor_data) {
   if (!image_cursors_)
     return;
