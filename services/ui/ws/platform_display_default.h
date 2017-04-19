@@ -56,6 +56,7 @@ class PlatformDisplayDefault : public PlatformDisplay,
                        float scale) override;
   void SetViewportBounds(const gfx::Rect& rect) override;
   void SetWindowVisibility(bool visible) override;
+  void GetWindowType(ui::mojom::WindowType* result) override;
 
  private:
   // ui::PlatformWindowDelegate:
