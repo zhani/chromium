@@ -7,6 +7,7 @@
 #include <xdg-shell-unstable-v5-client-protocol.h>
 
 #include "base/bind.h"
+#include "base/memory/ptr_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "ui/events/event.h"
 #include "ui/events/ozone/events_ozone.h"
@@ -44,13 +45,24 @@ bool WaylandWindow::Initialize() {
     return false;
   }
   wl_surface_set_user_data(surface_.get(), this);
-  xdg_surface_.reset(
-      xdg_shell_get_xdg_surface(connection_->shell(), surface_.get()));
-  if (!xdg_surface_) {
-    LOG(ERROR) << "Failed to create xdg_surface";
+
+  // There is now default initialization for this type. Initialize it
+  // to ::WINDOW here. It will be changed by delelgate if it know the
+  // type of the window.
+  ui::PlatformWindowType ui_window_type =
+      ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_WINDOW;
+  delegate_->GetWindowType(&ui_window_type);
+  if (ui_window_type == ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_WINDOW) {
+    xdg_surface_.reset(
+        xdg_shell_get_xdg_surface(connection_->shell(), surface_.get()));
+    if (!xdg_surface_) {
+      LOG(ERROR) << "Failed to create xdg_surface";
+      return false;
+    }
+    xdg_surface_add_listener(xdg_surface_.get(), &xdg_surface_listener, this);
+  } else {
     return false;
   }
-  xdg_surface_add_listener(xdg_surface_.get(), &xdg_surface_listener, this);
   connection_->ScheduleFlush();
 
   connection_->AddWindow(surface_.id(), this);
