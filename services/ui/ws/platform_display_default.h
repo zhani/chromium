@@ -51,6 +51,7 @@ class PlatformDisplayDefault : public PlatformDisplay,
   gfx::AcceleratedWidget GetAcceleratedWidget() const override;
   FrameGenerator* GetFrameGenerator() override;
   void SetWindowVisibility(bool visible) override;
+  void GetWindowType(ui::mojom::WindowType* result) override;
 
  private:
   // Update the root_location of located events to be relative to the origin

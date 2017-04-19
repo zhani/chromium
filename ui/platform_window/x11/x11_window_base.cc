@@ -27,9 +27,15 @@ namespace ui {
 
 namespace {
 
-const char* kAtomsToCache[] = {"UTF8_STRING",  "WM_DELETE_WINDOW",
-                               "_NET_WM_NAME", "_NET_WM_PID",
-                               "_NET_WM_PING", NULL};
+const char* kAtomsToCache[] = {"UTF8_STRING",
+                               "WM_DELETE_WINDOW",
+                               "_NET_WM_NAME",
+                               "_NET_WM_PID",
+                               "_NET_WM_PING",
+                               "_NET_WM_WINDOW_TYPE_MENU",
+                               "_NET_WM_WINDOW_TYPE_NORMAL",
+                               "_NET_WM_WINDOW_TYPE",
+                               NULL};
 
 XID FindXEventTarget(const XEvent& xev) {
   XID target = xev.xany.window;
@@ -78,6 +84,21 @@ void X11WindowBase::Create() {
   swa.background_pixmap = None;
   swa.bit_gravity = NorthWestGravity;
   swa.override_redirect = UseTestConfigForPlatformWindows();
+
+  ::Atom window_type;
+  ui::mojom::WindowType ui_window_type;
+  delegate_->GetWindowType(&ui_window_type);
+  if (ui_window_type != ui::mojom::WindowType::WINDOW) {
+    // Setting this to True, doesn't allow X server to set different
+    // properties, e.g. decorations.
+    // TODO(msisov): Investigate further.
+    // https://tronche.com/gui/x/xlib/window/attributes/override-redirect.html
+    swa.override_redirect = True;
+    window_type = atom_cache_.GetAtom("_NET_WM_WINDOW_TYPE_MENU");
+  } else {
+    window_type = atom_cache_.GetAtom("_NET_WM_WINDOW_TYPE_NORMAL");
+  }
+
   xwindow_ =
       XCreateWindow(xdisplay_, xroot_window_, bounds_.x(), bounds_.y(),
                     bounds_.width(), bounds_.height(),
@@ -86,6 +107,10 @@ void X11WindowBase::Create() {
                     InputOutput,
                     CopyFromParent,  // visual
                     CWBackPixmap | CWBitGravity | CWOverrideRedirect, &swa);
+
+  XChangeProperty(
+      xdisplay_, xwindow_, atom_cache_.GetAtom("_NET_WM_WINDOW_TYPE"), XA_ATOM,
+      32, PropModeReplace, reinterpret_cast<unsigned char*>(&window_type), 1);
 
   // Setup XInput event mask.
   long event_mask = ButtonPressMask | ButtonReleaseMask | FocusChangeMask |

@@ -53,6 +53,13 @@ void WindowTreeHostFactory::CreatePlatformWindow(
     metrics.bounds_in_pixels = mojo::ConvertTo<gfx::Rect>(iter->second);
   } else
     metrics.bounds_in_pixels = gfx::Rect(1024, 768);
+
+  iter = properties.find(ui::mojom::WindowManager::kWindowType_InitProperty);
+  if (iter != properties.end()) {
+    metrics.window_type = static_cast<ui::mojom::WindowType>(
+        mojo::ConvertTo<int32_t>(iter->second));
+  }
+
   ws_display->Init(metrics, std::move(display_binding));
 }
 
