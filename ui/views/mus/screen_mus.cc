@@ -59,10 +59,7 @@ void ScreenMus::Init(service_manager::Connector* connector) {
   //
   // TODO(rockot): Do something better here. This should not have to block tasks
   // from running on the calling thread. http://crbug.com/594852.
-  bool success = false;
-#if !defined(USE_OZONE) || defined(OS_CHROMEOS)
-  success = display_manager_observer_binding_.WaitForIncomingMethodCall();
-#endif
+  bool success = display_manager_observer_binding_.WaitForIncomingMethodCall();
 
   // The WaitForIncomingMethodCall() should have supplied the set of Displays,
   // unless mus is going down, in which case encountered_error() is true, or the
