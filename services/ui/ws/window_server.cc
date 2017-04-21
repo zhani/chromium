@@ -751,9 +751,16 @@ void WindowServer::OnWindowVisibilityChanged(ServerWindow* window) {
 
   WindowManagerDisplayRoot* display_root =
       display_manager_->GetWindowManagerDisplayRoot(window);
-  if (display_root)
+  if (display_root) {
     display_root->window_manager_state()->ReleaseCaptureBlockedByModalWindow(
         window);
+
+    if (IsInExternalWindowMode()) {
+      PlatformDisplay* display = display_root->display()->platform_display();
+      DCHECK(display);
+      display->SetWindowVisibility(window->visible());
+    }
+  }
 }
 
 void WindowServer::OnWindowPredefinedCursorChanged(
