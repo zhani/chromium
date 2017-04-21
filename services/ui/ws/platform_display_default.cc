@@ -105,6 +105,13 @@ void PlatformDisplayDefault::ReleaseCapture() {
   platform_window_->ReleaseCapture();
 }
 
+void PlatformDisplayDefault::SetWindowVisibility(bool visible) {
+  if (visible)
+    platform_window_->Show();
+  else
+    platform_window_->Hide();
+}
+
 void PlatformDisplayDefault::SetCursor(const ui::CursorData& cursor_data) {
   if (!image_cursors_)
     return;

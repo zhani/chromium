@@ -138,4 +138,6 @@ void WindowPortLocal::OnSurfaceChanged(const cc::SurfaceId& surface_id,
           ->reference_factory());
 }
 
+void WindowPortLocal::OnWillHideNativeWindow() {}
+
 }  // namespace aura

@@ -505,6 +505,10 @@ cc::SurfaceId WindowPortMus::GetSurfaceId() const {
   return cc::SurfaceId();
 }
 
+void WindowPortMus::OnWillHideNativeWindow() {
+  window_tree_client_->OnWindowMusHideNativeWindow(this);
+}
+
 void WindowPortMus::UpdatePrimarySurfaceInfo() {
   bool embeds_surface = window_mus_type() == WindowMusType::TOP_LEVEL_IN_WM ||
                         window_mus_type() == WindowMusType::EMBED_IN_OWNER;
