@@ -39,6 +39,7 @@ class GpuHost;
 class ServerWindow;
 class ThreadedImageCursorsFactory;
 class UserActivityMonitor;
+class WindowManagerDisplayRoot;
 class WindowManagerState;
 class WindowServerDelegate;
 class WindowTree;
@@ -316,6 +317,10 @@ class WindowServer : public ServerWindowDelegate,
                                              ServerWindow* window);
 
   void CreateFrameSinkManager();
+
+  // Hides or shows native window.
+  void SetNativeWindowVisibility(WindowManagerDisplayRoot* display_root,
+                                 bool visible);
 
   // Overridden from ServerWindowDelegate:
   ServerWindow* GetRootWindowForDrawn(const ServerWindow* window) override;
