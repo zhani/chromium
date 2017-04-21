@@ -400,7 +400,17 @@ void EventDispatcher::ProcessPointerEvent(const ui::PointerEvent& event) {
           gfx::Point event_location = event.root_location();
           capture_window = delegate_->GetRootWindowContaining(&event_location);
         }
+// This breaks capturing when we request a window for menus.
+// The problem here is that when one clicks on 3-dot menu, for example,
+// capture is first set here and then the event is sent upwards.
+// Once the event is delivered to the menu, menu triggers creating of a
+// native window and tries to set capturing, but it doesn't succeed with
+// it as long as capture is already set by the main window. This breaks
+// part functionality of menu windows.
+// TODO(msisov, tonikitoo): figure this out.
+#if defined(OS_CHROMEOS) || !defined(USE_OZONE)
         delegate_->SetNativeCapture(capture_window);
+#endif
       }
     }
   }
