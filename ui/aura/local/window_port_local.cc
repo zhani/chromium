@@ -139,4 +139,6 @@ void WindowPortLocal::OnSurfaceChanged(const cc::SurfaceId& surface_id,
   window_->layer()->SetFallbackSurface(surface_info);
 }
 
+void WindowPortLocal::OnWillHideNativeWindow() {}
+
 }  // namespace aura

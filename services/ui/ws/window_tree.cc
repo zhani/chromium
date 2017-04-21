@@ -1727,6 +1727,11 @@ void WindowTree::SetWindowProperty(
   client()->OnChangeCompleted(change_id, success);
 }
 
+void WindowTree::SetNativeWindowHidden(Id window_id) {
+  ServerWindow* window = GetWindowByClientId(ClientWindowId(window_id));
+  window->SetNativeWindowHidden();
+}
+
 void WindowTree::SetWindowOpacity(uint32_t change_id,
                                   Id window_id,
                                   float opacity) {

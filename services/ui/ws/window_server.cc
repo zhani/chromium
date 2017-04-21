@@ -689,6 +689,16 @@ void WindowServer::HandleTemporaryReferenceForNewSurface(
   }
 }
 
+void WindowServer::SetNativeWindowVisibility(
+    WindowManagerDisplayRoot* display_root,
+    bool visible) {
+  if (!IsInExternalWindowMode())
+    return;
+  PlatformDisplay* display = display_root->display()->platform_display();
+  DCHECK(display);
+  display->SetWindowVisibility(visible);
+}
+
 ServerWindow* WindowServer::GetRootWindow(const ServerWindow* window) {
   Display* display = display_manager_->GetDisplayContaining(window);
   return display ? display->root_window() : nullptr;
@@ -802,9 +812,27 @@ void WindowServer::OnWindowVisibilityChanged(ServerWindow* window) {
 
   WindowManagerDisplayRoot* display_root =
       display_manager_->GetWindowManagerDisplayRoot(window);
-  if (display_root)
+  if (display_root) {
     display_root->window_manager_state()->ReleaseCaptureBlockedByModalWindow(
         window);
+    bool visible = window->visible();
+    if (visible)
+      SetNativeWindowVisibility(display_root, visible);
+  }
+}
+
+void WindowServer::OnSetNativeWindowHidden(ServerWindow* window) {
+  if (in_destructor_)
+    return;
+
+  WindowManagerDisplayRoot* display_root =
+      display_manager_->GetWindowManagerDisplayRoot(window);
+  if (!display_root)
+    return;
+
+  bool visible = window->visible();
+  DCHECK(!visible);
+  SetNativeWindowVisibility(display_root, visible);
 }
 
 void WindowServer::OnWindowCursorChanged(ServerWindow* window,
