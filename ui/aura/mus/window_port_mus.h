@@ -276,6 +276,7 @@ class AURA_EXPORT WindowPortMus : public WindowPort, public WindowMus {
   viz::SurfaceId GetSurfaceId() const override;
   void OnWindowAddedToRootWindow() override;
   void OnWillRemoveWindowFromRootWindow() override;
+  void OnWillHideNativeWindow() override;
   void OnEventTargetingPolicyChanged() override;
 
   void UpdatePrimarySurfaceInfo();
