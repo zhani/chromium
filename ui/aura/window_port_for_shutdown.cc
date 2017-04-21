@@ -47,6 +47,8 @@ std::unique_ptr<ui::PropertyData> WindowPortForShutdown::OnWillChangeProperty(
   return nullptr;
 }
 
+void WindowPortForShutdown::OnWillHideNativeWindow() {}
+
 void WindowPortForShutdown::OnPropertyChanged(
     const void* key,
     int64_t old_value,

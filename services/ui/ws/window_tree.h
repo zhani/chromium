@@ -509,6 +509,7 @@ class WindowTree : public mojom::WindowTree,
       Id transport_window_id,
       const std::string& name,
       const base::Optional<std::vector<uint8_t>>& value) override;
+  void SetNativeWindowHidden(Id window_id) override;
   void SetWindowOpacity(uint32_t change_id,
                         Id window_id,
                         float opacity) override;

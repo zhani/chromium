@@ -187,4 +187,6 @@ bool WindowPortLocal::ShouldRestackTransientChildren() {
   return true;
 }
 
+void WindowPortLocal::OnWillHideNativeWindow() {}
+
 }  // namespace aura

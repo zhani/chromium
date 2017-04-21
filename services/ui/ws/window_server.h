@@ -40,6 +40,7 @@ class GpuHost;
 class ServerWindow;
 class ThreadedImageCursorsFactory;
 class UserActivityMonitor;
+class WindowManagerDisplayRoot;
 class WindowManagerState;
 class WindowServerDelegate;
 class WindowTree;
@@ -319,6 +320,10 @@ class WindowServer : public ServerWindowDelegate,
 
   void CreateFrameSinkManager();
 
+  // Hides or shows native window.
+  void SetNativeWindowVisibility(WindowManagerDisplayRoot* display_root,
+                                 bool visible);
+
   // Overridden from ServerWindowDelegate:
   ServerWindow* GetRootWindowForDrawn(const ServerWindow* window) override;
 
@@ -345,6 +350,7 @@ class WindowServer : public ServerWindowDelegate,
                          mojom::OrderDirection direction) override;
   void OnWillChangeWindowVisibility(ServerWindow* window) override;
   void OnWindowVisibilityChanged(ServerWindow* window) override;
+  void OnSetNativeWindowHidden(ServerWindow* window) override;
   void OnWindowOpacityChanged(ServerWindow* window,
                               float old_opacity,
                               float new_opacity) override;

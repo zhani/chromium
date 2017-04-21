@@ -334,6 +334,13 @@ void ServerWindow::SetVisible(bool value) {
     observer.OnWindowVisibilityChanged(this);
 }
 
+void ServerWindow::SetNativeWindowHidden() {
+  if (visible_)
+    return;
+  for (auto& observer : observers_)
+    observer.OnSetNativeWindowHidden(this);
+}
+
 void ServerWindow::SetOpacity(float value) {
   if (value == opacity_)
     return;
