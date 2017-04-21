@@ -35,6 +35,7 @@ class WindowPortForShutdown : public WindowPort {
                             const gfx::Transform& new_transform) override;
   std::unique_ptr<ui::PropertyData> OnWillChangeProperty(
       const void* key) override;
+  void OnWillHideNativeWindow() override;
   void OnPropertyChanged(const void* key,
                          int64_t old_value,
                          std::unique_ptr<ui::PropertyData> data) override;

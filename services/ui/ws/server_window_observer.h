@@ -66,6 +66,7 @@ class ServerWindowObserver {
 
   virtual void OnWillChangeWindowVisibility(ServerWindow* window) {}
   virtual void OnWindowVisibilityChanged(ServerWindow* window) {}
+  virtual void OnSetNativeWindowHidden(ServerWindow* window) {}
   virtual void OnWindowOpacityChanged(ServerWindow* window,
                                       float old_opacity,
                                       float new_opacity) {}
