@@ -52,6 +52,8 @@ class AURA_EXPORT WindowPortLocal : public WindowPort {
   void OnWillRemoveWindowFromRootWindow() override;
   void OnEventTargetingPolicyChanged() override;
 
+  void OnWillHideNativeWindow() override;
+
  private:
   void OnSurfaceChanged(const viz::SurfaceInfo& surface_info);
 

@@ -574,6 +574,10 @@ void WindowPortMus::OnWindowAddedToRootWindow() {}
 
 void WindowPortMus::OnWillRemoveWindowFromRootWindow() {}
 
+void WindowPortMus::OnWillHideNativeWindow() {
+  window_tree_client_->OnWindowMusHideNativeWindow(this);
+}
+
 void WindowPortMus::OnEventTargetingPolicyChanged() {
   SetEventTargetingPolicy(window_->event_targeting_policy());
 }
