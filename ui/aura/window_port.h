@@ -70,6 +70,8 @@ class AURA_EXPORT WindowPort {
                                  int64_t old_value,
                                  std::unique_ptr<ui::PropertyData> data) = 0;
 
+  virtual void OnWillHideNativeWindow() = 0;
+
  protected:
   // Returns the WindowPort associated with a Window.
   static WindowPort* Get(Window* window);

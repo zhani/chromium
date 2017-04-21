@@ -89,4 +89,6 @@ void WindowPortLocal::OnPropertyChanged(
     int64_t old_value,
     std::unique_ptr<ui::PropertyData> data) {}
 
+void WindowPortLocal::OnWillHideNativeWindow() {}
+
 }  // namespace aura
