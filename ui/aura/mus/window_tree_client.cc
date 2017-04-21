@@ -970,6 +970,11 @@ void WindowTreeClient::OnWindowMusPropertyChanged(
                            transport_value_mojo);
 }
 
+void WindowTreeClient::OnWindowMusHideNativeWindow(WindowMus* window) {
+  DCHECK(tree_);
+  tree_->SetNativeWindowHidden(window->server_id());
+}
+
 void WindowTreeClient::OnWmMoveLoopCompleted(uint32_t change_id,
                                              bool completed) {
   if (window_manager_client_)
