@@ -1019,6 +1019,11 @@ void WindowTreeClient::OnWindowMusPropertyChanged(
                            transport_value_mojo);
 }
 
+void WindowTreeClient::OnWindowMusHideNativeWindow(WindowMus* window) {
+  DCHECK(tree_);
+  tree_->SetNativeWindowHidden(window->server_id());
+}
+
 void WindowTreeClient::OnWindowMusDeviceScaleFactorChanged(
     WindowMus* window,
     float old_scale_factor,
