@@ -147,6 +147,9 @@ class ServerWindow {
   bool visible() const { return visible_; }
   void SetVisible(bool value);
 
+  // Tells WindowServer to hide native window.
+  void SetNativeWindowHidden();
+
   float opacity() const { return opacity_; }
   void SetOpacity(float value);
 
