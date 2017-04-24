@@ -219,6 +219,13 @@ void Service::OnStart() {
     input_device_server_.AddInterface(&registry_);
 
 #if defined(USE_OZONE)
+// TODO(msisov, tonikitoo): figure out how screen_manager_ should be initialized
+// after https://codereview.chromium.org/2829733002
+#if defined(OS_LINUX) && !defined(OS_CHROMEOS)
+  screen_manager_ = display::ScreenManager::Create();
+  screen_manager_->AddInterfaces(&registry_);
+#endif
+
   ui::OzonePlatform::GetInstance()->AddInterfaces(&registry_);
 #endif
 }
@@ -305,8 +312,8 @@ void Service::Create(const service_manager::Identity& remote_identity,
 
 void Service::Create(const service_manager::Identity& remote_identity,
                      mojom::DisplayManagerRequest request) {
-  // DisplayManagerObservers generally expect there to be at least one display,
-  // except on LinuxOS+Ozone (external window mode).
+// DisplayManagerObservers generally expect there to be at least one display,
+// except on LinuxOS+Ozone (external window mode).
 #if !defined(USE_OZONE) || !defined(OS_LINUX)
   if (!window_server_->display_manager()->has_displays()) {
     std::unique_ptr<PendingRequest> pending_request(new PendingRequest);

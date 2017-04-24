@@ -20,9 +20,9 @@ std::unique_ptr<ScreenManager> ScreenManager::Create() {
 }
 
 ScreenManagerOzoneExternal::ScreenManagerOzoneExternal()
-    : screen_owned_(base::MakeUnique<ScreenBase>())
-    , screen_(screen_owned_.get())
-    , weak_ptr_factory_(this) {
+    : screen_owned_(base::MakeUnique<ScreenBase>()),
+      screen_(screen_owned_.get()),
+      weak_ptr_factory_(this) {
   Screen::SetScreenInstance(screen_owned_.get());
 }
 
@@ -63,7 +63,8 @@ void ScreenManagerOzoneExternal::Init(ScreenManagerDelegate* delegate) {
 void ScreenManagerOzoneExternal::RequestCloseDisplay(int64_t display_id) {}
 
 display::ScreenBase* ScreenManagerOzoneExternal::GetScreen() {
-  return screen_.get();
+  // TODO: commit into  Allow ws to pass display::Display data to Aura/client
+  return screen_;
 }
 
 }  // namespace display
