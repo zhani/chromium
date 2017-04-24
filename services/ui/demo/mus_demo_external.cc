@@ -10,8 +10,10 @@
 #include "services/ui/demo/window_tree_data.h"
 #include "services/ui/public/interfaces/constants.mojom.h"
 #include "services/ui/public/interfaces/window_tree_host.mojom.h"
+#include "ui/aura/mus/window_port_mus.h"
 #include "ui/aura/mus/window_tree_client.h"
 #include "ui/aura/mus/window_tree_host_mus.h"
+#include "ui/aura/mus/window_tree_host_mus_init_params.h"
 #include "ui/display/display.h"
 
 namespace ui {
@@ -25,8 +27,15 @@ class WindowTreeDataExternal : public WindowTreeData {
   WindowTreeDataExternal(aura::WindowTreeClient* window_tree_client,
                          int square_size)
       : WindowTreeData(square_size) {
+    aura::WindowTreeHostMusInitParams init_params;
+    init_params.window_tree_client = window_tree_client;
+    init_params.frame_sink_id = cc::FrameSinkId();
+    std::unique_ptr<aura::WindowPortMus> mus =
+        static_cast<aura::WindowTreeHostMusDelegate*>(window_tree_client)
+            ->CreateWindowPortForTopLevel(nullptr);
+    init_params.window_port = std::move(mus);
     SetWindowTreeHost(
-        base::MakeUnique<aura::WindowTreeHostMus>(window_tree_client));
+        base::MakeUnique<aura::WindowTreeHostMus>(std::move(init_params)));
   }
 
   DISALLOW_COPY_AND_ASSIGN(WindowTreeDataExternal);
