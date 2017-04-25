@@ -33,6 +33,7 @@ class AURA_EXPORT WindowPortLocal : public WindowPort {
   void OnPropertyChanged(const void* key,
                          int64_t old_value,
                          std::unique_ptr<ui::PropertyData> data) override;
+  void OnWillHideNativeWindow() override;
 
  private:
   Window* window_;

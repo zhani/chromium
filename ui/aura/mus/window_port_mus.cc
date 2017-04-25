@@ -521,6 +521,10 @@ void WindowPortMus::OnPropertyChanged(const void* key,
                                                     std::move(data));
 }
 
+void WindowPortMus::OnWillHideNativeWindow() {
+  window_tree_client_->OnWindowMusHideNativeWindow(this);
+}
+
 void WindowPortMus::UpdatePrimarySurfaceInfo() {
   bool embeds_surface = window_mus_type() == WindowMusType::TOP_LEVEL_IN_WM ||
                         window_mus_type() == WindowMusType::EMBED_IN_OWNER;

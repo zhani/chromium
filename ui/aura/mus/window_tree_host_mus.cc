@@ -167,6 +167,10 @@ display::Display WindowTreeHostMus::GetDisplay() const {
 void WindowTreeHostMus::HideImpl() {
   WindowTreeHostPlatform::HideImpl();
   window()->Hide();
+
+  WindowPortMus* window_port = WindowPortMus::Get(window());
+  if (window_port)
+    window_port->OnWillHideNativeWindow();
 }
 
 void WindowTreeHostMus::SetBoundsInPixels(const gfx::Rect& bounds) {

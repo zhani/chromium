@@ -262,6 +262,7 @@ class AURA_EXPORT WindowPortMus : public WindowPort, public WindowMus {
   void OnPropertyChanged(const void* key,
                          int64_t old_value,
                          std::unique_ptr<ui::PropertyData> data) override;
+  void OnWillHideNativeWindow() override;
 
   void UpdatePrimarySurfaceInfo();
   void UpdateClientSurfaceEmbedder();
