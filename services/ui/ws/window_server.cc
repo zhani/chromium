@@ -546,7 +546,7 @@ cc::mojom::FrameSinkManager* WindowServer::GetFrameSinkManager() {
 bool WindowServer::GetFrameDecorationsForUser(
     const UserId& user_id,
     mojom::FrameDecorationValuesPtr* values) {
-  if (IsInExternalWindowMode()) {
+  if (IsInExternalWindowMode() && values) {
     *values = mojom::FrameDecorationValues::New();
     // '33' was picked up by trial/error and because this is the value
     // used in ChromeOS/mash builds. The value is used to calculate chrome's
