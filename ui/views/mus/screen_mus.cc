@@ -64,7 +64,7 @@ void ScreenMus::Init(service_manager::Connector* connector) {
   // The WaitForIncomingMethodCall() should have supplied the set of Displays,
   // unless mus is going down, in which case encountered_error() is true, or the
   // call to WaitForIncomingMethodCall() failed.
-  if (!success || display_list().displays().empty()) {
+  if (display_list().displays().empty()) {
     DCHECK(display_manager_.encountered_error() || !success);
     // In this case we install a default display and assume the process is
     // going to exit shortly so that the real value doesn't matter.
