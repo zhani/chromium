@@ -251,8 +251,6 @@ void Display::InitDisplayRoot() {
 
   window_tree->AddRoot(server_window);
   window_tree->DoOnEmbed(nullptr /*mojom::WindowTreePtr*/, server_window);
-
-  display_manager()->OnDisplayUpdate(display_);
 }
 
 void Display::InitWindowManagerDisplayRoots() {
