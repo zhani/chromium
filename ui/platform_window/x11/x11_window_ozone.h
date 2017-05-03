@@ -35,6 +35,19 @@ class X11_WINDOW_EXPORT X11WindowOzone : public X11WindowBase,
   bool DispatchXEvent(XEvent* event) override;
 
  private:
+  // Calls OnLostCapture() and xwindow().
+  friend X11WindowManagerOzone;
+
+  // Called by |window_manager_| once capture is set to another xwindow.
+  void OnLostCapture();
+
+  // Converts events' location if they are originally from background windows,
+  // but capture is set to another foreground window.
+  // TODO(msisov, tonikitoo): share this logic with DesktopWindowTreeHostX11
+  // and WaylandWindow.
+  void ConvertEventLocationToCurrentWindowLocation(const XID& target,
+                                                   ui::Event* event);
+
   // PlatformEventDispatcher:
   bool CanDispatchEvent(const PlatformEvent& event) override;
   uint32_t DispatchEvent(const PlatformEvent& event) override;
