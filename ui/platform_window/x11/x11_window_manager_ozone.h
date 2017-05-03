@@ -16,18 +16,29 @@ class X11_WINDOW_EXPORT X11WindowManagerOzone {
   X11WindowManagerOzone();
   ~X11WindowManagerOzone();
 
-  // Tries to set a given XWindow as the recipient for events. It will fail if
-  // there is already another XWindow as recipient.
-  void GrabEvents(XID xwindow);
+  // Tries to set a given X11WindowOzone as the recipient for events. It will
+  // fail if there is already another X11WindowOzone as recipient.
+  void GrabEvents(X11WindowOzone* window);
 
-  // Unsets a given XWindow as the recipient for events.
-  void UngrabEvents(XID xwindow);
+  // Unsets a given X11WindowOzone as the recipient for events.
+  void UngrabEvents(X11WindowOzone* window);
 
-  // Gets the current XWindow recipient of mouse events.
-  XID event_grabber() const { return event_grabber_; }
+  // Gets the current X11WindowOzone recipient of mouse events.
+  X11WindowOzone* event_grabber() const { return event_grabber_; }
+
+  // Stores raw pointers to X11WindowOzone.
+  void AddX11Window(X11WindowOzone* window);
+
+  // Removes raw pointers to X11WindowOzone.
+  void DeleteX11Window(X11WindowOzone* window);
+
+  // Returns pointer to X11WindowOzone found by XID.
+  X11WindowOzone* GetX11WindowByTarget(const XID& xwindow);
 
  private:
-  XID event_grabber_;
+  X11WindowOzone* event_grabber_;
+
+  std::vector<X11WindowOzone*> x11_windows_;
 
   DISALLOW_COPY_AND_ASSIGN(X11WindowManagerOzone);
 };
