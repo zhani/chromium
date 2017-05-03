@@ -219,13 +219,6 @@ void Service::OnStart() {
     input_device_server_.AddInterface(&registry_);
 
 #if defined(USE_OZONE)
-// TODO(msisov, tonikitoo): figure out how screen_manager_ should be initialized
-// after https://codereview.chromium.org/2829733002
-#if defined(OS_LINUX) && !defined(OS_CHROMEOS)
-  screen_manager_ = display::ScreenManager::Create();
-  screen_manager_->AddInterfaces(&registry_);
-#endif
-
   ui::OzonePlatform::GetInstance()->AddInterfaces(&registry_);
 #endif
 }
