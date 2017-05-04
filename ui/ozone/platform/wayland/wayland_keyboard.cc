@@ -14,6 +14,7 @@
 #include "ui/events/keycodes/dom/keycode_converter.h"
 #include "ui/events/ozone/layout/keyboard_layout_engine.h"
 #include "ui/events/ozone/layout/keyboard_layout_engine_manager.h"
+#include "ui/ozone/platform/wayland/wayland_connection.h"
 #include "ui/ozone/platform/wayland/wayland_window.h"
 
 #if BUILDFLAG(USE_XKBCOMMON)
@@ -70,14 +71,16 @@ void WaylandKeyboard::Enter(void* data,
                             uint32_t serial,
                             wl_surface* surface,
                             wl_array* keys) {
-  WaylandWindow::FromSurface(surface)->set_keyboard_focus(true);
+  if (surface)
+    WaylandWindow::FromSurface(surface)->set_keyboard_focus(true);
 }
 
 void WaylandKeyboard::Leave(void* data,
                             wl_keyboard* obj,
                             uint32_t serial,
                             wl_surface* surface) {
-  WaylandWindow::FromSurface(surface)->set_keyboard_focus(false);
+  if (surface)
+    WaylandWindow::FromSurface(surface)->set_keyboard_focus(false);
 }
 
 void WaylandKeyboard::Key(void* data,
@@ -87,6 +90,7 @@ void WaylandKeyboard::Key(void* data,
                           uint32_t key,
                           uint32_t state) {
   WaylandKeyboard* keyboard = static_cast<WaylandKeyboard*>(data);
+  keyboard->SetSerial(serial);
 
   DomCode dom_code =
       KeycodeConverter::NativeKeycodeToDomCode(key + kXkbKeycodeOffset);
@@ -118,10 +122,10 @@ void WaylandKeyboard::Modifiers(void* data,
                                 uint32_t mods_locked,
                                 uint32_t group) {
 #if BUILDFLAG(USE_XKBCOMMON)
-  WaylandKeyboard* keyboard = static_cast<WaylandKeyboard*>(data);
   auto* engine = static_cast<WaylandXkbKeyboardLayoutEngine*>(
       KeyboardLayoutEngineManager::GetKeyboardLayoutEngine());
 
+  WaylandKeyboard* keyboard = static_cast<WaylandKeyboard*>(data);
   keyboard->modifiers_ =
       engine->UpdateModifiers(mods_depressed, mods_latched, mods_locked, group);
 
@@ -134,6 +138,11 @@ void WaylandKeyboard::RepeatInfo(void* data,
                                  int32_t delay) {
   // TODO(tonikitoo): Implement proper repeat handling.
   NOTIMPLEMENTED();
+}
+
+void WaylandKeyboard::SetSerial(uint32_t serial) {
+  DCHECK(connection_);
+  connection_->set_serial(serial);
 }
 
 }  // namespace ui

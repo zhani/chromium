@@ -8,6 +8,7 @@
 #include <wayland-client.h>
 
 #include "ui/events/event.h"
+#include "ui/ozone/platform/wayland/wayland_connection.h"
 #include "ui/ozone/platform/wayland/wayland_window.h"
 
 // TODO(forney): Handle version 5 of wl_pointer.
@@ -99,6 +100,9 @@ void WaylandPointer::Button(void* data,
   EventType type;
   if (state == WL_POINTER_BUTTON_STATE_PRESSED) {
     type = ET_MOUSE_PRESSED;
+    // We are especially interested in mouse press serial as long as it is one
+    // of the serials that can be used to create new subsurfaces.
+    pointer->SetSerial(serial);
     pointer->flags_ |= flag;
   } else {
     type = ET_MOUSE_RELEASED;
@@ -141,6 +145,11 @@ void WaylandPointer::Axis(void* data,
   event.set_location_f(pointer->location_);
   event.set_root_location_f(pointer->location_);
   pointer->callback_.Run(&event);
+}
+
+void WaylandPointer::SetSerial(uint32_t serial) {
+  DCHECK(connection_);
+  connection_->set_serial(serial);
 }
 
 }  // namespace ui

@@ -11,6 +11,8 @@
 #include "ui/events/event.h"
 #include "ui/events/ozone/events_ozone.h"
 #include "ui/ozone/platform/wayland/wayland_connection.h"
+#include "ui/ozone/platform/wayland/xdg_popup_wrapper_v5.h"
+#include "ui/ozone/platform/wayland/xdg_popup_wrapper_v6.h"
 #include "ui/ozone/platform/wayland/xdg_surface_wrapper_v5.h"
 #include "ui/ozone/platform/wayland/xdg_surface_wrapper_v6.h"
 #include "ui/platform_window/platform_window_delegate.h"
@@ -35,9 +37,34 @@ class XDGShellObjectFactory {
     return base::MakeUnique<XDGSurfaceWrapperV5>(wayland_window);
   }
 
+  std::unique_ptr<XDGPopupWrapper> CreateXDGPopup(
+      WaylandConnection* connection,
+      WaylandWindow* wayland_window) {
+    if (connection->shell_v6()) {
+      std::unique_ptr<XDGSurfaceWrapper> surface =
+          CreateXDGSurface(connection, wayland_window);
+      surface->Initialize(connection, wayland_window->surface(), false);
+      return base::MakeUnique<XDGPopupWrapperV6>(std::move(surface),
+                                                 wayland_window);
+    }
+    DCHECK(connection->shell());
+    return base::MakeUnique<XDGPopupWrapperV5>(wayland_window);
+  }
+
  private:
   DISALLOW_COPY_AND_ASSIGN(XDGShellObjectFactory);
 };
+
+static WaylandWindow* g_current_capture_ = nullptr;
+
+// TODO(msisov, tonikitoo): fix customization according to screen resolution
+// once we are able to get global coordinates of wayland windows.
+gfx::Rect TranslateBoundsToScreenCoordinates(const gfx::Rect& child_bounds,
+                                             const gfx::Rect& parent_bounds) {
+  int x = child_bounds.x() - parent_bounds.x();
+  int y = child_bounds.y() - parent_bounds.y();
+  return gfx::Rect(gfx::Point(x, y), child_bounds.size());
+}
 
 }  // namespace
 
@@ -50,10 +77,10 @@ WaylandWindow::WaylandWindow(PlatformWindowDelegate* delegate,
       bounds_(bounds) {}
 
 WaylandWindow::~WaylandWindow() {
-  if (xdg_surface_) {
-    PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
-    connection_->RemoveWindow(surface_.id());
-  }
+  PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
+  connection_->RemoveWindow(surface_.id());
+  if (parent_window_)
+    parent_window_->set_child_window(nullptr);
 }
 
 // static
@@ -78,11 +105,11 @@ bool WaylandWindow::Initialize() {
   ui::PlatformWindowType ui_window_type =
       ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_WINDOW;
   delegate_->GetWindowType(&ui_window_type);
-  if (ui_window_type == ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_WINDOW) {
+  if (ui_window_type == ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_WINDOW)
     CreateXdgSurface();
-  } else {
-    return false;
-  }
+  else
+    CreateXdgPopup();
+
   connection_->ScheduleFlush();
 
   connection_->AddWindow(surface_.id(), this);
@@ -92,10 +119,30 @@ bool WaylandWindow::Initialize() {
   return true;
 }
 
+void WaylandWindow::CreateXdgPopup() {
+  if (!parent_window_)
+    parent_window_ = connection_->GetCurrentFocusedWindow();
+
+  DCHECK(parent_window_);
+
+  gfx::Rect bounds =
+      TranslateBoundsToScreenCoordinates(bounds_, parent_window_->GetBounds());
+
+  xdg_popup_ = xdg_shell_objects_factory_->CreateXDGPopup(connection_, this);
+  if (!xdg_popup_.get() ||
+      !xdg_popup_->Initialize(connection_, surface(), parent_window_->surface(),
+                              bounds)) {
+    CHECK(false) << "Failed to create xdg_popup";
+  }
+
+  parent_window_->set_child_window(this);
+}
+
 void WaylandWindow::CreateXdgSurface() {
   xdg_surface_ =
       xdg_shell_objects_factory_->CreateXDGSurface(connection_, this);
-  if (!xdg_surface_ || !xdg_surface_->Initialize(connection_, surface_.get())) {
+  if (!xdg_surface_ ||
+      !xdg_surface_->Initialize(connection_, surface_.get(), true)) {
     CHECK(false) << "Failed to create xdg_surface";
   }
 }
@@ -112,10 +159,30 @@ void WaylandWindow::ApplyPendingBounds() {
   connection_->ScheduleFlush();
 }
 
-void WaylandWindow::Show() {}
+bool WaylandWindow::HasCapture() {
+  return g_current_capture_ == this;
+}
+
+void WaylandWindow::Show() {
+  if (xdg_surface_)
+    return;
+  if (!xdg_popup_) {
+    CreateXdgPopup();
+    connection_->ScheduleFlush();
+  }
+}
 
 void WaylandWindow::Hide() {
-  NOTIMPLEMENTED();
+  if (child_window_)
+    child_window_->Hide();
+  if (xdg_popup_) {
+    parent_window_->set_child_window(nullptr);
+    xdg_popup_.reset();
+    // Detach buffer from surface in order to completely shutdown popups and
+    // release resources.
+    wl_surface_attach(surface_.get(), NULL, 0, 0);
+    wl_surface_commit(surface_.get());
+  }
 }
 
 void WaylandWindow::Close() {
@@ -142,11 +209,19 @@ void WaylandWindow::SetTitle(const base::string16& title) {
 }
 
 void WaylandWindow::SetCapture() {
-  NOTIMPLEMENTED();
+  if (HasCapture())
+    return;
+
+  WaylandWindow* old_capture = g_current_capture_;
+  if (old_capture)
+    old_capture->delegate()->OnLostCapture();
+
+  g_current_capture_ = this;
 }
 
 void WaylandWindow::ReleaseCapture() {
-  NOTIMPLEMENTED();
+  if (HasCapture())
+    g_current_capture_ = nullptr;
 }
 
 void WaylandWindow::ToggleFullscreen() {
@@ -189,6 +264,13 @@ PlatformImeController* WaylandWindow::GetPlatformImeController() {
 }
 
 bool WaylandWindow::CanDispatchEvent(const PlatformEvent& native_event) {
+  if (HasCapture())
+    return true;
+
+  // If another window has capture, return early before checking focus.
+  if (g_current_capture_)
+    return false;
+
   Event* event = static_cast<Event*>(native_event);
   if (event->IsMouseEvent())
     return has_pointer_focus_;
@@ -198,10 +280,29 @@ bool WaylandWindow::CanDispatchEvent(const PlatformEvent& native_event) {
 }
 
 uint32_t WaylandWindow::DispatchEvent(const PlatformEvent& native_event) {
+  Event* event = static_cast<Event*>(native_event);
+  if (event->IsLocatedEvent() && !has_pointer_focus_)
+    ConvertEventLocationToCurrentWindowLocation(event);
+
   DispatchEventFromNativeUiEvent(
       native_event, base::Bind(&PlatformWindowDelegate::DispatchEvent,
                                base::Unretained(delegate_)));
   return POST_DISPATCH_STOP_PROPAGATION;
+}
+
+void WaylandWindow::ConvertEventLocationToCurrentWindowLocation(
+    ui::Event* event) {
+  WaylandWindow* wayland_window = connection_->GetCurrentFocusedWindow();
+  DCHECK_NE(wayland_window, this);
+  if (wayland_window && event->IsLocatedEvent()) {
+    gfx::Vector2d offset =
+        wayland_window->GetBounds().origin() - GetBounds().origin();
+    ui::LocatedEvent* located_event = event->AsLocatedEvent();
+    gfx::PointF location_in_pixel_in_host =
+        located_event->location_f() + gfx::Vector2dF(offset);
+    located_event->set_location_f(location_in_pixel_in_host);
+    located_event->set_root_location_f(location_in_pixel_in_host);
+  }
 }
 
 void WaylandWindow::HandleSurfaceConfigure(int32_t width, int32_t height) {
@@ -220,7 +321,10 @@ void WaylandWindow::HandleSurfaceConfigure(int32_t width, int32_t height) {
 }
 
 void WaylandWindow::OnCloseRequest() {
-  NOTIMPLEMENTED();
+  // Before calling OnCloseRequest, the |xdg_popup_| must become hidden and
+  // only then call OnCloseRequest().
+  DCHECK(!xdg_popup_);
+  delegate_->OnCloseRequest();
 }
 
 }  // namespace ui
