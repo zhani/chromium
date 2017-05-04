@@ -21,6 +21,7 @@ struct wl_shm_pool;
 struct wl_surface;
 struct xdg_shell;
 struct xdg_surface;
+struct xdg_popup;
 
 namespace wl {
 
@@ -103,6 +104,12 @@ template <>
 struct ObjectTraits<xdg_surface> {
   static const wl_interface* interface;
   static void (*deleter)(xdg_surface*);
+};
+
+template <>
+struct ObjectTraits<xdg_popup> {
+  static const wl_interface* interface;
+  static void (*deleter)(xdg_popup*);
 };
 
 struct Deleter {
