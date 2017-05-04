@@ -27,7 +27,9 @@ const uint32_t kMaxXdgShellVersion = 1;
 
 WaylandConnection::WaylandConnection() : controller_(FROM_HERE) {}
 
-WaylandConnection::~WaylandConnection() {}
+WaylandConnection::~WaylandConnection() {
+  DCHECK(window_map_.empty());
+}
 
 bool WaylandConnection::Initialize() {
   static const wl_registry_listener registry_listener = {
@@ -98,6 +100,15 @@ void WaylandConnection::ScheduleFlush() {
 WaylandWindow* WaylandConnection::GetWindow(gfx::AcceleratedWidget widget) {
   auto it = window_map_.find(widget);
   return it == window_map_.end() ? nullptr : it->second;
+}
+
+WaylandWindow* WaylandConnection::GetCurrentFocusedWindow() {
+  for (auto entry : window_map_) {
+    WaylandWindow* window = entry.second;
+    if (window->has_pointer_focus())
+      return window;
+  }
+  return nullptr;
 }
 
 void WaylandConnection::AddWindow(gfx::AcceleratedWidget widget,
@@ -227,6 +238,7 @@ void WaylandConnection::Capabilities(void* data,
       connection->pointer_ = base::MakeUnique<WaylandPointer>(
           pointer, base::Bind(&WaylandConnection::DispatchUiEvent,
                               base::Unretained(connection)));
+      connection->pointer_->set_connection(connection);
     }
   } else if (connection->pointer_) {
     connection->pointer_.reset();
@@ -241,6 +253,7 @@ void WaylandConnection::Capabilities(void* data,
       connection->keyboard_ = base::MakeUnique<WaylandKeyboard>(
           keyboard, base::Bind(&WaylandConnection::DispatchUiEvent,
                                base::Unretained(connection)));
+      connection->keyboard_->set_connection(connection);
     }
   } else if (connection->keyboard_) {
     connection->keyboard_.reset();
