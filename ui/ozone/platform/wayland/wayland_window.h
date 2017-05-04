@@ -39,6 +39,18 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   // Set whether this window has keyboard focus and should dispatch key events.
   void set_keyboard_focus(bool focus) { has_keyboard_focus_ = focus; }
 
+  bool has_pointer_focus() { return has_pointer_focus_; }
+
+  // Tells if it is a focused popup.
+  bool is_focused_popup() {
+    return !!xdg_popup_.get() && has_pointer_focus();
+  }
+
+  // Set a child of this window. It is very important in case of nested
+  // xdg_popups as long as we must destroy the very last first and only then
+  // its parent.
+  void set_child_window(WaylandWindow* window) { child_window_ = window; }
+
   // PlatformWindow
   void Show() override;
   void Hide() override;
@@ -71,12 +83,28 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
                         uint32_t serial);
   static void Close(void* data, xdg_surface* obj);
 
+  // xdg_popup_listener
+  static void PopupDone(void* data, xdg_popup* obj);
+
+ protected:
+  PlatformWindowDelegate* delegate() { return delegate_; }
+
  private:
+  // TODO(msisov, tonikitoo): share this with X11WindowOzone and
+  // DesktopWindowTreeHostX11.
+  void ConvertEventLocationToCurrentWindowLocation(ui::Event* located_event);
+
+  // Creates a popup window, which is visible as a menu window.
+  void CreatePopupWindow();
+
   PlatformWindowDelegate* delegate_;
   WaylandConnection* connection_;
+  WaylandWindow* parent_window_ = nullptr;
+  WaylandWindow* child_window_ = nullptr;
 
   wl::Object<wl_surface> surface_;
   wl::Object<xdg_surface> xdg_surface_;
+  wl::Object<xdg_popup> xdg_popup_;
 
   gfx::Rect bounds_;
   gfx::Rect pending_bounds_;
