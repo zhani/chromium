@@ -100,6 +100,15 @@ WaylandWindow* WaylandConnection::GetWindow(gfx::AcceleratedWidget widget) {
   return it == window_map_.end() ? nullptr : it->second;
 }
 
+WaylandWindow* WaylandConnection::GetCurrentFocusedWindow() {
+  for (auto entry : window_map_) {
+    WaylandWindow* window = entry.second;
+    if (window->has_pointer_focus())
+      return window;
+  }
+  return nullptr;
+}
+
 void WaylandConnection::AddWindow(gfx::AcceleratedWidget widget,
                                   WaylandWindow* window) {
   window_map_[widget] = window;
@@ -227,6 +236,7 @@ void WaylandConnection::Capabilities(void* data,
       connection->pointer_ = base::MakeUnique<WaylandPointer>(
           pointer, base::Bind(&WaylandConnection::DispatchUiEvent,
                               base::Unretained(connection)));
+      connection->pointer_->set_connection(connection);
     }
   } else if (connection->pointer_) {
     connection->pointer_.reset();
@@ -241,6 +251,7 @@ void WaylandConnection::Capabilities(void* data,
       connection->keyboard_ = base::MakeUnique<WaylandKeyboard>(
           keyboard, base::Bind(&WaylandConnection::DispatchUiEvent,
                                base::Unretained(connection)));
+      connection->keyboard_->set_connection(connection);
     }
   } else if (connection->keyboard_) {
     connection->keyboard_.reset();
