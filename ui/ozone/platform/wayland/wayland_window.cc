@@ -59,10 +59,9 @@ bool WaylandWindow::Initialize() {
   }
   wl_surface_set_user_data(surface_.get(), this);
 
-  // TODO(msisov, tonikitoo): pass params from Widget::InitParams to
-  // WaylandWindow in order to configure this window properly. As of now, use
-  // bounds' width.
-  if (bounds_.width() > 400) {
+  ui::mojom::WindowType window_type;
+  delegate_->GetWindowType(&window_type);
+  if (window_type == ui::mojom::WindowType::WINDOW) {
     static const xdg_surface_listener xdg_surface_listener = {
         &WaylandWindow::Configure, &WaylandWindow::Close,
     };
