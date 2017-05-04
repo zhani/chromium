@@ -8,6 +8,7 @@
 #include <wayland-client.h>
 
 #include "ui/events/event.h"
+#include "ui/ozone/platform/wayland/wayland_connection.h"
 #include "ui/ozone/platform/wayland/wayland_window.h"
 
 // TODO(forney): Handle version 5 of wl_pointer.
@@ -35,6 +36,7 @@ void WaylandPointer::Enter(void* data,
                            wl_fixed_t surface_x,
                            wl_fixed_t surface_y) {
   WaylandPointer* pointer = static_cast<WaylandPointer*>(data);
+  pointer->SetSerial(serial);
   pointer->location_.SetPoint(wl_fixed_to_double(surface_x),
                               wl_fixed_to_double(surface_y));
   if (surface)
@@ -46,6 +48,8 @@ void WaylandPointer::Leave(void* data,
                            wl_pointer* obj,
                            uint32_t serial,
                            wl_surface* surface) {
+  WaylandPointer* pointer = static_cast<WaylandPointer*>(data);
+  pointer->SetSerial(serial);
   if (surface)
     WaylandWindow::FromSurface(surface)->set_pointer_focus(false);
 }
@@ -75,6 +79,7 @@ void WaylandPointer::Button(void* data,
                             uint32_t button,
                             uint32_t state) {
   WaylandPointer* pointer = static_cast<WaylandPointer*>(data);
+  pointer->SetSerial(serial);
   int flag;
   switch (button) {
     case BTN_LEFT:
@@ -141,6 +146,11 @@ void WaylandPointer::Axis(void* data,
   event.set_location_f(pointer->location_);
   event.set_root_location_f(pointer->location_);
   pointer->callback_.Run(&event);
+}
+
+void WaylandPointer::SetSerial(uint32_t serial) {
+  DCHECK(connection_);
+  connection_->set_serial(serial);
 }
 
 }  // namespace ui

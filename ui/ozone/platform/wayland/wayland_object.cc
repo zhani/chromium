@@ -78,4 +78,7 @@ const wl_interface* ObjectTraits<xdg_surface>::interface =
     &xdg_surface_interface;
 void (*ObjectTraits<xdg_surface>::deleter)(xdg_surface*) = &xdg_surface_destroy;
 
+const wl_interface* ObjectTraits<xdg_popup>::interface = &xdg_popup_interface;
+void (*ObjectTraits<xdg_popup>::deleter)(xdg_popup*) = &xdg_popup_destroy;
+
 }  // namespace wl
