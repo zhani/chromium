@@ -35,13 +35,18 @@ class WaylandConnection : public PlatformEventSource,
   wl_compositor* compositor() { return compositor_.get(); }
   wl_shm* shm() { return shm_.get(); }
   xdg_shell* shell() { return shell_.get(); }
+  wl_seat* seat() { return seat_.get(); }
 
   WaylandWindow* GetWindow(gfx::AcceleratedWidget widget);
+  WaylandWindow* GetCurrentFocusedWindow();
   void AddWindow(gfx::AcceleratedWidget widget, WaylandWindow* window);
   void RemoveWindow(gfx::AcceleratedWidget widget);
 
   const std::vector<std::unique_ptr<WaylandOutput>>& GetOutputList() const;
   WaylandOutput* PrimaryOutput() const;
+
+  void set_serial(uint32_t serial) { serial_ = serial; }
+  uint32_t serial() { return serial_; }
 
  private:
   void Flush();
@@ -86,6 +91,8 @@ class WaylandConnection : public PlatformEventSource,
   base::MessagePumpLibevent::FileDescriptorWatcher controller_;
 
   std::vector<std::unique_ptr<WaylandOutput>> output_list_;
+
+  uint32_t serial_ = 0;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandConnection);
 };
