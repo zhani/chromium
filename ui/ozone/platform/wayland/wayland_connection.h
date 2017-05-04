@@ -36,13 +36,18 @@ class WaylandConnection : public PlatformEventSource,
   wl_shm* shm() { return shm_.get(); }
   xdg_shell* shell() { return shell_.get(); }
   zxdg_shell_v6* shell_v6() { return shell_v6_.get(); }
+  wl_seat* seat() { return seat_.get(); }
 
   WaylandWindow* GetWindow(gfx::AcceleratedWidget widget);
+  WaylandWindow* GetCurrentFocusedWindow();
   void AddWindow(gfx::AcceleratedWidget widget, WaylandWindow* window);
   void RemoveWindow(gfx::AcceleratedWidget widget);
 
   const std::vector<std::unique_ptr<WaylandOutput>>& GetOutputList() const;
   WaylandOutput* PrimaryOutput() const;
+
+  void set_serial(uint32_t serial) { serial_ = serial; }
+  uint32_t serial() { return serial_; }
 
  private:
   void Flush();
@@ -91,6 +96,10 @@ class WaylandConnection : public PlatformEventSource,
   base::MessagePumpLibevent::FileDescriptorWatcher controller_;
 
   std::vector<std::unique_ptr<WaylandOutput>> output_list_;
+
+  // This serial number corresponds to key press, mouse button press or touch
+  // press event. It is used to create new subsurfaces.
+  uint32_t serial_ = 0;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandConnection);
 };
