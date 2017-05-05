@@ -59,7 +59,10 @@ bool WaylandWindow::Initialize() {
   }
   wl_surface_set_user_data(surface_.get(), this);
 
-  ui::mojom::WindowType window_type;
+  // There is now default initialization for this type. Initialize it
+  // to ::WINDOW here. It will be changed by delelgate if it know the
+  // type of the window.
+  ui::mojom::WindowType window_type = ui::mojom::WindowType::WINDOW;
   delegate_->GetWindowType(&window_type);
   if (window_type == ui::mojom::WindowType::WINDOW) {
     static const xdg_surface_listener xdg_surface_listener = {
@@ -246,7 +249,7 @@ void WaylandWindow::ConvertEventLocationToCurrentWindowLocation(
     ui::Event* event) {
   WaylandWindow* wayland_window = connection_->GetCurrentFocusedWindow();
   DCHECK_NE(wayland_window, this);
-  if (event->IsLocatedEvent()) {
+  if (wayland_window && event->IsLocatedEvent()) {
     gfx::Vector2d offset =
         wayland_window->GetBounds().origin() - GetBounds().origin();
     ui::LocatedEvent* located_event = event->AsLocatedEvent();
