@@ -86,9 +86,9 @@ void X11WindowBase::Create() {
   swa.override_redirect = UseTestConfigForPlatformWindows();
 
   ::Atom window_type;
-  // TODO(msisov): pass some sort of Widget::InitParams here in order
-  // to configure X11 windows properly.
-  if (bounds_.width() < 400) {
+  ui::mojom::WindowType ui_window_type;
+  delegate_->GetWindowType(&ui_window_type);
+  if (ui_window_type != ui::mojom::WindowType::WINDOW) {
     // Setting this to True, doesn't allow X server to set different
     // properties, e.g. decorations.
     // TODO(msisov): Investigate further.

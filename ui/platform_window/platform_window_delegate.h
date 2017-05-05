@@ -5,6 +5,7 @@
 #ifndef UI_PLATFORM_WINDOW_PLATFORM_WINDOW_DELEGATE_H_
 #define UI_PLATFORM_WINDOW_PLATFORM_WINDOW_DELEGATE_H_
 
+#include "services/ui/public/interfaces/window_manager_constants.mojom.h"
 #include "ui/gfx/native_widget_types.h"
 
 namespace gfx {
@@ -51,6 +52,11 @@ class PlatformWindowDelegate {
   virtual void OnAcceleratedWidgetDestroyed() = 0;
 
   virtual void OnActivationChanged(bool active) = 0;
+
+  // TODO(tonikitoo,msisov): Adding this method with an out parameter so that
+  // we can have a default implementation here and not need to add stubs to
+  // all subclasses. To be discussed when upstraming.
+  virtual void GetWindowType(ui::mojom::WindowType* result) { }
 };
 
 }  // namespace ui
