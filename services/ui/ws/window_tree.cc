@@ -160,6 +160,12 @@ void WindowTree::DoOnEmbed(mojom::WindowTreePtr tree,
     ClientWindowId window_id;
     IsWindowKnown(root_window, &window_id);
 
+    // In case of external window mode, when aura/mus sets the initial focus
+    // to the Chrome's server window (WindowManagerDisplayRoot::root_), the
+    // call chain checks either WindowManagerDisplayRoot::root_'s parent window
+    // (Display::root_) is part of the Displayu::activation_parents_ set.
+    display->AddActivationParent(display->root_window());
+
     const bool drawn =
         root_window->parent() && root_window->parent()->IsDrawn();
     client()->OnEmbed(id_, WindowToWindowData(root_window),
