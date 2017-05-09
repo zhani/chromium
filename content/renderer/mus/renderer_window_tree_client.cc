@@ -268,6 +268,10 @@ void RendererWindowTreeClient::OnDragDropDone() {}
 void RendererWindowTreeClient::OnChangeCompleted(uint32_t change_id,
                                                  bool success) {}
 
+void RendererWindowTreeClient::OnWindowStateChanged(
+    uint32_t window_id,
+    ui::mojom::ShowState state) {}
+
 void RendererWindowTreeClient::RequestClose(uint32_t window_id) {}
 
 void RendererWindowTreeClient::GetWindowManager(
