@@ -51,6 +51,7 @@ class PlatformDisplayDefault : public PlatformDisplay,
   gfx::AcceleratedWidget GetAcceleratedWidget() const override;
   FrameGenerator* GetFrameGenerator() override;
   void SetWindowVisibility(bool visible) override;
+  void SetNativeWindowState(ui::mojom::ShowState state) override;
   void GetWindowType(ui::mojom::WindowType* result) override;
 
  private:
