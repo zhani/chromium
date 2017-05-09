@@ -178,6 +178,10 @@ void RendererWindowTreeClient::OnWindowBoundsChanged(
   widget->compositor()->SetLocalSurfaceId(*local_surface_id);
 }
 
+void RendererWindowTreeClient::OnNewBoundsFromHostServer(
+    ui::Id window_id,
+    const gfx::Rect& new_bounds) {}
+
 void RendererWindowTreeClient::OnClientAreaChanged(
     uint32_t window_id,
     const gfx::Insets& new_client_area,
