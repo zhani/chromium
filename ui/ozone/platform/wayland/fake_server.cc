@@ -195,6 +195,16 @@ void UnsetMaximized(wl_client* client, wl_resource* resource) {
       ->UnsetMaximized();
 }
 
+void SetFullScreen(wl_client* client, wl_resource* resource, wl_resource *output) {
+  static_cast<MockXdgSurface*>(wl_resource_get_user_data(resource))
+      ->SetFullScreen();
+}
+
+void UnsetFullScreen(wl_client* client, wl_resource* resource) {
+  static_cast<MockXdgSurface*>(wl_resource_get_user_data(resource))
+      ->UnsetFullScreen();
+}
+
 void SetMinimized(wl_client* client, wl_resource* resource) {
   static_cast<MockXdgSurface*>(wl_resource_get_user_data(resource))
       ->SetMinimized();
@@ -212,8 +222,8 @@ const struct xdg_surface_interface xdg_surface_impl = {
     nullptr,           // set_window_geometry
     &SetMaximized,     // set_maximized
     &UnsetMaximized,   // set_unmaximized
-    nullptr,           // set_fullscreen
-    nullptr,           // unset_fullscreen
+    &SetFullScreen, // set_fullscreen
+    &UnsetFullScreen, // unset_fullscreen
     &SetMinimized,     // set_minimized
 };
 

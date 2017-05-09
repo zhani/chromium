@@ -26,7 +26,7 @@ static const xdg_popup_listener xdg_popup_listener = {
 // TODO(msisov, tonikitoo): fix customization according to screen resolution
 // once we are able to get global coordinates of wayland windows.
 gfx::Rect TranslateBoundsToScreenCoordinates(const gfx::Rect& child_bounds,
-                                            const gfx::Rect& parent_bounds) {
+                                             const gfx::Rect& parent_bounds) {
   int x = child_bounds.x() - parent_bounds.x();
   int y = child_bounds.y() - parent_bounds.y();
   return gfx::Rect(gfx::Point(x, y), child_bounds.size());
@@ -179,25 +179,65 @@ void WaylandWindow::ReleaseCapture() {
 }
 
 void WaylandWindow::ToggleFullscreen() {
-  NOTIMPLEMENTED();
+  // Don't fullscreen popup.
+  if (xdg_popup_)
+    return;
+
+  DCHECK(xdg_surface_);
+
+  // TODO(msisov, tonikitoo): add multiscreen support. As the documentation says
+  // if xdg_surface_set_fullscreen() is not provided with wl_output, it's up to
+  // the compositor to choose which display will be used to map this surface.
+  if (!IsFullScreen())
+    xdg_surface_set_fullscreen(xdg_surface_.get(), nullptr);
+  else
+    xdg_surface_unset_fullscreen(xdg_surface_.get());
+
+  connection_->ScheduleFlush();
 }
 
 void WaylandWindow::Maximize() {
+  // Don't maximize popup.
+  if (xdg_popup_ || IsMaximized())
+    return;
+
   DCHECK(xdg_surface_);
+  // Unfullscreen the window if it is fullscreen.
+  if (IsFullScreen())
+    ToggleFullscreen();
+
   xdg_surface_set_maximized(xdg_surface_.get());
   connection_->ScheduleFlush();
 }
 
 void WaylandWindow::Minimize() {
+  // Don't Minimize popup.
+  if (xdg_popup_)
+    return;
+
   DCHECK(xdg_surface_);
+  if (IsMinimized())
+    return;
+
   xdg_surface_set_minimized(xdg_surface_.get());
   connection_->ScheduleFlush();
+  is_minimized_ = true;
 }
 
 void WaylandWindow::Restore() {
+  if (xdg_popup_)
+    return;
+
   DCHECK(xdg_surface_);
-  xdg_surface_unset_maximized(xdg_surface_.get());
-  connection_->ScheduleFlush();
+  // Unfullscreen the window if it is fullscreen.
+  if (IsFullScreen())
+    ToggleFullscreen();
+
+  if (IsMaximized()) {
+    xdg_surface_unset_maximized(xdg_surface_.get());
+    connection_->ScheduleFlush();
+  }
+  is_minimized_ = false;
 }
 
 void WaylandWindow::SetCursor(PlatformCursor cursor) {
@@ -276,6 +316,38 @@ void WaylandWindow::Configure(void* data,
     height = window->GetBounds().height();
   }
 
+  window->ResetWindowStates();
+  uint32_t* p;
+  // wl_array_for_each has a bug in upstream. It tries to assign void* to
+  // uint32_t *, which is not allowed in C++. Explicit cast should be performed.
+  // In other words, one just cannot assign void * to other pointer type
+  // implicitly in C++ as in C. We can't modify wayland-util.h, because it is
+  // fetched with gclient sync. Thus, use own loop.
+  // TODO(msisov, tonikitoo): use wl_array_for_each as soon as
+  // https://bugs.freedesktop.org/show_bug.cgi?id=101618 is resolved.
+  for (p = (uint32_t*)states->data;
+       (const char*)p < ((const char*)(states)->data + (states)->size); p++) {
+    uint32_t state = *p;
+    switch (state) {
+      case (XDG_SURFACE_STATE_MAXIMIZED):
+        window->is_maximized_ = true;
+        break;
+      case (XDG_SURFACE_STATE_FULLSCREEN):
+        window->is_fullscreen_ = true;
+        break;
+      default:
+        break;
+    }
+  }
+
+  ui::PlatformWindowState state =
+      ui::PlatformWindowState::PLATFORM_WINDOW_STATE_NORMAL;
+  if (window->is_maximized_)
+    state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MAXIMIZED;
+  if (window->is_fullscreen_)
+    state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_FULLSCREEN;
+  window->delegate()->OnWindowStateChanged(state);
+
   // Rather than call SetBounds here for every configure event, just save the
   // most recent bounds, and have WaylandConnection call ApplyPendingBounds
   // when it has finished processing events. We may get many configure events
@@ -294,6 +366,23 @@ void WaylandWindow::PopupDone(void* data, xdg_popup* obj) {
   WaylandWindow* window = static_cast<WaylandWindow*>(data);
   window->Hide();
   window->delegate_->OnCloseRequest();
+}
+
+bool WaylandWindow::IsMinimized() {
+  return is_minimized_;
+}
+
+bool WaylandWindow::IsMaximized() {
+  return is_maximized_;
+}
+
+bool WaylandWindow::IsFullScreen() {
+  return is_fullscreen_;
+}
+
+void WaylandWindow::ResetWindowStates() {
+  is_maximized_ = false;
+  is_fullscreen_ = false;
 }
 
 }  // namespace ui

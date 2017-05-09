@@ -330,6 +330,10 @@ class WindowServer : public ServerWindowDelegate,
   void SetNativeWindowVisibility(WindowManagerDisplayRoot* display_root,
                                  bool visible);
 
+  // Sets a state (minimize/maximize/restore) of a native window (only in
+  // external mode).
+  void SetNativeWindowState(ServerWindow* window, ui::mojom::ShowState state);
+
   // Overridden from ServerWindowDelegate:
   ServerWindow* GetRootWindow(const ServerWindow* window) override;
 
