@@ -22,7 +22,7 @@ struct ViewportMetrics {
   // TODO(tonikitoo,msisov): This is an abuse of ViewportMetrics,
   // and for upstreaming, we should likely consider renaming ViewportMetrics
   // to DisplayProperties or so.
-  ui::mojom::WindowType window_type = ui::mojom::WindowType::UNKNOWN;
+  ui::mojom::WindowType window_type = ui::mojom::WindowType::WINDOW;
 };
 
 inline bool operator==(const ViewportMetrics& lhs, const ViewportMetrics& rhs) {
