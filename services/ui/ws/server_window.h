@@ -91,11 +91,10 @@ class ServerWindow {
                  const base::Optional<cc::LocalSurfaceId>& local_surface_id =
                      base::nullopt);
 
-  // Sets the bounds from a host window manager, which is a system wm.
-  // This is a reaction to resizes/moves done in the host window manager window.
-  void SetBoundsFromHostWindowManager(const gfx::Rect& bounds,
-                                      const base::Optional<cc::LocalSurfaceId>&
-                                          local_surface_id = base::nullopt);
+  // Tells the client to set the bounds from a host window manager, which is a
+  // system wm. This is a reaction to resizes/moves done in the host window
+  // manager window.
+  void OnNewBoundsFromHostServer(const gfx::Rect& bounds);
 
   const std::vector<gfx::Rect>& additional_client_areas() const {
     return additional_client_areas_;
@@ -229,10 +228,6 @@ class ServerWindow {
   static void ReorderImpl(ServerWindow* window,
                           ServerWindow* relative,
                           mojom::OrderDirection diretion);
-
-  void SetBoundsInternal(
-      const gfx::Rect& bounds,
-      const base::Optional<cc::LocalSurfaceId>& local_surface_id);
 
   // Returns a pointer to the stacking target that can be used by
   // RestackTransientDescendants.
