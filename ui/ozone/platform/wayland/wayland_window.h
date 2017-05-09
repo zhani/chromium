@@ -97,6 +97,14 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   // Creates a popup window, which is visible as a menu window.
   void CreatePopupWindow();
 
+  // TODO(msisov, tonikitoo): share this with X11WindowBase.
+  bool IsMinimized();
+  bool IsMaximized();
+  bool IsFullScreen();
+
+  // Resets the maximized and fullscreen window states.
+  void ResetWindowStates();
+
   PlatformWindowDelegate* delegate_;
   WaylandConnection* connection_;
   WaylandWindow* parent_window_ = nullptr;
@@ -111,6 +119,10 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   uint32_t pending_configure_serial_;
   bool has_pointer_focus_ = false;
   bool has_keyboard_focus_ = false;
+
+  bool is_minimized_ = false;
+  bool is_maximized_ = false;
+  bool is_fullscreen_ = false;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandWindow);
 };

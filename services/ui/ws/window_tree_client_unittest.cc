@@ -273,6 +273,9 @@ class TestWindowTreeClient : public mojom::WindowTreeClient,
     }
   }
 
+  void OnWindowStateChanged(uint32_t window_id,
+                            ::ui::mojom::ShowState state) override {}
+
   // WindowTreeClient:
   void OnEmbed(
       ClientSpecificId client_id,
