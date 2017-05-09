@@ -318,6 +318,8 @@ class WindowServer : public ServerWindowDelegate,
   void OnWindowBoundsChanged(ServerWindow* window,
                              const gfx::Rect& old_bounds,
                              const gfx::Rect& new_bounds) override;
+  void OnNewBoundsFromHostServer(ServerWindow* window,
+                                 const gfx::Rect& new_bounds) override;
   void OnWindowClientAreaChanged(
       ServerWindow* window,
       const gfx::Insets& new_client_area,

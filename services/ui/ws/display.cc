@@ -357,7 +357,10 @@ void Display::OnViewportMetricsChanged(
   if (root_->bounds().size() == metrics.bounds_in_pixels.size())
     return;
 
-  OnBoundsChangedInternal(gfx::Rect(metrics.bounds_in_pixels.size()));
+  gfx::Rect new_bounds(metrics.bounds_in_pixels.size());
+  root_->SetBounds(new_bounds, allocator_.GenerateId());
+  for (auto& pair : window_manager_display_root_map_)
+    pair.second->root()->SetBounds(new_bounds, allocator_.GenerateId());
 }
 
 ServerWindow* Display::GetActiveRootWindow() {
@@ -471,10 +474,9 @@ EventDispatchDetails Display::OnEventFromSource(Event* event) {
 }
 
 void Display::OnBoundsChangedInternal(const gfx::Rect& new_bounds) {
-  root_->SetBoundsFromHostWindowManager(new_bounds, allocator_.GenerateId());
+  root_->OnNewBoundsFromHostServer(new_bounds);
   for (auto& pair : window_manager_display_root_map_)
-    pair.second->root()->SetBoundsFromHostWindowManager(
-        new_bounds, allocator_.GenerateId());
+    pair.second->root()->OnNewBoundsFromHostServer(new_bounds);
 }
 
 }  // namespace ws
