@@ -132,7 +132,9 @@ bool DefaultAccessPolicy::CanSetWindowTransform(
 
 bool DefaultAccessPolicy::CanSetWindowProperties(
     const ServerWindow* window) const {
-  return WasCreatedByThisClient(window);
+  // TODO(msisov, tonikitoo): resolve policies issues.
+  return WasCreatedByThisClient(window) ||
+         delegate_->HasRootForAccessPolicy(window);
 }
 
 bool DefaultAccessPolicy::CanSetWindowTextInputState(

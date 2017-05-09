@@ -387,6 +387,24 @@ void Display::OnCloseRequest() {
     window_tree->client()->RequestClose(window_id.id);
 }
 
+void Display::OnWindowStateChanged(ui::mojom::ShowState new_state) {
+  if (!window_server_->IsInExternalWindowMode())
+    return;
+
+  WindowTree* window_tree = window_server_->GetTreeForExternalWindowMode();
+  WindowManagerDisplayRoot* display_root =
+      window_manager_display_root_map_.begin()->second;
+  ServerWindow* server_window =
+      display_root->window_manager_state()->GetWindowManagerRootForDisplayRoot(
+          root_window());
+  ClientWindowId window_id;
+  // We are calling WindowTreeClient directly from here for the sake not
+  // changing WindowTree for such a simple call, adding less code as possible
+  // downstream.
+  if (window_tree && window_tree->IsWindowKnown(server_window, &window_id))
+    window_tree->client()->OnWindowStateChanged(window_id.id, new_state);
+}
+
 OzonePlatform* Display::GetOzonePlatform() {
 #if defined(USE_OZONE)
   return OzonePlatform::GetInstance();
