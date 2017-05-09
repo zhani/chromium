@@ -10,6 +10,7 @@
 #include "base/logging.h"
 #include "base/memory/ptr_util.h"
 #include "base/stl_util.h"
+#include "services/ui/public/cpp/property_type_converters.h"
 #include "services/ui/ws/display.h"
 #include "services/ui/ws/display_creation_config.h"
 #include "services/ui/ws/display_manager.h"
@@ -759,6 +760,17 @@ void WindowServer::SetNativeWindowVisibility(
   display->SetWindowVisibility(visible);
 }
 
+void WindowServer::SetNativeWindowState(ServerWindow* window,
+                                        ui::mojom::ShowState state) {
+  WindowManagerDisplayRoot* display_root =
+      display_manager_->GetWindowManagerDisplayRoot(window);
+  if (!display_root || display_root->GetClientVisibleRoot() != window)
+    return;
+  PlatformDisplay* display = display_root->display()->platform_display();
+  DCHECK(display);
+  display->SetNativeWindowState(state);
+}
+
 ServerWindow* WindowServer::GetRootWindowForDrawn(const ServerWindow* window) {
   Display* display = display_manager_->GetDisplayContaining(window);
   return display ? display->root_window() : nullptr;
@@ -923,6 +935,12 @@ void WindowServer::OnWindowSharedPropertyChanged(
     ServerWindow* window,
     const std::string& name,
     const std::vector<uint8_t>* new_data) {
+  if (IsInExternalWindowMode() &&
+      name == mojom::WindowManager::kShowState_Property) {
+    const int64_t state = mojo::ConvertTo<int64_t>(*new_data);
+    SetNativeWindowState(window, static_cast<ui::mojom::ShowState>(state));
+  }
+
   for (auto& pair : tree_map_) {
     pair.second->ProcessWindowPropertyChanged(window, name, new_data,
                                               IsOperationSource(pair.first));
