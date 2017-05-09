@@ -50,6 +50,8 @@ class MockXdgSurface : public ServerObject {
   MOCK_METHOD1(AckConfigure, void(uint32_t serial));
   MOCK_METHOD0(SetMaximized, void());
   MOCK_METHOD0(UnsetMaximized, void());
+  MOCK_METHOD0(SetFullScreen, void());
+  MOCK_METHOD0(UnsetFullScreen, void());
   MOCK_METHOD0(SetMinimized, void());
 
  private:
