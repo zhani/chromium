@@ -225,25 +225,64 @@ void WaylandWindow::ReleaseCapture() {
 }
 
 void WaylandWindow::ToggleFullscreen() {
-  NOTIMPLEMENTED();
+  // Don't fullscreen popup.
+  if (xdg_popup_)
+    return;
+
+  DCHECK(xdg_surface_);
+
+  // TODO(msisov, tonikitoo): add multiscreen support. As the documentation says
+  // if xdg_surface_set_fullscreen() is not provided with wl_output, it's up to
+  // the compositor to choose which display will be used to map this surface.
+  if (!IsFullScreen())
+    xdg_surface_->SetFullScreen();
+  else
+    xdg_surface_->UnSetFullScreen();
+
+  connection_->ScheduleFlush();
 }
 
 void WaylandWindow::Maximize() {
+  // Don't maximize popup.
+  if (xdg_popup_ || IsMaximized())
+    return;
+
   DCHECK(xdg_surface_);
+  // Unfullscreen the window if it is fullscreen.
+  if (IsFullScreen())
+    ToggleFullscreen();
+
   xdg_surface_->SetMaximized();
   connection_->ScheduleFlush();
 }
 
 void WaylandWindow::Minimize() {
+  // Don't Minimize popup.
+  if (xdg_popup_)
+    return;
+
   DCHECK(xdg_surface_);
+  if (IsMinimized())
+    return;
+
   xdg_surface_->SetMinimized();
   connection_->ScheduleFlush();
+  is_minimized_ = true;
 }
 
 void WaylandWindow::Restore() {
-  DCHECK(xdg_surface_);
-  xdg_surface_->UnSetMaximized();
-  connection_->ScheduleFlush();
+  if (xdg_popup_ || !xdg_surface_)
+    return;
+
+  // Unfullscreen the window if it is fullscreen.
+  if (IsFullScreen())
+    ToggleFullscreen();
+
+  if (IsMaximized()) {
+    xdg_surface_->UnSetMaximized();
+    connection_->ScheduleFlush();
+  }
+  is_minimized_ = false;
 }
 
 void WaylandWindow::SetCursor(PlatformCursor cursor) {
@@ -305,13 +344,28 @@ void WaylandWindow::ConvertEventLocationToCurrentWindowLocation(
   }
 }
 
-void WaylandWindow::HandleSurfaceConfigure(int32_t width, int32_t height) {
+void WaylandWindow::HandleSurfaceConfigure(int32_t width,
+                                           int32_t height,
+                                           bool is_maximized,
+                                           bool is_fullscreen) {
   // Width or height set 0 means that we should decide on width and height by
   // ourselves, but we don't want to set to anything else. Use previous size.
   if (width == 0 || height == 0) {
     width = GetBounds().width();
     height = GetBounds().height();
   }
+
+  ResetWindowStates();
+  is_maximized_ = is_maximized;
+  is_fullscreen_ = is_fullscreen;
+
+  ui::PlatformWindowState state =
+      ui::PlatformWindowState::PLATFORM_WINDOW_STATE_NORMAL;
+  if (IsMaximized())
+    state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MAXIMIZED;
+  if (IsFullScreen())
+    state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_FULLSCREEN;
+  delegate_->OnWindowStateChanged(state);
 
   // Rather than call SetBounds here for every configure event, just save the
   // most recent bounds, and have WaylandConnection call ApplyPendingBounds
@@ -325,6 +379,23 @@ void WaylandWindow::OnCloseRequest() {
   // only then call OnCloseRequest().
   DCHECK(!xdg_popup_);
   delegate_->OnCloseRequest();
+}
+
+bool WaylandWindow::IsMinimized() {
+  return is_minimized_;
+}
+
+bool WaylandWindow::IsMaximized() {
+  return is_maximized_;
+}
+
+bool WaylandWindow::IsFullScreen() {
+  return is_fullscreen_;
+}
+
+void WaylandWindow::ResetWindowStates() {
+  is_maximized_ = false;
+  is_fullscreen_ = false;
 }
 
 }  // namespace ui
