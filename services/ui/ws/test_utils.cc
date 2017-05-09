@@ -473,6 +473,9 @@ void TestWindowTreeClient::OnChangeCompleted(uint32_t change_id, bool success) {
     tracker_.OnChangeCompleted(change_id, success);
 }
 
+void TestWindowTreeClient::OnWindowStateChanged(uint32_t window_id,
+                                                ::ui::mojom::ShowState state) {}
+
 void TestWindowTreeClient::RequestClose(uint32_t window_id) {}
 
 void TestWindowTreeClient::GetWindowManager(

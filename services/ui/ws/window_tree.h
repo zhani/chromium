@@ -329,6 +329,12 @@ class WindowTree : public mojom::WindowTree,
   // certain events.
   void OnRequestClose(ServerWindow* target_window);
 
+  // In external window mode, ozone backends can ask client to change states of
+  // windows. This call propagates the new state further to WindowTreeClient and
+  // aura windows.
+  void OnWindowStateChanged(ServerWindow* target_window,
+                            ui::mojom::ShowState new_state);
+
  private:
   friend class test::WindowTreeTestApi;
 

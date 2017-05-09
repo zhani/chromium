@@ -1686,6 +1686,36 @@ void WindowTreeClient::SetBlockingContainers(
       base::Bind(&OnAckMustSucceed));
 }
 
+void WindowTreeClient::OnWindowStateChanged(uint32_t window_id,
+                                            ui::mojom::ShowState state) {
+  DCHECK(in_external_window_mode_);
+  WindowMus* window = GetWindowByServerId(window_id);
+  if (!window || !IsRoot(window))
+    return;
+
+  aura::Window* aura_window = window->GetWindow();
+  WindowTreeHostMus* host = GetWindowTreeHostMus(aura_window);
+  ui::WindowShowState show_state;
+  switch (state) {
+    case (ui::mojom::ShowState::MINIMIZED):
+      show_state = ui::SHOW_STATE_MINIMIZED;
+      host->Hide();
+      break;
+    case (ui::mojom::ShowState::MAXIMIZED):
+      show_state = ui::SHOW_STATE_MAXIMIZED;
+      host->Show();
+      break;
+    case (ui::mojom::ShowState::NORMAL):
+      show_state = ui::SHOW_STATE_NORMAL;
+      host->Show();
+      break;
+    default:
+      return;
+  }
+
+  aura_window->SetProperty(aura::client::kShowStateKey, show_state);
+}
+
 void WindowTreeClient::GetWindowManager(
     mojo::AssociatedInterfaceRequest<WindowManager> internal) {
   window_manager_internal_.reset(

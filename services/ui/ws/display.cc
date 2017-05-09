@@ -389,6 +389,21 @@ void Display::OnCloseRequest() {
     window_tree->OnRequestClose(server_window);
 }
 
+void Display::OnWindowStateChanged(ui::mojom::ShowState new_state) {
+  if (!window_server_->IsInExternalWindowMode())
+    return;
+
+  WindowTree* window_tree = window_server_->GetTreeForExternalWindowMode();
+  WindowManagerDisplayRoot* display_root =
+      window_manager_display_root_map_.begin()->second;
+  ServerWindow* server_window =
+      display_root->window_manager_state()->GetWindowManagerRootForDisplayRoot(
+          root_window());
+
+  if (window_tree)
+    window_tree->OnWindowStateChanged(server_window, new_state);
+}
+
 OzonePlatform* Display::GetOzonePlatform() {
 #if defined(USE_OZONE)
   return OzonePlatform::GetInstance();
