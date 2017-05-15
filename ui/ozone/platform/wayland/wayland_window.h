@@ -43,7 +43,7 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
 
   // Tells if it is a focused popup.
   bool is_focused_popup() {
-    return !!xdg_popup_.get() && has_pointer_or_keyboard_focus();
+    return !!xdg_popup_.get() && has_pointer_focus();
   }
 
   // Set a child of this window. It is very important in case of nested
