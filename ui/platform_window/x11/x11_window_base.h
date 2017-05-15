@@ -78,6 +78,7 @@ class X11_WINDOW_EXPORT X11WindowBase : public PlatformWindow {
   // TODO(msisov, tonikitoo): share this with DesktopWindowTreeHostX11.
   bool IsMinimized() const;
   bool IsMaximized() const;
+  bool IsFullScreen() const;
 
   PlatformWindowDelegate* delegate_;
 
@@ -99,6 +100,7 @@ class X11_WINDOW_EXPORT X11WindowBase : public PlatformWindow {
   std::set<::Atom> window_properties_;
 
   bool window_mapped_ = false;
+  bool is_fullscreen_ = false;
 
   DISALLOW_COPY_AND_ASSIGN(X11WindowBase);
 };

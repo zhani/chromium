@@ -41,6 +41,7 @@ const char* kAtomsToCache[] = {"UTF8_STRING",
                                "_NET_WM_STATE_HIDDEN",
                                "_NET_WM_STATE_MAXIMIZED_HORZ",
                                "_NET_WM_STATE_MAXIMIZED_VERT",
+                               "_NET_WM_STATE_FULLSCREEN",
                                "_NET_WM_WINDOW_TYPE_MENU",
                                "_NET_WM_WINDOW_TYPE_NORMAL",
                                "_NET_WM_WINDOW_TYPE",
@@ -273,11 +274,17 @@ void X11WindowBase::SetCapture() {}
 
 void X11WindowBase::ReleaseCapture() {}
 
-void X11WindowBase::ToggleFullscreen() {}
+void X11WindowBase::ToggleFullscreen() {
+  SetWMSpecState(!is_fullscreen_,
+                 atom_cache_.GetAtom("_NET_WM_STATE_FULLSCREEN"), None);
+  is_fullscreen_ = !is_fullscreen_;
+}
 
 void X11WindowBase::Maximize() {
-  if (IsMaximized())
-    return;
+  // Unfullscreen the window if it is fullscreen.
+  if (IsFullScreen())
+    ToggleFullscreen();
+
   // When we are in the process of requesting to maximize a window, we can
   // accurately keep track of our restored bounds instead of relying on the
   // heuristics that are in the PropertyNotify and ConfigureNotify handlers.
@@ -294,8 +301,13 @@ void X11WindowBase::Minimize() {
 }
 
 void X11WindowBase::Restore() {
-  SetWMSpecState(false, atom_cache_.GetAtom("_NET_WM_STATE_MAXIMIZED_VERT"),
-                 atom_cache_.GetAtom("_NET_WM_STATE_MAXIMIZED_HORZ"));
+  if (IsFullScreen())
+    ToggleFullscreen();
+
+  if (IsMaximized()) {
+    SetWMSpecState(false, atom_cache_.GetAtom("_NET_WM_STATE_MAXIMIZED_VERT"),
+                   atom_cache_.GetAtom("_NET_WM_STATE_MAXIMIZED_HORZ"));
+  }
 }
 
 void X11WindowBase::MoveCursorTo(const gfx::Point& location) {
@@ -428,7 +440,12 @@ void X11WindowBase::OnWMStateUpdated() {
   state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_NORMAL;
   if (IsMaximized())
     state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MAXIMIZED;
-  delegate_->OnWindowStateChanged(state);
+
+  // If the window is in the fullscreen mode, there is no need to notify the
+  // client about the state as long as it has been the client who has changed
+  // the state.
+  if (!IsFullScreen())
+    delegate_->OnWindowStateChanged(state);
 }
 
 bool X11WindowBase::HasWMSpecProperty(const char* property) const {
@@ -443,6 +460,10 @@ bool X11WindowBase::IsMinimized() const {
 bool X11WindowBase::IsMaximized() const {
   return (HasWMSpecProperty("_NET_WM_STATE_MAXIMIZED_VERT") &&
           HasWMSpecProperty("_NET_WM_STATE_MAXIMIZED_HORZ"));
+}
+
+bool X11WindowBase::IsFullScreen() const {
+  return is_fullscreen_;
 }
 
 }  // namespace ui
