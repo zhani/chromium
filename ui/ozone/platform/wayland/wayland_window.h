@@ -39,9 +39,7 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   // Set whether this window has keyboard focus and should dispatch key events.
   void set_keyboard_focus(bool focus) { has_keyboard_focus_ = focus; }
 
-  bool has_pointer_or_keyboard_focus() {
-    return has_pointer_focus_ || has_keyboard_focus_;
-  }
+  bool has_pointer_focus() { return has_pointer_focus_; }
 
   // Tells if it is a focused popup.
   bool is_focused_popup() {

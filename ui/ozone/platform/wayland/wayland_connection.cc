@@ -103,7 +103,7 @@ WaylandWindow* WaylandConnection::GetWindow(gfx::AcceleratedWidget widget) {
 WaylandWindow* WaylandConnection::GetCurrentFocusedWindow() {
   for (auto entry : window_map_) {
     WaylandWindow* window = entry.second;
-    if (window->has_pointer_or_keyboard_focus())
+    if (window->has_pointer_focus())
       return window;
   }
   return nullptr;
