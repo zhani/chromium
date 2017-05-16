@@ -5,9 +5,16 @@
 visibility = [ "//ui/ozone/*" ]
 
 import("//build/config/linux/pkg_config.gni")
+import("//ui/base/ui_features.gni")
 
 pkg_config("wayland-egl") {
   packages = [ "wayland-egl" ]
+}
+
+if (use_xkbcommon) {
+  pkg_config("xkbcommon") {
+    packages = [ "xkbcommon" ]
+  }
 }
 
 source_set("wayland") {
@@ -34,12 +41,12 @@ source_set("wayland") {
     "wayland_window.h",
   ]
 
-  import("//ui/base/ui_features.gni")
   if (use_xkbcommon) {
     sources += [
       "wayland_xkb_keyboard_layout_engine.cc",
       "wayland_xkb_keyboard_layout_engine.h",
     ]
+    configs += [ ":xkbcommon" ]
   }
 
   deps = [
