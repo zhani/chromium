@@ -249,7 +249,7 @@ void WaylandWindow::ConvertEventLocationToCurrentWindowLocation(
     ui::Event* event) {
   WaylandWindow* wayland_window = connection_->GetCurrentFocusedWindow();
   DCHECK_NE(wayland_window, this);
-  if (event->IsLocatedEvent()) {
+  if (wayland_window && event->IsLocatedEvent()) {
     gfx::Vector2d offset =
         wayland_window->GetBounds().origin() - GetBounds().origin();
     ui::LocatedEvent* located_event = event->AsLocatedEvent();
