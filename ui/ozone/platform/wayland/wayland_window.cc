@@ -45,7 +45,10 @@ bool WaylandWindow::Initialize() {
   }
   wl_surface_set_user_data(surface_.get(), this);
 
-  ui::mojom::WindowType window_type;
+  // There is now default initialization for this type. Initialize it
+  // to ::WINDOW here. It will be changed by delelgate if it know the
+  // type of the window.
+  ui::mojom::WindowType window_type = ui::mojom::WindowType::WINDOW;
   delegate_->GetWindowType(&window_type);
   if (window_type == ui::mojom::WindowType::WINDOW) {
     xdg_surface_.reset(

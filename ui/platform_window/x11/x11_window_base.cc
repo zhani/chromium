@@ -86,7 +86,10 @@ void X11WindowBase::Create() {
   swa.override_redirect = UseTestConfigForPlatformWindows();
 
   ::Atom window_type;
-  ui::mojom::WindowType ui_window_type;
+  // There is now default initialization for this type. Initialize it
+  // to ::WINDOW here. It will be changed by delelgate if it know the
+  // type of the window.
+  ui::mojom::WindowType ui_window_type = ui::mojom::WindowType::WINDOW;
   delegate_->GetWindowType(&ui_window_type);
   if (ui_window_type != ui::mojom::WindowType::WINDOW) {
     // Setting this to True, doesn't allow X server to set different
