@@ -343,8 +343,11 @@ void Display::OnBoundsChanged(const gfx::Rect& new_bounds) {
     return;
 
   root_->OnNewBoundsFromHostServer(new_bounds);
+
+  // WindowManagerDisplayRoot::root_ needs to be at 0,0 position relative
+  // to its parent not to break mouse/touch events.
   for (auto& pair : window_manager_display_root_map_)
-    pair.second->root()->OnNewBoundsFromHostServer(new_bounds);
+    pair.second->root()->OnNewBoundsFromHostServer(gfx::Rect(new_bounds.size()));
 }
 
 void Display::OnCloseRequest() {

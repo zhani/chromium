@@ -790,7 +790,19 @@ void WindowTree::ProcessWindowBoundsChanged(
   ClientWindowId client_window_id;
   if (originated_change || !IsWindowKnown(window, &client_window_id))
     return;
-  client()->OnWindowBoundsChanged(client_window_id.id, old_bounds, new_bounds,
+
+  // In external window mode, we cap the bounds WindowManagerDisplayRoot's
+  // root window to 0,0. So send the bounds of Display's root, which has the
+  // same size but contains the proper window placement (x, y).
+  gfx::Rect newest_bounds = new_bounds;
+  if (window_server_->IsInExternalWindowMode()) {
+    WindowManagerDisplayRoot* display_root =
+        GetWindowManagerDisplayRoot(window);
+    if (display_root && display_root->root() == window)
+      newest_bounds = GetDisplay(window)->root_window()->bounds();
+  }
+
+  client()->OnWindowBoundsChanged(client_window_id.id, old_bounds, newest_bounds,
                                   local_surface_id);
 }
 

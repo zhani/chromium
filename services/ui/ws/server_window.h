@@ -91,9 +91,13 @@ class ServerWindow {
                  const base::Optional<cc::LocalSurfaceId>& local_surface_id =
                      base::nullopt);
 
-  // Tells the client to set the bounds from a host window manager, which is a
-  // system wm. This is a reaction to resizes/moves done in the host window
-  // manager window.
+  // This is a wrapper method around SetBounds. It is called when the host
+  // window is resized/moved. It enforces bounds updates to be sent to the server.
+  //
+  // Given that we cap WindowManagerDisplayRoot's root x,y placement to 0,0,
+  // when the position changes but not the size, ::SetBounds would bail out
+  // because bounds are identical. However, it is important to notice the client
+  // of position changes.
   void OnNewBoundsFromHostServer(const gfx::Rect& bounds);
 
   const std::vector<gfx::Rect>& additional_client_areas() const {
@@ -282,6 +286,11 @@ class ServerWindow {
   // Whether this window can be the target in a drag and drop
   // operation. Clients must opt-in to this.
   bool accepts_drops_ = false;
+
+  // Enforce bounds changes to be sent to the client. It works
+  // around the fact that WindowManagerDisplayRoot::root_ position
+  // is cap'ed to 0,0 relative to its parent.
+  bool force_bounds_update_ = false;
 
   base::ObserverList<ServerWindowObserver> observers_;
 
