@@ -336,10 +336,15 @@ void Display::OnNativeCaptureLost() {
 }
 
 void Display::OnBoundsChanged(const gfx::Rect& new_bounds) {
+  if (!window_server_->IsInExternalWindowMode())
+    return;
+
   if (root_->bounds() == new_bounds)
     return;
 
-  OnBoundsChangedInternal(new_bounds);
+  root_->OnNewBoundsFromHostServer(new_bounds);
+  for (auto& pair : window_manager_display_root_map_)
+    pair.second->root()->OnNewBoundsFromHostServer(new_bounds);
 }
 
 void Display::OnCloseRequest() {
@@ -504,12 +509,6 @@ EventDispatchDetails Display::OnEventFromSource(Event* event) {
           window_server_->user_id_tracker()->active_id());
   activity_monitor->OnUserActivity();
   return EventDispatchDetails();
-}
-
-void Display::OnBoundsChangedInternal(const gfx::Rect& new_bounds) {
-  root_->OnNewBoundsFromHostServer(new_bounds);
-  for (auto& pair : window_manager_display_root_map_)
-    pair.second->root()->OnNewBoundsFromHostServer(new_bounds);
 }
 
 }  // namespace ws

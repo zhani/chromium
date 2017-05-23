@@ -220,8 +220,6 @@ class Display : public PlatformDisplayDelegate,
   // EventSink:
   EventDispatchDetails OnEventFromSource(Event* event) override;
 
-  void OnBoundsChangedInternal(const gfx::Rect& new_bounds);
-
   std::unique_ptr<DisplayBinding> binding_;
   WindowServer* const window_server_;
   std::unique_ptr<ServerWindow> root_;
