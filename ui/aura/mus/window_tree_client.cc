@@ -1178,17 +1178,6 @@ void WindowTreeClient::OnWindowBoundsChanged(
   SetWindowBoundsFromServer(window, new_bounds, local_surface_id);
 }
 
-void WindowTreeClient::OnNewBoundsFromHostServer(Id window_id,
-                                                 const gfx::Rect& new_bounds) {
-  WindowMus* window = GetWindowByServerId(window_id);
-  if (!window || !IsRoot(window))
-    return;
-
-  // WindowTreeHost expects bounds to be in pixels.
-  WindowTreeHostMus* host = GetWindowTreeHostMus(window);
-  host->SetBoundsInPixels(new_bounds);
-}
-
 void WindowTreeClient::OnClientAreaChanged(
     uint32_t window_id,
     const gfx::Insets& new_client_area,

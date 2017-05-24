@@ -45,6 +45,7 @@ class TestPlatformDisplay : public PlatformDisplay {
     *cursor_storage_ = cursor;
   }
   void UpdateTextInputState(const ui::TextInputState& state) override {}
+  void SetViewportBounds(const gfx::Rect& rect) override {}
   void SetImeVisibility(bool visible) override {}
   void UpdateViewportMetrics(const display::ViewportMetrics& metrics) override {
     metrics_ = metrics;
@@ -346,10 +347,6 @@ void TestWindowTreeClient::OnWindowBoundsChanged(
   tracker_.OnWindowBoundsChanged(window, std::move(old_bounds),
                                  std::move(new_bounds), local_surface_id);
 }
-
-void TestWindowTreeClient::OnNewBoundsFromHostServer(
-    Id window_id,
-    const gfx::Rect& new_bounds) {}
 
 void TestWindowTreeClient::OnClientAreaChanged(
     uint32_t window_id,

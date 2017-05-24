@@ -772,15 +772,6 @@ void WindowTree::ClientJankinessChanged(WindowTree* tree) {
   }
 }
 
-void WindowTree::OnNewBoundsFromHostServer(const ServerWindow* window,
-                                           const gfx::Rect& new_bounds) {
-  ClientWindowId client_window_id;
-  if (!IsWindowKnown(window, &client_window_id))
-    return;
-
-  client()->OnNewBoundsFromHostServer(client_window_id.id, new_bounds);
-}
-
 void WindowTree::ProcessWindowBoundsChanged(
     const ServerWindow* window,
     const gfx::Rect& old_bounds,

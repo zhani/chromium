@@ -276,9 +276,6 @@ class TestWindowTreeClient : public mojom::WindowTreeClient,
   void OnWindowStateChanged(uint32_t window_id,
                             ::ui::mojom::ShowState state) override {}
 
-  void OnNewBoundsFromHostServer(uint32_t window,
-                                 const gfx::Rect& new_bounds) override {}
-
   // WindowTreeClient:
   void OnEmbed(
       ClientSpecificId client_id,
