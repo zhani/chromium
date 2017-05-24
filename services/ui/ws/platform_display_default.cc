@@ -132,6 +132,10 @@ void PlatformDisplayDefault::SetNativeWindowState(ui::mojom::ShowState state) {
   }
 }
 
+void PlatformDisplayDefault::SetViewportBounds(const gfx::Rect& bounds) {
+  platform_window_->SetBounds(bounds);
+}
+
 void PlatformDisplayDefault::GetWindowType(ui::mojom::WindowType* result) {
   DCHECK(result);
   *result = metrics_.window_type;
