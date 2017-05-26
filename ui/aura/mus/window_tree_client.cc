@@ -709,14 +709,7 @@ void WindowTreeClient::ScheduleInFlightBoundsChange(
     synchronizing_with_child_on_next_frame_ = true;
   }
 
-  gfx::Rect newest_bounds = new_bounds;
-  // TODO(msisov): figure out why this stops settings bounds of
-  // ServerWindow for additional windows like menus, but still
-  // doesn't break clicking functionality and still let's
-  // main chrome window to set bounds to 10:10, for example.
-  if (window->window_mus_type() == WindowMusType::EMBED)
-    newest_bounds.set_origin(gfx::Point());
-  tree_->SetWindowBounds(change_id, window->server_id(), newest_bounds,
+  tree_->SetWindowBounds(change_id, window->server_id(), new_bounds,
                          local_surface_id);
 }
 
@@ -1183,17 +1176,6 @@ void WindowTreeClient::OnWindowBoundsChanged(
     return;
 
   SetWindowBoundsFromServer(window, new_bounds, local_surface_id);
-}
-
-void WindowTreeClient::OnNewBoundsFromHostServer(Id window_id,
-                                                 const gfx::Rect& new_bounds) {
-  WindowMus* window = GetWindowByServerId(window_id);
-  if (!window || !IsRoot(window))
-    return;
-
-  // WindowTreeHost expects bounds to be in pixels.
-  WindowTreeHostMus* host = GetWindowTreeHostMus(window);
-  host->SetBoundsInPixels(new_bounds);
 }
 
 void WindowTreeClient::OnClientAreaChanged(

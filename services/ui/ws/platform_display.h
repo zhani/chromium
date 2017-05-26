@@ -68,6 +68,9 @@ class PlatformDisplay : public ui::EventSource {
   // Changes state of a native window to minimized, maximized or normal.
   virtual void SetNativeWindowState(ui::mojom::ShowState state) {}
 
+  // Sets the bounds of a native window.
+  virtual void SetViewportBounds(const gfx::Rect& rect) {}
+
   // Overrides factory for testing. Default (NULL) value indicates regular
   // (non-test) environment.
   static void set_factory_for_testing(PlatformDisplayFactory* factory) {

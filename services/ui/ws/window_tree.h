@@ -233,10 +233,6 @@ class WindowTree : public mojom::WindowTree,
   // window(s).
   void ClientJankinessChanged(WindowTree* tree);
 
-  // Called when a host server triggers to change bounds of the client.
-  void OnNewBoundsFromHostServer(const ServerWindow* window,
-                                 const gfx::Rect& new_bounds);
-
   // The following methods are invoked after the corresponding change has been
   // processed. They do the appropriate bookkeeping and update the client as
   // necessary.

@@ -7,6 +7,7 @@
 #include <inttypes.h>
 #include <stddef.h>
 
+#include "base/auto_reset.h"
 #include "base/memory/ptr_util.h"
 #include "base/strings/stringprintf.h"
 #include "services/ui/common/transient_window_utils.h"
@@ -176,7 +177,8 @@ void ServerWindow::StackChildAtTop(ServerWindow* child) {
 void ServerWindow::SetBounds(
     const gfx::Rect& bounds,
     const base::Optional<cc::LocalSurfaceId>& local_surface_id) {
-  if (bounds_ == bounds && current_local_surface_id_ == local_surface_id)
+  if (bounds_ == bounds && current_local_surface_id_ == local_surface_id &&
+      !force_bounds_update_)
     return;
 
   current_local_surface_id_ = local_surface_id;
@@ -188,11 +190,8 @@ void ServerWindow::SetBounds(
 }
 
 void ServerWindow::OnNewBoundsFromHostServer(const gfx::Rect& bounds) {
-  if (bounds_ == bounds)
-    return;
-
-  for (auto& observer : observers_)
-    observer.OnNewBoundsFromHostServer(this, bounds);
+  base::AutoReset<bool> scoped_force_bounds_update(&force_bounds_update_, true);
+  SetBounds(bounds);
 }
 
 void ServerWindow::SetClientArea(

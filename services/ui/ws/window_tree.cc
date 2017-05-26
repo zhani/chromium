@@ -772,15 +772,6 @@ void WindowTree::ClientJankinessChanged(WindowTree* tree) {
   }
 }
 
-void WindowTree::OnNewBoundsFromHostServer(const ServerWindow* window,
-                                           const gfx::Rect& new_bounds) {
-  ClientWindowId client_window_id;
-  if (!IsWindowKnown(window, &client_window_id))
-    return;
-
-  client()->OnNewBoundsFromHostServer(client_window_id.id, new_bounds);
-}
-
 void WindowTree::ProcessWindowBoundsChanged(
     const ServerWindow* window,
     const gfx::Rect& old_bounds,
@@ -790,7 +781,19 @@ void WindowTree::ProcessWindowBoundsChanged(
   ClientWindowId client_window_id;
   if (originated_change || !IsWindowKnown(window, &client_window_id))
     return;
-  client()->OnWindowBoundsChanged(client_window_id.id, old_bounds, new_bounds,
+
+  // In external window mode, we cap the bounds WindowManagerDisplayRoot's
+  // root window to 0,0. So send the bounds of Display's root, which has the
+  // same size but contains the proper window placement (x, y).
+  gfx::Rect newest_bounds = new_bounds;
+  if (window_server_->IsInExternalWindowMode()) {
+    WindowManagerDisplayRoot* display_root =
+        GetWindowManagerDisplayRoot(window);
+    if (display_root && display_root->root() == window)
+      newest_bounds = GetDisplay(window)->root_window()->bounds();
+  }
+
+  client()->OnWindowBoundsChanged(client_window_id.id, old_bounds, newest_bounds,
                                   local_surface_id);
 }
 
@@ -1631,6 +1634,19 @@ void WindowTree::SetWindowBounds(
   // Only the owner of the window can change the bounds.
   bool success = access_policy_->CanSetWindowBounds(window);
   if (success) {
+    if (window_server_->IsInExternalWindowMode()) {
+      WindowManagerDisplayRoot* display_root =
+          GetWindowManagerDisplayRoot(window);
+      if (window == display_root->root()) {
+        Display* display = GetDisplay(window);
+        DCHECK(display);
+        display->SetBounds(bounds);
+
+        client()->OnChangeCompleted(change_id, success);
+        return;
+      }
+    }
+
     Operation op(this, window_server_, OperationType::SET_WINDOW_BOUNDS);
     window->SetBounds(bounds, local_surface_id);
   } else {

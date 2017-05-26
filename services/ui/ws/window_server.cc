@@ -369,15 +369,6 @@ void WindowServer::WindowManagerCreatedTopLevelWindow(
                                              change.client_change_id, window);
 }
 
-void WindowServer::OnNewBoundsFromHostServer(ServerWindow* window,
-                                             const gfx::Rect& new_bounds) {
-  if (in_destructor_)
-    return;
-
-  for (auto& pair : tree_map_)
-    pair.second->OnNewBoundsFromHostServer(window, new_bounds);
-}
-
 void WindowServer::ProcessWindowBoundsChanged(
     const ServerWindow* window,
     const gfx::Rect& old_bounds,

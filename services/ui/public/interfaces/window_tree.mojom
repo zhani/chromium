@@ -377,10 +377,6 @@ interface WindowTreeClient {
                         gfx.mojom.Rect new_bounds,
                         cc.mojom.LocalSurfaceId? local_surface_id);
                         
-  // Invoked when a host server calls back with changed bounds of a native
-  // window.
-  OnNewBoundsFromHostServer(uint32 window, gfx.mojom.Rect new_bounds);            
-
   OnClientAreaChanged(uint32 window_id,
                       gfx.mojom.Insets new_client_area,
                       array<gfx.mojom.Rect> new_additional_client_areas);

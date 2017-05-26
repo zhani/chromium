@@ -51,10 +51,6 @@ class ServerWindowObserver {
                                      const gfx::Rect& old_bounds,
                                      const gfx::Rect& new_bounds) {}
 
-  // Called when a host server wants client to change bounds.
-  virtual void OnNewBoundsFromHostServer(ServerWindow* window,
-                                         const gfx::Rect& new_bounds) {}
-
   virtual void OnWindowClientAreaChanged(
       ServerWindow* window,
       const gfx::Insets& new_client_area,
