@@ -1637,7 +1637,7 @@ void WindowTree::SetWindowBounds(
     if (window_server_->IsInExternalWindowMode()) {
       WindowManagerDisplayRoot* display_root =
           GetWindowManagerDisplayRoot(window);
-      if (window == display_root->root()) {
+      if (display_root && window == display_root->root()) {
         Display* display = GetDisplay(window);
         DCHECK(display);
         display->SetBounds(bounds);
