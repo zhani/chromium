@@ -105,14 +105,13 @@ WindowPortMus::RequestCompositorFrameSink(
   cc::mojom::MojoCompositorFrameSinkClientPtr client;
   cc::mojom::MojoCompositorFrameSinkClientRequest client_request =
       mojo::MakeRequest(&client);
-  constexpr bool enable_surface_synchronization = true;
   auto compositor_frame_sink = base::MakeUnique<viz::ClientCompositorFrameSink>(
       std::move(context_provider), nullptr /* worker_context_provider */,
       gpu_memory_buffer_manager, nullptr /* shared_bitmap_manager */,
       nullptr /* synthetic_begin_frame_source */, std::move(sink_info),
       std::move(client_request),
       base::MakeUnique<viz::DefaultLocalSurfaceIdProvider>(),
-      enable_surface_synchronization);
+      window_tree_client_->enable_surface_synchronization_);
   window_tree_client_->AttachCompositorFrameSink(
       server_id(), std::move(sink_request), std::move(client));
   return std::move(compositor_frame_sink);
@@ -299,12 +298,14 @@ const cc::LocalSurfaceId& WindowPortMus::GetOrAllocateLocalSurfaceId(
   local_surface_id_ = local_surface_id_allocator_.GenerateId();
   last_surface_size_in_pixels_ = surface_size_in_pixels;
 
-  // If the FrameSinkId is available, then immediately embed the SurfaceId.
-  // The newly generated frame by the embedder will block in the display
-  // compositor until the child submits a corresponding CompositorFrame or a
-  // deadline hits.
-  if (frame_sink_id_.is_valid())
+  // If surface synchronization is enabled and the FrameSinkId is available,
+  // then immediately embed the SurfaceId. The newly generated frame by the
+  // embedder will block in the display compositor until the child submits a
+  // corresponding CompositorFrame or a deadline hits.
+  if (window_tree_client_->enable_surface_synchronization_ &&
+      frame_sink_id_.is_valid()) {
     UpdatePrimarySurfaceInfo();
+  }
 
   return local_surface_id_;
 }
@@ -539,7 +540,7 @@ void WindowPortMus::UpdatePrimarySurfaceInfo() {
       window_mus_type() == WindowMusType::TOP_LEVEL_IN_WM ||
       window_mus_type() == WindowMusType::EMBED_IN_OWNER ||
       window_mus_type() == WindowMusType::DISPLAY_MANUALLY_CREATED;
-  if (!embeds_surface)
+  if (!embeds_surface || !window_tree_client_->enable_surface_synchronization_)
     return;
 
   if (!frame_sink_id_.is_valid() || !local_surface_id_.is_valid())
@@ -551,10 +552,8 @@ void WindowPortMus::UpdatePrimarySurfaceInfo() {
 }
 
 void WindowPortMus::UpdateClientSurfaceEmbedder() {
-  bool embeds_surface =
-      window_mus_type() == WindowMusType::TOP_LEVEL_IN_WM ||
-      window_mus_type() == WindowMusType::EMBED_IN_OWNER ||
-      window_mus_type() == WindowMusType::DISPLAY_MANUALLY_CREATED;
+  bool embeds_surface = window_mus_type() == WindowMusType::TOP_LEVEL_IN_WM ||
+                        window_mus_type() == WindowMusType::EMBED_IN_OWNER;
   if (!embeds_surface)
     return;
 

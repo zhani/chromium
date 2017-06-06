@@ -64,10 +64,6 @@ class AshTestBase : public testing::Test {
   AshTestBase();
   ~AshTestBase() override;
 
-  // Give all ui::Compositors a valid cc::LocalSurfaceId so that they can
-  // unblock cc::LayerTreeHost.
-  void UnblockCompositors();
-
   // testing::Test:
   void SetUp() override;
   void TearDown() override;

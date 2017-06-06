@@ -255,6 +255,9 @@ WindowTreeClient::WindowTreeClient(
           discardable_shared_memory_manager_.get());
     }
   }
+  enable_surface_synchronization_ =
+      base::CommandLine::ForCurrentProcess()->HasSwitch(
+          cc::switches::kEnableSurfaceSynchronization);
 }
 
 WindowTreeClient::~WindowTreeClient() {
@@ -641,6 +644,9 @@ void WindowTreeClient::OnEmbedImpl(
 void WindowTreeClient::OnSetDisplayRootDone(
     Id window_id,
     const base::Optional<cc::LocalSurfaceId>& local_surface_id) {
+  if (!enable_surface_synchronization_)
+    return;
+
   // The only way SetDisplayRoot() should fail is if we've done something wrong.
   CHECK(local_surface_id.has_value());
   WindowMus* window = GetWindowByServerId(window_id);
@@ -692,7 +698,8 @@ void WindowTreeClient::SetWindowBoundsFromServer(
   if (IsRoot(window)) {
     // WindowTreeHost expects bounds to be in pixels.
     GetWindowTreeHostMus(window)->SetBoundsFromServer(revert_bounds_in_pixels);
-    if (local_surface_id && local_surface_id->is_valid()) {
+    if (enable_surface_synchronization_ && local_surface_id &&
+        local_surface_id->is_valid()) {
       ui::Compositor* compositor = window->GetWindow()->GetHost()->compositor();
       compositor->SetLocalSurfaceId(*local_surface_id);
     }
@@ -1480,13 +1487,18 @@ void WindowTreeClient::OnWindowSurfaceChanged(
   WindowMus* window = GetWindowByServerId(window_id);
   if (!window)
     return;
-
-  // If the parent is informed of a child's surface then that surface ID is
-  // guaranteed to be available in the display compositor so we set it as the
-  // fallback. If surface synchronization is enabled, the primary SurfaceInfo
-  // is created by the embedder, and the LocalSurfaceId is allocated by the
-  // embedder.
-  window->SetFallbackSurfaceInfo(surface_info);
+  if (enable_surface_synchronization_) {
+    // If surface synchronization is enabled, and the parent is informed
+    // of a child's surface then that surface ID is guaranteed to be available
+    // in the display compositor so we set it as the fallback. If surface
+    // synchronization is enabled, the primary SurfaceInfo is created by the
+    // embedder, and the LocalSurfaceId is allocated by the embedder.
+    window->SetFallbackSurfaceInfo(surface_info);
+  } else {
+    // If surface synchronization is disabled, fallback SurfaceInfos are never
+    // used.
+    window->SetPrimarySurfaceInfo(surface_info);
+  }
 }
 
 void WindowTreeClient::OnDragDropStart(
