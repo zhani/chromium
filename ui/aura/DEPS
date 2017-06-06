@@ -1,5 +1,4 @@
 include_rules = [
-  "+cc/base",
   "+cc/output",
   "+cc/surfaces",
   "+mojo/common",
