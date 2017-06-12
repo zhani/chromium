@@ -128,6 +128,7 @@ void PlatformDisplayDefault::SetNativeWindowState(ui::mojom::ShowState state) {
       platform_window_->ToggleFullscreen();
       break;
     case (ui::mojom::ShowState::NORMAL):
+    case (ui::mojom::ShowState::DEFAULT):
       platform_window_->Restore();
       break;
     default:
