@@ -83,9 +83,7 @@ void RendererWindowTreeClient::RequestCompositorFrameSinkInternal(
   cc::mojom::MojoCompositorFrameSinkClientPtr client;
   cc::mojom::MojoCompositorFrameSinkClientRequest client_request =
       mojo::MakeRequest(&client);
-  bool enable_surface_synchronization =
-      base::CommandLine::ForCurrentProcess()->HasSwitch(
-          cc::switches::kEnableSurfaceSynchronization);
+  constexpr bool enable_surface_synchronization = true;
   auto frame_sink = base::MakeUnique<viz::ClientCompositorFrameSink>(
       std::move(context_provider), nullptr /* worker_context_provider */,
       gpu_memory_buffer_manager, nullptr /* shared_bitmap_manager */,
