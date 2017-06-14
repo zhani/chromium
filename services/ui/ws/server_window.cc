@@ -177,8 +177,7 @@ void ServerWindow::StackChildAtTop(ServerWindow* child) {
 void ServerWindow::SetBounds(
     const gfx::Rect& bounds,
     const base::Optional<cc::LocalSurfaceId>& local_surface_id) {
-  if (bounds_ == bounds && current_local_surface_id_ == local_surface_id &&
-      !force_bounds_update_)
+  if (bounds_ == bounds && current_local_surface_id_ == local_surface_id)
     return;
 
   current_local_surface_id_ = local_surface_id;
@@ -187,11 +186,6 @@ void ServerWindow::SetBounds(
   bounds_ = bounds;
   for (auto& observer : observers_)
     observer.OnWindowBoundsChanged(this, old_bounds, bounds);
-}
-
-void ServerWindow::OnNewBoundsFromHostServer(const gfx::Rect& bounds) {
-  base::AutoReset<bool> scoped_force_bounds_update(&force_bounds_update_, true);
-  SetBounds(bounds);
 }
 
 void ServerWindow::SetClientArea(
