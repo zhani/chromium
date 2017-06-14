@@ -55,9 +55,11 @@ TEST_F(WaylandWindowTest, SetTitle) {
   window.SetTitle(base::ASCIIToUTF16("hello"));
 }
 
-TEST_F(WaylandWindowTest, Maximize) {
+TEST_F(WaylandWindowTest, MaximizeAndRestore) {
   EXPECT_CALL(*xdg_surface, SetMaximized());
+  EXPECT_CALL(*xdg_surface, UnsetMaximized());
   window.Maximize();
+  window.Restore();
 }
 
 TEST_F(WaylandWindowTest, Minimize) {
@@ -65,8 +67,20 @@ TEST_F(WaylandWindowTest, Minimize) {
   window.Minimize();
 }
 
-TEST_F(WaylandWindowTest, Restore) {
+TEST_F(WaylandWindowTest, SetFullScreenAndRestore) {
+  EXPECT_CALL(*xdg_surface, SetFullScreen());
+  EXPECT_CALL(*xdg_surface, UnsetFullScreen());
+  window.ToggleFullscreen();
+  window.Restore();
+}
+
+TEST_F(WaylandWindowTest, SetMaximizedFullScreenAndRestore) {
+  EXPECT_CALL(*xdg_surface, SetFullScreen());
+  EXPECT_CALL(*xdg_surface, UnsetFullScreen());
+  EXPECT_CALL(*xdg_surface, SetMaximized());
   EXPECT_CALL(*xdg_surface, UnsetMaximized());
+  window.Maximize();
+  window.ToggleFullscreen();
   window.Restore();
 }
 
