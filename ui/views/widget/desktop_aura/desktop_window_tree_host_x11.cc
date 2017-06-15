@@ -1145,6 +1145,8 @@ bool DesktopWindowTreeHostX11::ShouldCreateVisibilityController() const {
   return true;
 }
 
+void DesktopWindowTreeHostX11::PerformNativeWindowDragOrResize(int hittest) {}
+
 ////////////////////////////////////////////////////////////////////////////////
 // DesktopWindowTreeHostX11, aura::WindowTreeHost implementation:
 
