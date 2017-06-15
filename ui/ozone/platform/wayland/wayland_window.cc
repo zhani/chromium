@@ -8,6 +8,7 @@
 
 #include "base/bind.h"
 #include "base/strings/utf_string_conversions.h"
+#include "ui/base/hit_test.h"
 #include "ui/events/event.h"
 #include "ui/events/ozone/events_ozone.h"
 #include "ui/ozone/platform/wayland/wayland_connection.h"
@@ -16,6 +17,42 @@
 namespace ui {
 
 namespace {
+
+// Identifies the direction of the "hittest" for Wayland.
+bool IdentifyDirection(int hittest, int* direction) {
+  DCHECK(direction);
+  *direction = -1;
+  switch (hittest) {
+    case HTBOTTOM:
+      *direction = xdg_surface_resize_edge::XDG_SURFACE_RESIZE_EDGE_BOTTOM;
+      break;
+    case HTBOTTOMLEFT:
+      *direction = xdg_surface_resize_edge::XDG_SURFACE_RESIZE_EDGE_BOTTOM_LEFT;
+      break;
+    case HTBOTTOMRIGHT:
+      *direction =
+          xdg_surface_resize_edge::XDG_SURFACE_RESIZE_EDGE_BOTTOM_RIGHT;
+      break;
+    case HTLEFT:
+      *direction = xdg_surface_resize_edge::XDG_SURFACE_RESIZE_EDGE_LEFT;
+      break;
+    case HTRIGHT:
+      *direction = xdg_surface_resize_edge::XDG_SURFACE_RESIZE_EDGE_RIGHT;
+      break;
+    case HTTOP:
+      *direction = xdg_surface_resize_edge::XDG_SURFACE_RESIZE_EDGE_TOP;
+      break;
+    case HTTOPLEFT:
+      *direction = xdg_surface_resize_edge::XDG_SURFACE_RESIZE_EDGE_TOP_LEFT;
+      break;
+    case HTTOPRIGHT:
+      *direction = xdg_surface_resize_edge::XDG_SURFACE_RESIZE_EDGE_TOP_RIGHT;
+      break;
+    default:
+      return false;
+  }
+  return true;
+}
 
 static WaylandWindow* g_current_capture_ = nullptr;
 
@@ -255,6 +292,18 @@ void WaylandWindow::ConfineCursorToBounds(const gfx::Rect& bounds) {
 PlatformImeController* WaylandWindow::GetPlatformImeController() {
   NOTIMPLEMENTED();
   return nullptr;
+}
+
+void WaylandWindow::PerformNativeWindowDragOrResize(uint32_t hittest) {
+  if (hittest == HTCAPTION) {
+    xdg_surface_move(xdg_surface_.get(), connection_->seat(),
+                     connection_->serial());
+  } else {
+    int direction;
+    if (IdentifyDirection(hittest, &direction))
+      xdg_surface_resize(xdg_surface_.get(), connection_->seat(),
+                         connection_->serial(), direction);
+  }
 }
 
 bool WaylandWindow::CanDispatchEvent(const PlatformEvent& native_event) {
