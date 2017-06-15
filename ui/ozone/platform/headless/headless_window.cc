@@ -74,4 +74,6 @@ PlatformImeController* HeadlessWindow::GetPlatformImeController() {
   return nullptr;
 }
 
+void HeadlessWindow::PerformNativeWindowDragOrResize(uint32_t hittest) {}
+
 }  // namespace ui
