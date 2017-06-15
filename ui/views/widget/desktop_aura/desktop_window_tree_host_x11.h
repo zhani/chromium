@@ -152,6 +152,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
   bool ShouldUpdateWindowTransparency() const override;
   bool ShouldUseDesktopNativeCursorManager() const override;
   bool ShouldCreateVisibilityController() const override;
+  void PerformNativeWindowDragOrResize(int hittest) override;
 
   // Overridden from aura::WindowTreeHost:
   gfx::Transform GetRootTransform() const override;
