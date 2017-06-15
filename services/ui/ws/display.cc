@@ -359,13 +359,13 @@ void Display::OnBoundsChanged(const gfx::Rect& new_bounds) {
   if (root_->bounds() == new_bounds)
     return;
 
-  root_->OnNewBoundsFromHostServer(new_bounds);
+  root_->SetBounds(new_bounds, allocator_.GenerateId());
 
   // WindowManagerDisplayRoot::root_ needs to be at 0,0 position relative
   // to its parent not to break mouse/touch events.
   for (auto& pair : window_manager_display_root_map_)
-    pair.second->root()->OnNewBoundsFromHostServer(
-        gfx::Rect(new_bounds.size()));
+    pair.second->root()->SetBounds(
+        gfx::Rect(new_bounds.size()), allocator_.GenerateId());
 }
 
 void Display::OnCloseRequest() {
