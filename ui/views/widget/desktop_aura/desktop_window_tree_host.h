@@ -170,6 +170,10 @@ class VIEWS_EXPORT DesktopWindowTreeHost {
 
   // Returns whether a VisibilityController should be created.
   virtual bool ShouldCreateVisibilityController() const = 0;
+
+  // Tells the native window manager to start interactive drag or resize of a
+  // window.
+  virtual void PerformNativeWindowDragOrResize(int hittest) = 0;
 };
 
 }  // namespace views
