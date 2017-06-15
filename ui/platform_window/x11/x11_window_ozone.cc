@@ -118,6 +118,12 @@ uint32_t X11WindowOzone::DispatchEvent(const PlatformEvent& platform_event) {
   if (target != xwindow())
     ConvertEventLocationToCurrentWindowLocation(target, event);
 
+  if (event->IsMouseEvent() && event->AsMouseEvent()->IsLeftMouseButton()) {
+    // Set location of an x root window, which will be used for interactive
+    // dragging/resize if a later hittest is positive.
+    SetXRootWindowEventLocation(event->AsMouseEvent()->root_location());
+  }
+
   DispatchEventFromNativeUiEvent(
       event, base::Bind(&PlatformWindowDelegate::DispatchEvent,
                         base::Unretained(delegate())));
