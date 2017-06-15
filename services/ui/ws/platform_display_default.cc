@@ -158,6 +158,10 @@ void PlatformDisplayDefault::GetWindowType(
     *window_type = ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_MENU;
 }
 
+void PlatformDisplayDefault::PerformNativeWindowDragOrResize(uint32_t hittest) {
+  platform_window_->PerformNativeWindowDragOrResize(hittest);
+}
+
 void PlatformDisplayDefault::SetCursor(const ui::CursorData& cursor_data) {
   if (!image_cursors_)
     return;
