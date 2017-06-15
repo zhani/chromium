@@ -46,6 +46,8 @@ class VIEWS_MUS_EXPORT DesktopWindowTreeHostMus
     auto_update_client_area_ = value;
   }
 
+  ui::EventDispatchDetails SendEventToSink(ui::Event* event) override;
+
  private:
   void SendClientAreaToServer();
   void SendHitTestMaskToServer();
@@ -123,6 +125,7 @@ class VIEWS_MUS_EXPORT DesktopWindowTreeHostMus
   bool ShouldUpdateWindowTransparency() const override;
   bool ShouldUseDesktopNativeCursorManager() const override;
   bool ShouldCreateVisibilityController() const override;
+  void PerformNativeWindowDragOrResize(int hittest) override;
 
   // MusClientObserver:
   void OnWindowManagerFrameValuesChanged() override;
@@ -156,6 +159,8 @@ class VIEWS_MUS_EXPORT DesktopWindowTreeHostMus
   bool is_active_ = false;
 
   std::unique_ptr<wm::CursorManager> cursor_manager_;
+
+  std::unique_ptr<ui::EventHandler> non_client_window_event_filter_;
 
   bool auto_update_client_area_ = true;
 
