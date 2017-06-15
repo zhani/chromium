@@ -134,6 +134,9 @@ void WindowEventFilter::LowerWindow() {}
 
 void WindowEventFilter::MaybeDispatchHostWindowDragMovement(
     int hittest,
-    ui::MouseEvent* event) {}
+    ui::MouseEvent* event) {
+  if (event->IsLeftMouseButton())
+    window_tree_host_->PerformNativeWindowDragOrResize(hittest);
+}
 
 }  // namespace views
