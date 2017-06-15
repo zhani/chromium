@@ -143,6 +143,10 @@ void PlatformDisplayDefault::GetWindowType(ui::mojom::WindowType* result) {
   *result = metrics_.window_type;
 }
 
+void PlatformDisplayDefault::PerformNativeWindowDragOrResize(uint32_t hittest) {
+  platform_window_->PerformNativeWindowDragOrResize(hittest);
+}
+
 void PlatformDisplayDefault::SetCursor(const ui::CursorData& cursor_data) {
   if (!image_cursors_)
     return;

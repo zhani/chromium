@@ -434,6 +434,10 @@ ServerWindow* Display::GetActiveRootWindow() {
   return nullptr;
 }
 
+void Display::PerformNativeWindowDragOrResize(uint32_t hittest) {
+  platform_display_->PerformNativeWindowDragOrResize(hittest);
+}
+
 bool Display::CanHaveActiveChildren(ServerWindow* window) const {
   return window && activation_parents_.Contains(window);
 }
