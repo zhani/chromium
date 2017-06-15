@@ -306,6 +306,10 @@ PlatformImeController* X11WindowBase::GetPlatformImeController() {
   return nullptr;
 }
 
+void X11WindowBase::PerformNativeWindowDragOrResize(uint32_t hittest) {
+  NOTIMPLEMENTED();
+}
+
 bool X11WindowBase::IsEventForXWindow(const XEvent& xev) const {
   return xwindow_ != None && FindXEventTarget(xev) == xwindow_;
 }

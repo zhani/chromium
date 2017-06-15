@@ -37,6 +37,7 @@
 
 #if defined(USE_OZONE)
 #include "ui/base/cursor/ozone/cursor_data_factory_ozone.h"
+#include "ui/views/widget/desktop_aura/window_event_filter.h"
 #endif
 
 namespace views {
@@ -337,6 +338,17 @@ void DesktopWindowTreeHostMus::OnNativeWidgetCreated(
     parent_ = static_cast<DesktopWindowTreeHostMus*>(params.parent->GetHost());
     parent_->children_.insert(this);
   }
+
+#if defined(USE_OZONE) && !defined(OS_CHROMEOS)
+  std::unique_ptr<ui::EventHandler> handler(new WindowEventFilter(this));
+  wm::CompoundEventFilter* compound_event_filter =
+      desktop_native_widget_aura_->root_window_event_filter();
+  if (non_client_window_event_filter_)
+    compound_event_filter->RemoveHandler(handler.get());
+  compound_event_filter->AddHandler(handler.get());
+  non_client_window_event_filter_ = std::move(handler);
+#endif
+
   native_widget_delegate_->OnNativeWidgetCreated(true);
 }
 
@@ -401,6 +413,14 @@ void DesktopWindowTreeHostMus::CloseNow() {
     parent_->children_.erase(this);
     parent_ = nullptr;
   }
+
+#if defined(USE_OZONE) && !defined(OS_CHROMEOS)
+  // Remove the event listeners we've installed. We need to remove these
+  // because otherwise we get assert during ~WindowEventDispatcher().
+  desktop_native_widget_aura_->root_window_event_filter()->RemoveHandler(
+      non_client_window_event_filter_.get());
+  non_client_window_event_filter_.reset();
+#endif
 
   DestroyCompositor();
   desktop_native_widget_aura_->OnHostClosed();
@@ -736,6 +756,10 @@ bool DesktopWindowTreeHostMus::ShouldUseDesktopNativeCursorManager() const {
 bool DesktopWindowTreeHostMus::ShouldCreateVisibilityController() const {
   // Window manager takes care of all top-level window animations.
   return false;
+}
+
+void DesktopWindowTreeHostMus::PerformNativeWindowDragOrResize(int hittest) {
+  WindowTreeHostMus::PerformNativeWindowDragOrResize(hittest);
 }
 
 void DesktopWindowTreeHostMus::OnWindowManagerFrameValuesChanged() {
