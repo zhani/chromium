@@ -147,6 +147,10 @@ void WindowTreeHostMus::PerformWindowMove(
       this, mus_source, cursor_location, callback);
 }
 
+void WindowTreeHostMus::PerformNativeWindowDragOrResize(int hittest) {
+  delegate_->OnWindowTreeHostPerformNativeWindowDragOrResize(this, hittest);
+}
+
 void WindowTreeHostMus::CancelWindowMove() {
   delegate_->OnWindowTreeHostCancelWindowMove(this);
 }
