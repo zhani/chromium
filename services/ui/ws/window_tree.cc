@@ -779,7 +779,7 @@ void WindowTree::ProcessWindowBoundsChanged(
   if (window_server_->IsInExternalWindowMode()) {
     WindowManagerDisplayRoot* display_root =
         GetWindowManagerDisplayRoot(window);
-    if (display_root && display_root->root() == window)
+    if (display_root && display_root->GetClientVisibleRoot() == window)
       newest_bounds = GetDisplay(window)->root_window()->bounds();
   }
 
@@ -1634,7 +1634,7 @@ void WindowTree::SetWindowBounds(
     if (window_server_->IsInExternalWindowMode()) {
       WindowManagerDisplayRoot* display_root =
           GetWindowManagerDisplayRoot(window);
-      if (display_root && window == display_root->root()) {
+      if (display_root && display_root->GetClientVisibleRoot() == window) {
         Display* display = GetDisplay(window);
         DCHECK(display);
         display->SetBounds(bounds);
