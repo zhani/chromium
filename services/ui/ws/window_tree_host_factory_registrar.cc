@@ -29,6 +29,17 @@ void WindowTreeHostFactoryRegistrar::Register(
 
   host_factory->AddBinding(std::move(host_factory_request));
 
+  // NOTE: The code below is analogous to WS::CreateTreeForWindowManager,
+  // but for the sake of an easier rebase, we are concentrating additions
+  // like this here.
+
+  bool automatically_create_display_roots = true;
+
+  // TODO(tonikitoo,msisov): Maybe remove the "window manager" suffix
+  // if the method name?
+  window_server_->delegate()->OnWillCreateTreeForWindowManager(
+    automatically_create_display_roots);
+
   // FIXME(tonikitoo,msisov,fwang): Do we need our own AccessPolicy?
   std::unique_ptr<ws::WindowTree> tree(
       new ws::WindowTree(window_server_, user_id_, nullptr /*ServerWindow*/,
@@ -51,11 +62,6 @@ void WindowTreeHostFactoryRegistrar::Register(
   window_server_->AddTree(std::move(tree), std::move(tree_binding),
                           nullptr /*mojom::WindowTreePtr*/);
   window_server_->set_window_tree_host_factory(std::move(host_factory));
-
-  // TODO(tonikitoo,msisov): Maybe remove the "window manager" suffix
-  // if the method name?
-  window_server_->delegate()->OnWillCreateTreeForWindowManager(
-      true /*automatically_create_display_roots*/);
 }
 
 }  // namespace ws
