@@ -2,15 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "ui/base/x/x11_pointer_grab.h"
+
 #include "base/logging.h"
 #include "ui/base/x/x11_util.h"
 #include "ui/events/devices/x11/device_data_manager_x11.h"
-#include "ui/views/widget/desktop_aura/x11_pointer_grab.h"
 
-#include <X11/extensions/XInput2.h>
 #include <X11/Xlib.h>
+#include <X11/extensions/XInput2.h>
 
-namespace views {
+namespace ui {
 
 namespace {
 
@@ -86,4 +87,4 @@ void UngrabPointer() {
   XUngrabPointer(gfx::GetXDisplay(), CurrentTime);
 }
 
-}  // namespace views
+}  // namespace ui
