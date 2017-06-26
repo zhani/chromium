@@ -7,11 +7,13 @@
 
 #include <memory>
 
+#include "base/callback_forward.h"
 #include "base/macros.h"
 #include "base/message_loop/message_loop.h"
 #include "services/service_manager/public/cpp/bind_source_info.h"
 #include "services/service_manager/public/cpp/binder_registry.h"
 #include "ui/events/system_input_injector.h"
+#include "ui/gfx/geometry/size.h"
 #include "ui/ozone/ozone_export.h"
 
 namespace display {
@@ -118,6 +120,10 @@ class OZONE_EXPORT OzonePlatform : public SystemInputInjectorFactory {
 
   // Factory getters which come through from SystemInputInjector:
   std::unique_ptr<SystemInputInjector> CreateSystemInputInjector() override = 0;
+
+  using QueryHostDisplaysDataCallback =
+      base::Callback<void(const std::vector<gfx::Size>&)>;
+  virtual void QueryHostDisplaysData(QueryHostDisplaysDataCallback callback);
 
   // Returns the message loop type required for OzonePlatform instance that
   // will be initialized for the GPU process.
