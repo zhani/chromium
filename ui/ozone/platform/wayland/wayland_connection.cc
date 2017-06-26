@@ -212,6 +212,10 @@ void WaylandConnection::Global(void* data,
 
     connection->output_list_.push_back(
         base::WrapUnique(new WaylandOutput(output.release())));
+
+    // By the time the Wayland output is instantiated, it must be able
+    // to receive and process events from the Wayland server.
+    connection->StartProcessingEvents();
   }
 
   connection->ScheduleFlush();
