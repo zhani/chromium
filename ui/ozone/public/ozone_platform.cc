@@ -92,6 +92,10 @@ base::MessageLoop::Type OzonePlatform::GetMessageLoopTypeForGpu() {
   return base::MessageLoop::TYPE_DEFAULT;
 }
 
+void OzonePlatform::QueryHostDisplaysData(QueryHostDisplaysDataCallback callback) {
+  NOTREACHED();
+}
+
 void OzonePlatform::AddInterfaces(service_manager::BinderRegistry* registry) {}
 
 }  // namespace ui
