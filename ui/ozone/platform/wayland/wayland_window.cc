@@ -230,7 +230,6 @@ void WaylandWindow::ToggleFullscreen() {
   else
     xdg_surface_unset_fullscreen(xdg_surface_.get());
 
-  is_fullscreen_ = !is_fullscreen_;
   connection_->ScheduleFlush();
 }
 
@@ -246,7 +245,6 @@ void WaylandWindow::Maximize() {
 
   xdg_surface_set_maximized(xdg_surface_.get());
   connection_->ScheduleFlush();
-  is_maximized_ = true;
 }
 
 void WaylandWindow::Minimize() {
@@ -277,7 +275,6 @@ void WaylandWindow::Restore() {
     connection_->ScheduleFlush();
   }
   is_minimized_ = false;
-  is_maximized_ = false;
 }
 
 void WaylandWindow::SetCursor(PlatformCursor cursor) {
@@ -368,6 +365,33 @@ void WaylandWindow::Configure(void* data,
     height = window->GetBounds().height();
   }
 
+  window->ResetWindowStates();
+  uint32_t* p;
+  wl_array_for_each(p, states) {
+    uint32_t state = *p;
+    switch (state) {
+      case (XDG_SURFACE_STATE_MAXIMIZED):
+        window->is_maximized_ = true;
+        break;
+      case (XDG_SURFACE_STATE_FULLSCREEN):
+        window->is_fullscreen_ = true;
+        break;
+      default:
+        break;
+    }
+  }
+
+  ui::PlatformWindowState state =
+      ui::PlatformWindowState::PLATFORM_WINDOW_STATE_NORMAL;
+  if (window->is_maximized_)
+    state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MAXIMIZED;
+
+  // If the window is in the fullscreen mode, there is no need to notify the
+  // client about the state as long as it has been the client who has changed
+  // the state.
+  if (!window->is_fullscreen_)
+    window->delegate()->OnWindowStateChanged(state);
+
   // Rather than call SetBounds here for every configure event, just save the
   // most recent bounds, and have WaylandConnection call ApplyPendingBounds
   // when it has finished processing events. We may get many configure events
@@ -398,6 +422,11 @@ bool WaylandWindow::IsMaximized() {
 
 bool WaylandWindow::IsFullScreen() {
   return is_fullscreen_;
+}
+
+void WaylandWindow::ResetWindowStates() {
+  is_maximized_ = false;
+  is_fullscreen_ = false;
 }
 
 }  // namespace ui
