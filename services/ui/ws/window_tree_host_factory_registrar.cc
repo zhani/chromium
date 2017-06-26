@@ -4,10 +4,7 @@
 
 #include "services/ui/ws/window_tree_host_factory_registrar.h"
 
-#include "base/command_line.h"
-#include "services/ui/common/switches.h"
 #include "services/ui/ws/default_access_policy.h"
-#include "services/ui/ws/window_manager_access_policy.h"
 #include "services/ui/ws/window_server.h"
 #include "services/ui/ws/window_server_delegate.h"
 #include "services/ui/ws/window_tree.h"
@@ -43,20 +40,10 @@ void WindowTreeHostFactoryRegistrar::Register(
   window_server_->delegate()->OnWillCreateTreeForWindowManager(
     automatically_create_display_roots);
 
-  std::unique_ptr<ws::WindowTree> tree;
-  base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
-  if (cmd_line->HasSwitch(switches::kUseTestConfig)) {
-    // TODO(tonikitoo, msisov): unittests require WindowManagerAccessPolicy to
-    // pass. Figure out how to make them work with Default one if we are going
-    // to use that one as our main policy.
-    tree.reset(
-        new ws::WindowTree(window_server_, user_id_, nullptr /*ServerWindow*/,
-                           base::WrapUnique(new WindowManagerAccessPolicy())));
-  } else {
-    tree.reset(new ws::WindowTree(window_server_, user_id_,
-                                  nullptr /*ServerWindow*/,
-                                  base::WrapUnique(new DefaultAccessPolicy())));
-  }
+  // FIXME(tonikitoo,msisov,fwang): Do we need our own AccessPolicy?
+  std::unique_ptr<ws::WindowTree> tree(
+      new ws::WindowTree(window_server_, user_id_, nullptr /*ServerWindow*/,
+                         base::WrapUnique(new DefaultAccessPolicy())));
 
   std::unique_ptr<ws::DefaultWindowTreeBinding> tree_binding(
       new ws::DefaultWindowTreeBinding(tree.get(), window_server_,
