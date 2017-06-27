@@ -881,7 +881,7 @@ void WindowServer::OnWindowSharedPropertyChanged(
     ServerWindow* window,
     const std::string& name,
     const std::vector<uint8_t>* new_data) {
-  if (in_external_window_mode &&
+  if (in_external_window_mode_ &&
       name == mojom::WindowManager::kShowState_Property) {
     const int64_t state = mojo::ConvertTo<int64_t>(*new_data);
     SetNativeWindowState(window, static_cast<ui::mojom::ShowState>(state));
