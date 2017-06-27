@@ -367,7 +367,15 @@ void WaylandWindow::Configure(void* data,
 
   window->ResetWindowStates();
   uint32_t* p;
-  wl_array_for_each(p, states) {
+  // wl_array_for_each has a bug in upstream. It tries to assign void* to
+  // uint32_t *, which is not allowed in C++. Explicit cast should be performed.
+  // In other words, one just cannot assign void * to other pointer type
+  // implicitly in C++ as in C. We can't modify wayland-util.h, because it is
+  // fetched with gclient sync. Thus, use own loop.
+  // TODO(msisov, tonikitoo): use wl_array_for_each as soon as
+  // https://bugs.freedesktop.org/show_bug.cgi?id=101618 is resolved.
+  for (p = (uint32_t*)states->data;
+       (const char*)p < ((const char*)(states)->data + (states)->size); p++) {
     uint32_t state = *p;
     switch (state) {
       case (XDG_SURFACE_STATE_MAXIMIZED):
