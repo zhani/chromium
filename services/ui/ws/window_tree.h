@@ -82,6 +82,9 @@ class WindowTree : public mojom::WindowTree,
   // on |automatically_create_display_roots|.
   void ConfigureWindowManager(bool automatically_create_display_roots);
 
+  // Called if this WindowTree is a root one, in external window mode.
+  void ConfigureRootWindowTreeClient(bool automatically_create_display_roots);
+
   bool automatically_create_display_roots() const {
     return automatically_create_display_roots_;
   }
