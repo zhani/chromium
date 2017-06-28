@@ -201,6 +201,13 @@ void WindowTree::ConfigureWindowManager(
   window_manager_state_ = base::MakeUnique<WindowManagerState>(this);
 }
 
+void WindowTree::ConfigureRootWindowTreeClient(
+    bool automatically_create_display_roots) {
+  DCHECK(window_server_->IsInExternalWindowMode());
+  automatically_create_display_roots_ = automatically_create_display_roots;
+  binding_->GetWindowManager()->OnConnect(id_);
+}
+
 const ServerWindow* WindowTree::GetWindow(const WindowId& id) const {
   if (id_ == id.client_id) {
     auto iter = created_window_map_.find(id);

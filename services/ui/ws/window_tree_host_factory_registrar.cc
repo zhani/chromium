@@ -72,8 +72,10 @@ void WindowTreeHostFactoryRegistrar::Register(
   // will not get called because the WindowTree instance was created above
   // taking 'nullptr' as the ServerWindow parameter, hence the WindowTree has no
   // 'root' yet.
+  WindowTree* tree_ptr = tree.get();
   window_server_->AddTree(std::move(tree), std::move(tree_binding),
                           nullptr /*mojom::WindowTreePtr*/);
+  tree_ptr->ConfigureRootWindowTreeClient(automatically_create_display_roots);
   window_server_->set_window_tree_host_factory(std::move(host_factory));
 }
 
