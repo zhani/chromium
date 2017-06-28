@@ -168,8 +168,8 @@ class WindowServer : public ServerWindowDelegate,
   bool SetFocusedWindow(ServerWindow* window);
   ServerWindow* GetFocusedWindow();
 
-  void SetInExternalWindowMode() { in_external_window_mode = true; }
-  bool IsInExternalWindowMode() const { return in_external_window_mode; }
+  void SetInExternalWindowMode() { in_external_window_mode_ = true; }
+  bool IsInExternalWindowMode() const { return in_external_window_mode_; }
 
   void SetHighContrastMode(const UserId& user, bool enabled);
 
@@ -431,7 +431,7 @@ class WindowServer : public ServerWindowDelegate,
   // Provides interfaces to create and manage FrameSinks.
   std::unique_ptr<cc::mojom::FrameSinkManager> frame_sink_manager_;
 
-  bool in_external_window_mode = false;
+  bool in_external_window_mode_ = false;
 
   DisplayCreationConfig display_creation_config_;
 
