@@ -9,6 +9,12 @@ import("//services/service_manager/public/service_manifest.gni")
 
 assert(enable_package_mash_services)
 
+# Disallow to use mash packages in Linux OS without use_ozone flag.
+# Otherwise, mus catalog is not created and compilation failes in the end.
+if (is_linux && !is_chromeos) {
+  assert(use_ozone)
+}
+
 source_set("embedded_services") {
   sources = [
     "embedded_services.cc",
