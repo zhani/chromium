@@ -49,10 +49,8 @@ void WindowTreeHostFactory::CreatePlatformWindow(
   metrics.ui_scale_factor = 1.0f;
 
   auto iter = properties.find(ui::mojom::WindowManager::kBounds_InitProperty);
-  if (iter != properties.end()) {
+  if (iter != properties.end())
     metrics.bounds_in_pixels = mojo::ConvertTo<gfx::Rect>(iter->second);
-  } else
-    metrics.bounds_in_pixels = gfx::Rect(1024, 768);
 
   iter = properties.find(ui::mojom::WindowManager::kWindowType_InitProperty);
   if (iter != properties.end()) {
