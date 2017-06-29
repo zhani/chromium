@@ -290,6 +290,10 @@ void PlatformDisplayDefault::OnWindowStateChanged(
     case (ui::PlatformWindowState::PLATFORM_WINDOW_STATE_NORMAL):
       state = ui::mojom::ShowState::NORMAL;
       break;
+    // If the window is in the fullscreen mode, there is no need to notify the
+    // client about the state as long as it has been the client who has changed
+    // the state. Checked here explicitly on purpose.
+    case (ui::PlatformWindowState::PLATFORM_WINDOW_STATE_FULLSCREEN):
     default:
       // We don't support other states at the moment. Ignore them.
       return;
