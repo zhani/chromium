@@ -32,6 +32,8 @@ class MusDemoExternal : public MusDemo {
   void OnEmbedRootDestroyed(aura::WindowTreeHostMus* window_tree_host) final;
 
   size_t number_of_windows_ = 1;
+  size_t number_of_windows_created_ = 0;
+  bool create_windows_sequentially_ = false;
 
   DISALLOW_COPY_AND_ASSIGN(MusDemoExternal);
 };

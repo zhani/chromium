@@ -7,6 +7,7 @@
 #include "base/command_line.h"
 #include "base/strings/string_number_conversions.h"
 #include "services/service_manager/public/cpp/service_context.h"
+#include "services/ui/common/switches.h"
 #include "services/ui/demo/window_tree_data.h"
 #include "services/ui/public/cpp/property_type_converters.h"
 #include "services/ui/public/interfaces/constants.mojom.h"
@@ -70,6 +71,7 @@ void MusDemoExternal::OnStartImpl() {
       return;
     }
   }
+  create_windows_sequentially_ = command_line->HasSwitch(switches::kUseTestConfig);
 
   window_tree_client()->ConnectViaWindowTreeHostFactory();
 
@@ -77,6 +79,11 @@ void MusDemoExternal::OnStartImpl() {
   // For now, a fake display is created in order to work around an assertion in
   // aura::GetDeviceScaleFactorFromDisplay().
   AddPrimaryDisplay(display::Display(0));
+
+  if (create_windows_sequentially_) {
+    OpenNewWindow(number_of_windows_created_++);
+    return;
+  }
 
   for (size_t i = 0; i < number_of_windows_; ++i)
     OpenNewWindow(i);
@@ -92,6 +99,12 @@ void MusDemoExternal::OnEmbedRootReady(
   DCHECK(window_tree_host);
   auto window_tree_data = FindWindowTreeData(window_tree_host);
   (*window_tree_data)->Init();
+
+  if (!create_windows_sequentially_)
+    return;
+
+  if (number_of_windows_created_ < number_of_windows_)
+    OpenNewWindow(number_of_windows_created_++);
 }
 
 void MusDemoExternal::OnEmbedRootDestroyed(
