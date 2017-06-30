@@ -42,6 +42,29 @@ class WaylandWindowTest : public WaylandTest {
   }
 
  protected:
+  void SendConfigureEvent(int width,
+                          int height,
+                          uint32_t serial,
+                          struct wl_array* states) {
+    xdg_surface_send_configure(xdg_surface->resource(), width, height, states,
+                               serial);
+  }
+
+  void RestoreOnStateChanged(PlatformWindowState expected_state) {
+    ON_CALL(delegate, OnWindowStateChanged(_))
+        .WillByDefault(testing::Invoke(
+            [this, expected_state](PlatformWindowState new_state) {
+              EXPECT_EQ(new_state, expected_state);
+              window.Restore();
+            }));
+  }
+
+  void SetWlArrayWithState(uint32_t state, wl_array* states) {
+    uint32_t* s;
+    s = (uint32_t*)wl_array_add(states, sizeof *s);
+    *s = state;
+  }
+
   wl::MockXdgSurface* xdg_surface;
 
   MouseEvent test_mouse_event;
@@ -56,10 +79,16 @@ TEST_F(WaylandWindowTest, SetTitle) {
 }
 
 TEST_F(WaylandWindowTest, MaximizeAndRestore) {
+  uint32_t serial = 12;
+  wl_array states;
+  wl_array_init(&states);
+  SetWlArrayWithState(XDG_SURFACE_STATE_MAXIMIZED, &states);
+
   EXPECT_CALL(*xdg_surface, SetMaximized());
   EXPECT_CALL(*xdg_surface, UnsetMaximized());
   window.Maximize();
-  window.Restore();
+  SendConfigureEvent(0, 0, serial, &states);
+  RestoreOnStateChanged(PlatformWindowState::PLATFORM_WINDOW_STATE_MAXIMIZED);
 }
 
 TEST_F(WaylandWindowTest, Minimize) {
@@ -68,20 +97,31 @@ TEST_F(WaylandWindowTest, Minimize) {
 }
 
 TEST_F(WaylandWindowTest, SetFullScreenAndRestore) {
+  wl_array states;
+  wl_array_init(&states);
+  SetWlArrayWithState(XDG_SURFACE_STATE_FULLSCREEN, &states);
+
   EXPECT_CALL(*xdg_surface, SetFullScreen());
   EXPECT_CALL(*xdg_surface, UnsetFullScreen());
   window.ToggleFullscreen();
-  window.Restore();
+  SendConfigureEvent(0, 0, 1, &states);
+  RestoreOnStateChanged(PlatformWindowState::PLATFORM_WINDOW_STATE_FULLSCREEN);
 }
 
 TEST_F(WaylandWindowTest, SetMaximizedFullScreenAndRestore) {
+  wl_array states;
+  wl_array_init(&states);
+  SetWlArrayWithState(XDG_SURFACE_STATE_MAXIMIZED, &states);
+  SetWlArrayWithState(XDG_SURFACE_STATE_FULLSCREEN, &states);
+
   EXPECT_CALL(*xdg_surface, SetFullScreen());
   EXPECT_CALL(*xdg_surface, UnsetFullScreen());
   EXPECT_CALL(*xdg_surface, SetMaximized());
   EXPECT_CALL(*xdg_surface, UnsetMaximized());
   window.Maximize();
   window.ToggleFullscreen();
-  window.Restore();
+  SendConfigureEvent(0, 0, 2, &states);
+  RestoreOnStateChanged(PlatformWindowState::PLATFORM_WINDOW_STATE_FULLSCREEN);
 }
 
 TEST_F(WaylandWindowTest, CanDispatchMouseEventDefault) {
@@ -120,8 +160,8 @@ TEST_F(WaylandWindowTest, DispatchEvent) {
 TEST_F(WaylandWindowTest, ConfigureEvent) {
   wl_array states;
   wl_array_init(&states);
-  xdg_surface_send_configure(xdg_surface->resource(), 1000, 1000, &states, 12);
-  xdg_surface_send_configure(xdg_surface->resource(), 1500, 1000, &states, 13);
+  SendConfigureEvent(1000, 1000, 12, &states);
+  SendConfigureEvent(1500, 1000, 13, &states);
 
   // Make sure that the implementation does not call OnBoundsChanged for each
   // configure event if it receives multiple in a row.

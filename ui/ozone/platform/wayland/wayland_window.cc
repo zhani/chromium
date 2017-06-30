@@ -393,12 +393,9 @@ void WaylandWindow::Configure(void* data,
       ui::PlatformWindowState::PLATFORM_WINDOW_STATE_NORMAL;
   if (window->is_maximized_)
     state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MAXIMIZED;
-
-  // If the window is in the fullscreen mode, there is no need to notify the
-  // client about the state as long as it has been the client who has changed
-  // the state.
-  if (!window->is_fullscreen_)
-    window->delegate()->OnWindowStateChanged(state);
+  if (window->is_fullscreen_)
+    state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_FULLSCREEN;
+  window->delegate()->OnWindowStateChanged(state);
 
   // Rather than call SetBounds here for every configure event, just save the
   // most recent bounds, and have WaylandConnection call ApplyPendingBounds
