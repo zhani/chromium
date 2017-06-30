@@ -27,13 +27,8 @@ class WindowTreeDataExternal : public WindowTreeData {
   WindowTreeDataExternal(aura::WindowTreeClient* window_tree_client,
                          int square_size)
       : WindowTreeData(square_size) {
-    aura::WindowTreeHostMusInitParams init_params;
-    init_params.window_tree_client = window_tree_client;
-    init_params.frame_sink_id = cc::FrameSinkId();
-    std::unique_ptr<aura::WindowPortMus> mus =
-        static_cast<aura::WindowTreeHostMusDelegate*>(window_tree_client)
-            ->CreateWindowPortForTopLevel(nullptr);
-    init_params.window_port = std::move(mus);
+    aura::WindowTreeHostMusInitParams init_params =
+        CreateInitParamsForTopLevel(window_tree_client);
     SetWindowTreeHost(
         base::MakeUnique<aura::WindowTreeHostMus>(std::move(init_params)));
   }
