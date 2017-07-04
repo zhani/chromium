@@ -219,6 +219,11 @@ void X11WindowBase::Create() {
   size_hints.win_gravity = StaticGravity;
   XSetWMNormalHints(xdisplay_, xwindow_, &size_hints);
 
+  // Disable native frame by default for now.
+  // TODO(msisov, tonikitoo): check if native frame should be used by checking
+  // Widget::InitParams::remove_standard_frame.
+  ui::SetUseOSWindowFrame(xwindow_, false);
+
   // TODO(sky): provide real scale factor.
   delegate_->OnAcceleratedWidgetAvailable(xwindow_, 1.f);
 }
