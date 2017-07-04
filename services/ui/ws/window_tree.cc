@@ -287,6 +287,7 @@ void WindowTree::PrepareForWindowServerShutdown() {
 
 void WindowTree::AddRoot(const ServerWindow* root) {
   DCHECK(pending_client_window_id_ != kInvalidClientId);
+  DCHECK(window_server_->IsInExternalWindowMode());
 
   const ClientWindowId client_window_id(
       MakeClientWindowId(pending_client_window_id_));
@@ -301,6 +302,12 @@ void WindowTree::AddRoot(const ServerWindow* root) {
 
   Display* display = GetDisplay(root);
   DCHECK(display);
+
+  WindowManagerDisplayRoot* display_root = GetWindowManagerDisplayRoot(root);
+  DCHECK(display_root);
+
+  DoOnEmbed(nullptr /*mojom::WindowTreePtr*/,
+            display_root->GetClientVisibleRoot());
 }
 
 void WindowTree::AddRootForWindowManager(const ServerWindow* root) {
