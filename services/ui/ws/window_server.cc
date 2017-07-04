@@ -97,7 +97,7 @@ WindowServer::~WindowServer() {
 }
 
 void WindowServer::SetDisplayCreationConfig(DisplayCreationConfig config) {
- // DCHECK(tree_map_.empty());
+  DCHECK(tree_map_.empty());
   DCHECK_EQ(DisplayCreationConfig::UNKNOWN, display_creation_config_);
   display_creation_config_ = config;
   display_manager_->OnDisplayCreationConfigSet();
