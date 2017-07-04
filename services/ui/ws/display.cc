@@ -235,7 +235,6 @@ void Display::InitDisplayRoot() {
       display_root_ptr.get();
 
   WindowTree* window_tree = window_server_->GetTreeForExternalWindowMode();
-  ServerWindow* server_window = display_root_ptr->root();
 
   std::unique_ptr<WindowManagerState> window_manager_state =
       base::MakeUnique<WindowManagerState>(window_tree);
@@ -246,9 +245,6 @@ void Display::InitDisplayRoot() {
   WindowManagerDisplayRoot* display_root = display_root_ptr.get();
   display_root->window_manager_state_->AddWindowManagerDisplayRoot(
       std::move(display_root_ptr));
-
-  window_tree->AddRoot(server_window);
-  window_tree->DoOnEmbed(nullptr /*mojom::WindowTreePtr*/, server_window);
 }
 
 void Display::InitWindowManagerDisplayRoots() {
