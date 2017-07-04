@@ -43,6 +43,15 @@ void WindowTreeHostFactory::CreatePlatformWindow(
   metrics.ui_scale_factor = 1.0f;
 
   ws_display->Init(metrics, std::move(display_binding));
+
+  // The call below used to be part of ws::Display::Init chain.
+  // However, in case we flip the "create displays automatically" flag
+  // off, it is needed to have the DefaultPlatformDisplay fully initialized
+  // before WindowTree::AddRoot is called. Reason: ::AddRoot creates the
+  // ServerWindow child of WindowManagerDisplayRoot::root, by calling
+  // ServerWindow::Add which can trigger a mouse update, which in turn
+  // requires the platform/ozone window to be fully created by then.
+  tree->AddRoot(ws_display->root_window()->children()[0]);
 }
 
 }  // namespace ws
