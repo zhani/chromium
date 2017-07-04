@@ -10,9 +10,12 @@
 
 #include "base/bind.h"
 #include "base/callback_helpers.h"
+#include "base/command_line.h"
 #include "base/macros.h"
 #include "base/memory/ptr_util.h"
 #include "mojo/public/cpp/bindings/map.h"
+#include "services/service_manager/public/interfaces/connector.mojom.h"
+#include "services/ui/common/switches.h"
 #include "services/ui/display/screen_manager.h"
 #include "services/ui/ws/cursor_location_manager.h"
 #include "services/ui/ws/default_access_policy.h"
@@ -277,16 +280,36 @@ void WindowTree::AddRoot(const ServerWindow* root) {
   DCHECK(window_server_->IsInExternalWindowMode());
 
   const ClientWindowId client_window_id(pending_client_window_id_);
-  DCHECK_EQ(0u, client_id_to_window_id_map_.count(client_window_id));
-
-  client_id_to_window_id_map_[client_window_id] = root->id();
-  window_id_to_client_id_map_[root->id()] = client_window_id;
   pending_client_window_id_ = kInvalidClientId;
 
-  roots_.insert(root);
+  // TODO(tonikitoo,msisov): Code below duplicates some of the
+  // ::ProcessSetDisplayRoot code.
+  ServerWindow* window = GetWindowByClientId(client_window_id);
+  // The window must not have a parent.
+  if (!window || window->parent()) {
+    DVLOG(1) << "AddRoot called with invalid window id "
+             << client_window_id.id;
+    return;
+  }
 
-  Display* display = GetDisplay(root);
-  DCHECK(display);
+  if (base::ContainsKey(roots_, window)) {
+    DVLOG(1) << "AddRoot called with existing root";
+    return;
+  }
+
+  DCHECK(root->children().empty());
+
+  // NOTE: this doesn't resize the window in anyway. We assume the client takes
+  // care of any modifications it needs to do.
+  roots_.insert(window);
+  Operation op(this, window_server_, OperationType::ADD_WINDOW);
+  const_cast<ServerWindow*>(root)->Add(window);
+
+  window->SetVisible(true);
+
+  ClientWindowId window_id;
+  IsWindowKnown(window, &window_id);
+  DCHECK(client_window_id == window_id);
 
   WindowManagerDisplayRoot* display_root =
       GetWindowManagerDisplayRoot(root);
@@ -1130,6 +1153,19 @@ bool WindowTree::IsValidIdForNewWindow(const ClientWindowId& id) const {
 }
 
 WindowId WindowTree::GenerateNewWindowId() {
+  // TODO(tonikitoo, msisov): When running unittests (more specifically
+  // WindowTreeClientTest), the new 'external window mode' path is taken.
+  // This assumes root ServerWindow, child of WindowManagerDisplayRoot::root_,
+  // which tests were not accounting for.
+  // In order to keep the tests untouched, and still benefit from running them,
+  // use a ClientSpecificId that differs from the rest of the expected id's
+  // in the tests.
+  base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
+  if (cmd_line->HasSwitch(switches::kUseTestConfig) &&
+      created_window_map_.size() == 0u &&
+      roots_.empty())
+    return WindowId(id_, std::numeric_limits<ClientSpecificId>::max());
+
   // TODO(sky): deal with wrapping and uniqueness.
   return WindowId(id_, next_window_id_++);
 }
@@ -1654,10 +1690,15 @@ void WindowTree::SetWindowBounds(
   // Only the owner of the window can change the bounds.
   bool success = access_policy_->CanSetWindowBounds(window);
   if (success) {
+    // In external window mode, we propagate bounds changes in the visible
+    // root for the client to the roots associated to the ws::Display.
     if (window_server_->IsInExternalWindowMode()) {
       WindowManagerDisplayRoot* display_root =
           GetWindowManagerDisplayRoot(window);
       if (display_root && display_root->GetClientVisibleRoot() == window) {
+        Operation op(this, window_server_, OperationType::SET_WINDOW_BOUNDS);
+        window->SetBounds(gfx::Rect(bounds.size()), local_surface_id);
+
         Display* display = GetDisplay(window);
         DCHECK(display);
         display->SetBounds(bounds);

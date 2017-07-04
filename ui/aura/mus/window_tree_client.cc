@@ -758,7 +758,8 @@ void WindowTreeClient::OnWindowMusCreated(WindowMus* window) {
   window->set_server_id(MakeTransportId(client_id_, next_window_id_++));
   RegisterWindowMus(window);
 
-  DCHECK(window_manager_delegate_ || !IsRoot(window));
+  DCHECK(window_manager_delegate_ || !IsRoot(window) ||
+         in_external_window_mode_);
 
   std::unordered_map<std::string, std::vector<uint8_t>> transport_properties;
   std::set<const void*> property_keys =
@@ -781,6 +782,35 @@ void WindowTreeClient::OnWindowMusCreated(WindowMus* window) {
                    std::move(transport_properties));
   if (window->window_mus_type() == WindowMusType::DISPLAY_MANUALLY_CREATED) {
     WindowTreeHostMus* window_tree_host = GetWindowTreeHostMus(window);
+
+    if (in_external_window_mode_) {
+      // Provide an initial size for the Display.
+      const std::map<std::string, std::vector<uint8_t>> properties =
+          window_tree_host->mus_init_properties();
+
+      auto iter =
+          properties.find(ui::mojom::WindowManager::kBounds_InitProperty);
+      if (iter != properties.end()) {
+        gfx::Rect bounds = mojo::ConvertTo<gfx::Rect>(iter->second);
+
+        DCHECK(kRootWindowBoundsChangesAreIgnored);
+        ScheduleInFlightBoundsChange(window, gfx::Rect(), bounds);
+      }
+
+      std::unordered_map<std::string, std::vector<uint8_t>>
+          transport_properties;
+      for (const auto& property_pair : properties)
+        transport_properties[property_pair.first] = property_pair.second;
+
+      // Triggers the creation of a mojom::WindowTreeHost (aka ws::Display)
+      // instance on the server side.
+      // Ends up calling back to client side, aura::WindowTreeClient::OnEmbed.
+      ui::mojom::WindowTreeHostPtr host;
+      window_tree_host_factory_ptr_->CreatePlatformWindow(
+          MakeRequest(&host), window->server_id(), transport_properties);
+      return;
+    }
+
     std::unique_ptr<DisplayInitParams> display_init_params =
         window_tree_host->ReleaseDisplayInitParams();
     DCHECK(display_init_params);
@@ -2131,12 +2161,15 @@ void WindowTreeClient::OnWindowTreeHostMoveCursorToDisplayLocation(
 std::unique_ptr<WindowPortMus> WindowTreeClient::CreateWindowPortForTopLevel(
     const std::map<std::string, std::vector<uint8_t>>* properties) {
   WindowMusType window_type = in_external_window_mode_
-                                  ? WindowMusType::EMBED
+                                  ? WindowMusType::DISPLAY_MANUALLY_CREATED
                                   : WindowMusType::TOP_LEVEL;
 
   std::unique_ptr<WindowPortMus> window_port =
       base::MakeUnique<WindowPortMus>(this, window_type);
   roots_.insert(window_port.get());
+
+  if (in_external_window_mode_)
+    return window_port;
 
   window_port->set_server_id(MakeTransportId(client_id_, next_window_id_++));
   RegisterWindowMus(window_port.get());
@@ -2147,20 +2180,11 @@ std::unique_ptr<WindowPortMus> WindowTreeClient::CreateWindowPortForTopLevel(
       transport_properties[property_pair.first] = property_pair.second;
   }
 
-  if (in_external_window_mode_) {
-    // Triggers the creation of a mojom::WindowTreeHost (aka ws::Display)
-    // instance on the server side.
-    // Ends up calling back to client side, aura::WindowTreeClient::OnEmbed.
-    ui::mojom::WindowTreeHostPtr host;
-    window_tree_host_factory_ptr_->CreatePlatformWindow(
-        MakeRequest(&host), window_port->server_id(), transport_properties);
-  } else {
-    const uint32_t change_id =
-        ScheduleInFlightChange(base::MakeUnique<CrashInFlightChange>(
-            window_port.get(), ChangeType::NEW_TOP_LEVEL_WINDOW));
-    tree_->NewTopLevelWindow(change_id, window_port->server_id(),
-                             transport_properties);
-  }
+  const uint32_t change_id =
+      ScheduleInFlightChange(base::MakeUnique<CrashInFlightChange>(
+          window_port.get(), ChangeType::NEW_TOP_LEVEL_WINDOW));
+  tree_->NewTopLevelWindow(change_id, window_port->server_id(),
+                           transport_properties);
 
   return window_port;
 }

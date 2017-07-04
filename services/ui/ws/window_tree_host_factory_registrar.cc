@@ -36,7 +36,7 @@ void WindowTreeHostFactoryRegistrar::Register(
   // but for the sake of an easier rebase, we are concentrating additions
   // like this here.
 
-  bool automatically_create_display_roots = true;
+  bool automatically_create_display_roots = false;
 
   // TODO(tonikitoo,msisov): Maybe remove the "window manager" suffix
   // if the method name?
