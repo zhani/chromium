@@ -1841,7 +1841,7 @@ TEST_F(WindowTreeClientTest, SetOpacityNotifications) {
   EXPECT_TRUE(changes1()->empty());
   wt_client2()->WaitForChangeCount(1);
   EXPECT_EQ(
-      "OpacityChanged window_id=" + IdToString(window_1_1) + " opacity=0,50",
+      "OpacityChanged window_id=" + IdToString(window_1_1) + " opacity=0.50",
       SingleChangeToDescription(*changes2()));
 
   changes2()->clear();
