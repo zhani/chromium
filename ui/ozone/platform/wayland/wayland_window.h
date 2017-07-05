@@ -15,6 +15,12 @@ namespace ui {
 
 class PlatformWindowDelegate;
 class WaylandConnection;
+class XDGPopupWrapper;
+class XDGSurfaceWrapper;
+
+namespace {
+class XDGShellObjectsFactory;
+}
 
 class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
  public:
@@ -28,6 +34,8 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   bool Initialize();
 
   wl_surface* surface() { return surface_.get(); }
+  XDGSurfaceWrapper* xdg_surface() { return xdg_surface_.get(); }
+  XDGPopupWrapper* xdg_popup() { return xdg_popup_.get(); }
 
   // Apply the bounds specified in the most recent configure event. This should
   // be called after processing all pending events in the wayland connection.
@@ -42,9 +50,10 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   bool has_pointer_focus() { return has_pointer_focus_; }
 
   // Tells if it is a focused popup.
-  bool is_focused_popup() {
-    return !!xdg_popup_.get() && has_pointer_focus();
-  }
+  bool is_focused_popup() { return is_popup() && has_pointer_focus(); }
+
+  // Tells if this is a popup.
+  bool is_popup() { return !!xdg_popup_.get(); }
 
   // Set a child of this window. It is very important in case of nested
   // xdg_popups as long as we must destroy the very last first and only then
@@ -75,17 +84,12 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   bool CanDispatchEvent(const PlatformEvent& event) override;
   uint32_t DispatchEvent(const PlatformEvent& event) override;
 
-  // xdg_surface_listener
-  static void Configure(void* data,
-                        xdg_surface* obj,
-                        int32_t width,
-                        int32_t height,
-                        wl_array* states,
-                        uint32_t serial);
-  static void Close(void* data, xdg_surface* obj);
+  void HandleSurfaceConfigure(int32_t widht,
+                              int32_t height,
+                              bool is_maximized,
+                              bool is_fullscreen);
 
-  // xdg_popup_listener
-  static void PopupDone(void* data, xdg_popup* obj);
+  void OnCloseRequest();
 
  protected:
   PlatformWindowDelegate* delegate() { return delegate_; }
@@ -96,7 +100,7 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   void ConvertEventLocationToCurrentWindowLocation(ui::Event* located_event);
 
   // Creates a popup window, which is visible as a menu window.
-  void CreatePopupWindow();
+  bool CreatePopupWindow();
 
   // TODO(msisov, tonikitoo): share this with X11WindowBase.
   bool IsMinimized();
@@ -111,13 +115,18 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   WaylandWindow* parent_window_ = nullptr;
   WaylandWindow* child_window_ = nullptr;
 
+  // Creates xdg objects based on xdg shell version.
+  std::unique_ptr<XDGShellObjectsFactory> xdg_shell_objects_factory_;
+
   wl::Object<wl_surface> surface_;
-  wl::Object<xdg_surface> xdg_surface_;
-  wl::Object<xdg_popup> xdg_popup_;
+
+  // Wrappers around xdg v5 and xdg v6 objects. WaylandWindow doesn't
+  // know anything about the version.
+  std::unique_ptr<XDGSurfaceWrapper> xdg_surface_;
+  std::unique_ptr<XDGPopupWrapper> xdg_popup_;
 
   gfx::Rect bounds_;
   gfx::Rect pending_bounds_;
-  uint32_t pending_configure_serial_;
   bool has_pointer_focus_ = false;
   bool has_keyboard_focus_ = false;
 

@@ -4,61 +4,58 @@
 
 #include "ui/ozone/platform/wayland/wayland_window.h"
 
-#include <xdg-shell-unstable-v5-client-protocol.h>
+#include <wayland-client.h>
 
 #include "base/bind.h"
-#include "base/strings/utf_string_conversions.h"
 #include "ui/base/hit_test.h"
 #include "ui/events/event.h"
 #include "ui/events/ozone/events_ozone.h"
 #include "ui/ozone/platform/wayland/wayland_connection.h"
+#include "ui/ozone/platform/wayland/xdg_popup_wrapper_v5.h"
+#include "ui/ozone/platform/wayland/xdg_popup_wrapper_v6.h"
+#include "ui/ozone/platform/wayland/xdg_surface_wrapper_v5.h"
+#include "ui/ozone/platform/wayland/xdg_surface_wrapper_v6.h"
 #include "ui/platform_window/platform_window_delegate.h"
 
 namespace ui {
 
 namespace {
 
-// Identifies the direction of the "hittest" for Wayland.
-bool IdentifyDirection(int hittest, int* direction) {
-  DCHECK(direction);
-  *direction = -1;
-  switch (hittest) {
-    case HTBOTTOM:
-      *direction = xdg_surface_resize_edge::XDG_SURFACE_RESIZE_EDGE_BOTTOM;
-      break;
-    case HTBOTTOMLEFT:
-      *direction = xdg_surface_resize_edge::XDG_SURFACE_RESIZE_EDGE_BOTTOM_LEFT;
-      break;
-    case HTBOTTOMRIGHT:
-      *direction =
-          xdg_surface_resize_edge::XDG_SURFACE_RESIZE_EDGE_BOTTOM_RIGHT;
-      break;
-    case HTLEFT:
-      *direction = xdg_surface_resize_edge::XDG_SURFACE_RESIZE_EDGE_LEFT;
-      break;
-    case HTRIGHT:
-      *direction = xdg_surface_resize_edge::XDG_SURFACE_RESIZE_EDGE_RIGHT;
-      break;
-    case HTTOP:
-      *direction = xdg_surface_resize_edge::XDG_SURFACE_RESIZE_EDGE_TOP;
-      break;
-    case HTTOPLEFT:
-      *direction = xdg_surface_resize_edge::XDG_SURFACE_RESIZE_EDGE_TOP_LEFT;
-      break;
-    case HTTOPRIGHT:
-      *direction = xdg_surface_resize_edge::XDG_SURFACE_RESIZE_EDGE_TOP_RIGHT;
-      break;
-    default:
-      return false;
+// Factory, which decides which version type of xdg object to build.
+class XDGShellObjectsFactory {
+ public:
+  XDGShellObjectsFactory() = default;
+  ~XDGShellObjectsFactory() = default;
+
+  std::unique_ptr<XDGSurfaceWrapper> CreateXDGSurface(
+      WaylandConnection* connection,
+      WaylandWindow* wayland_window) {
+    if (connection->shell_v6()) {
+      return base::MakeUnique<XDGSurfaceWrapperV6>(wayland_window);
+    }
+    DCHECK(connection->shell());
+    return base::MakeUnique<XDGSurfaceWrapperV5>(wayland_window);
   }
-  return true;
-}
+
+  std::unique_ptr<XDGPopupWrapper> CreateXDGPopup(
+      WaylandConnection* connection,
+      WaylandWindow* wayland_window) {
+    if (connection->shell_v6()) {
+      std::unique_ptr<XDGSurfaceWrapper> surface =
+          CreateXDGSurface(connection, wayland_window);
+      surface->Initialize(connection, wayland_window->surface(), false);
+      return base::MakeUnique<XDGPopupWrapperV6>(std::move(surface),
+                                                 wayland_window);
+    }
+    DCHECK(connection->shell());
+    return base::MakeUnique<XDGPopupWrapperV5>(wayland_window);
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(XDGShellObjectsFactory);
+};
 
 static WaylandWindow* g_current_capture_ = nullptr;
-
-static const xdg_popup_listener xdg_popup_listener = {
-    &WaylandWindow::PopupDone,
-};
 
 // TODO(msisov, tonikitoo): fix customization according to screen resolution
 // once we are able to get global coordinates of wayland windows.
@@ -68,12 +65,16 @@ gfx::Rect TranslateBoundsToScreenCoordinates(const gfx::Rect& child_bounds,
   int y = child_bounds.y() - parent_bounds.y();
   return gfx::Rect(gfx::Point(x, y), child_bounds.size());
 }
-}
+
+}  // namespace
 
 WaylandWindow::WaylandWindow(PlatformWindowDelegate* delegate,
                              WaylandConnection* connection,
                              const gfx::Rect& bounds)
-    : delegate_(delegate), connection_(connection), bounds_(bounds) {}
+    : delegate_(delegate),
+      connection_(connection),
+      xdg_shell_objects_factory_(new XDGShellObjectsFactory()),
+      bounds_(bounds) {}
 
 WaylandWindow::~WaylandWindow() {
   if (xdg_surface_) {
@@ -89,6 +90,7 @@ WaylandWindow* WaylandWindow::FromSurface(wl_surface* surface) {
 }
 
 bool WaylandWindow::Initialize() {
+  DCHECK(xdg_shell_objects_factory_);
   surface_.reset(wl_compositor_create_surface(connection_->compositor()));
   if (!surface_) {
     LOG(ERROR) << "Failed to create wl_surface";
@@ -102,25 +104,20 @@ bool WaylandWindow::Initialize() {
   ui::mojom::WindowType window_type = ui::mojom::WindowType::WINDOW;
   delegate_->GetWindowType(&window_type);
   if (window_type == ui::mojom::WindowType::WINDOW) {
-    static const xdg_surface_listener xdg_surface_listener = {
-        &WaylandWindow::Configure, &WaylandWindow::Close,
-    };
-    xdg_surface_.reset(
-        xdg_shell_get_xdg_surface(connection_->shell(), surface_.get()));
-    if (!xdg_surface_) {
-      LOG(ERROR) << "Failed to create xdg_surface";
+    xdg_surface_ =
+        xdg_shell_objects_factory_->CreateXDGSurface(connection_, this);
+    if (!xdg_surface_ ||
+        !xdg_surface_->Initialize(connection_, surface_.get(), true)) {
+      LOG(ERROR) << "Failed to xdg_surface";
       return false;
     }
-    xdg_surface_add_listener(xdg_surface_.get(), &xdg_surface_listener, this);
   } else {
     parent_window_ = connection_->GetCurrentFocusedWindow();
     if (!parent_window_) {
       LOG(ERROR) << "Failed to get parent window";
       return false;
     }
-
-    CreatePopupWindow();
-    if (!xdg_popup_) {
+    if (!CreatePopupWindow()) {
       LOG(ERROR) << "Failed to create xdg_popup";
       return false;
     }
@@ -141,19 +138,19 @@ void WaylandWindow::ApplyPendingBounds() {
 
   SetBounds(pending_bounds_);
   DCHECK(xdg_surface_);
-  xdg_surface_ack_configure(xdg_surface_.get(), pending_configure_serial_);
+  xdg_surface_->AckConfigure();
   pending_bounds_ = gfx::Rect();
   connection_->ScheduleFlush();
 }
 
-void WaylandWindow::CreatePopupWindow() {
+bool WaylandWindow::CreatePopupWindow() {
   DCHECK(parent_window_);
   gfx::Rect bounds =
       TranslateBoundsToScreenCoordinates(bounds_, parent_window_->GetBounds());
-  xdg_popup_.reset(xdg_shell_get_xdg_popup(
-      connection_->shell(), surface_.get(), parent_window_->surface(),
-      connection_->seat(), connection_->serial(), bounds.x(), bounds.y()));
-  xdg_popup_add_listener(xdg_popup_.get(), &xdg_popup_listener, this);
+  xdg_popup_ = xdg_shell_objects_factory_->CreateXDGPopup(connection_, this);
+  return xdg_popup_.get() &&
+         xdg_popup_->Initialize(connection_, surface(),
+                                parent_window_->surface(), bounds);
 }
 
 // TODO(msisov, tonikitoo): we will want to trigger show and hide of all
@@ -162,7 +159,8 @@ void WaylandWindow::Show() {
   if (xdg_surface_)
     return;
   if (!xdg_popup_) {
-    CreatePopupWindow();
+    if (!CreatePopupWindow())
+      CHECK(false) << "Failed to create popup window";
     connection_->ScheduleFlush();
   }
 }
@@ -195,7 +193,7 @@ gfx::Rect WaylandWindow::GetBounds() {
 
 void WaylandWindow::SetTitle(const base::string16& title) {
   DCHECK(xdg_surface_);
-  xdg_surface_set_title(xdg_surface_.get(), UTF16ToUTF8(title).c_str());
+  xdg_surface_->SetTitle(title);
   connection_->ScheduleFlush();
 }
 
@@ -226,9 +224,9 @@ void WaylandWindow::ToggleFullscreen() {
   // if xdg_surface_set_fullscreen() is not provided with wl_output, it's up to
   // the compositor to choose which display will be used to map this surface.
   if (!IsFullScreen())
-    xdg_surface_set_fullscreen(xdg_surface_.get(), nullptr);
+    xdg_surface_->SetFullScreen();
   else
-    xdg_surface_unset_fullscreen(xdg_surface_.get());
+    xdg_surface_->UnSetFullScreen();
 
   connection_->ScheduleFlush();
 }
@@ -243,7 +241,7 @@ void WaylandWindow::Maximize() {
   if (IsFullScreen())
     ToggleFullscreen();
 
-  xdg_surface_set_maximized(xdg_surface_.get());
+  xdg_surface_->SetMaximized();
   connection_->ScheduleFlush();
 }
 
@@ -256,22 +254,21 @@ void WaylandWindow::Minimize() {
   if (IsMinimized())
     return;
 
-  xdg_surface_set_minimized(xdg_surface_.get());
+  xdg_surface_->SetMinimized();
   connection_->ScheduleFlush();
   is_minimized_ = true;
 }
 
 void WaylandWindow::Restore() {
-  if (xdg_popup_)
+  if (xdg_popup_ || !xdg_surface_)
     return;
 
-  DCHECK(xdg_surface_);
   // Unfullscreen the window if it is fullscreen.
   if (IsFullScreen())
     ToggleFullscreen();
 
   if (IsMaximized()) {
-    xdg_surface_unset_maximized(xdg_surface_.get());
+    xdg_surface_->UnSetMaximized();
     connection_->ScheduleFlush();
   }
   is_minimized_ = false;
@@ -296,13 +293,9 @@ PlatformImeController* WaylandWindow::GetPlatformImeController() {
 
 void WaylandWindow::PerformNativeWindowDragOrResize(uint32_t hittest) {
   if (hittest == HTCAPTION) {
-    xdg_surface_move(xdg_surface_.get(), connection_->seat(),
-                     connection_->serial());
+    xdg_surface_->SurfaceMove(connection_);
   } else {
-    int direction;
-    if (IdentifyDirection(hittest, &direction))
-      xdg_surface_resize(xdg_surface_.get(), connection_->seat(),
-                         connection_->serial(), direction);
+    xdg_surface_->SurfaceResize(connection_, hittest);
   }
 }
 
@@ -349,72 +342,41 @@ void WaylandWindow::ConvertEventLocationToCurrentWindowLocation(
   }
 }
 
-// static
-void WaylandWindow::Configure(void* data,
-                              xdg_surface* obj,
-                              int32_t width,
-                              int32_t height,
-                              wl_array* states,
-                              uint32_t serial) {
-  WaylandWindow* window = static_cast<WaylandWindow*>(data);
-
+void WaylandWindow::HandleSurfaceConfigure(int32_t width,
+                                           int32_t height,
+                                           bool is_maximized,
+                                           bool is_fullscreen) {
   // Width or height set 0 means that we should decide on width and height by
   // ourselves, but we don't want to set to anything else. Use previous size.
   if (width == 0 || height == 0) {
-    width = window->GetBounds().width();
-    height = window->GetBounds().height();
+    width = GetBounds().width();
+    height = GetBounds().height();
   }
 
-  window->ResetWindowStates();
-  uint32_t* p;
-  // wl_array_for_each has a bug in upstream. It tries to assign void* to
-  // uint32_t *, which is not allowed in C++. Explicit cast should be performed.
-  // In other words, one just cannot assign void * to other pointer type
-  // implicitly in C++ as in C. We can't modify wayland-util.h, because it is
-  // fetched with gclient sync. Thus, use own loop.
-  // TODO(msisov, tonikitoo): use wl_array_for_each as soon as
-  // https://bugs.freedesktop.org/show_bug.cgi?id=101618 is resolved.
-  for (p = (uint32_t*)states->data;
-       (const char*)p < ((const char*)(states)->data + (states)->size); p++) {
-    uint32_t state = *p;
-    switch (state) {
-      case (XDG_SURFACE_STATE_MAXIMIZED):
-        window->is_maximized_ = true;
-        break;
-      case (XDG_SURFACE_STATE_FULLSCREEN):
-        window->is_fullscreen_ = true;
-        break;
-      default:
-        break;
-    }
-  }
+  ResetWindowStates();
+  is_maximized_ = is_maximized;
+  is_fullscreen_ = is_fullscreen;
 
   ui::PlatformWindowState state =
       ui::PlatformWindowState::PLATFORM_WINDOW_STATE_NORMAL;
-  if (window->is_maximized_)
+  if (IsMaximized())
     state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MAXIMIZED;
-  if (window->is_fullscreen_)
+  if (IsFullScreen())
     state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_FULLSCREEN;
-  window->delegate()->OnWindowStateChanged(state);
+  delegate_->OnWindowStateChanged(state);
 
   // Rather than call SetBounds here for every configure event, just save the
   // most recent bounds, and have WaylandConnection call ApplyPendingBounds
   // when it has finished processing events. We may get many configure events
   // in a row during an interactive resize, and only the last one matters.
-  window->pending_bounds_ = gfx::Rect(0, 0, width, height);
-  window->pending_configure_serial_ = serial;
+  pending_bounds_ = gfx::Rect(0, 0, width, height);
 }
 
-// static
-void WaylandWindow::Close(void* data, xdg_surface* obj) {
-  NOTIMPLEMENTED();
-}
-
-// static
-void WaylandWindow::PopupDone(void* data, xdg_popup* obj) {
-  WaylandWindow* window = static_cast<WaylandWindow*>(data);
-  window->Hide();
-  window->delegate_->OnCloseRequest();
+void WaylandWindow::OnCloseRequest() {
+  // Before calling OnCloseRequest, the |xdg_popup_| must become hidden and
+  // only then call OnCloseRequest().
+  DCHECK(!xdg_popup_);
+  delegate_->OnCloseRequest();
 }
 
 bool WaylandWindow::IsMinimized() {
