@@ -790,7 +790,10 @@ void WindowTreeClient::ScheduleInFlightBoundsChange(
       window->window_mus_type() == WindowMusType::DISPLAY_MANUALLY_CREATED ||
       window->HasLocalLayerTreeFrameSink()) {
     local_surface_id = window->GetOrAllocateLocalSurfaceId(new_bounds.size());
-    synchronizing_with_child_on_next_frame_ = true;
+
+    WindowTreeHostMus* host = GetWindowTreeHostMus(window);
+    if (host && host_sync_data_.find(host) == host_sync_data_.end())
+      host_sync_data_[host] = {true, false};
   }
   tree_->SetWindowBounds(change_id, window->server_id(), new_bounds,
                          local_surface_id);
@@ -2421,26 +2424,32 @@ void WindowTreeClient::OnCompositingDidCommit(ui::Compositor* compositor) {}
 
 void WindowTreeClient::OnCompositingStarted(ui::Compositor* compositor,
                                             base::TimeTicks start_time) {
-  if (!synchronizing_with_child_on_next_frame_)
-    return;
-  synchronizing_with_child_on_next_frame_ = false;
   WindowTreeHost* host =
       WindowTreeHost::GetForAcceleratedWidget(compositor->widget());
+
+  auto it = host_sync_data_.find(host);
+  if (it == host_sync_data_.end() ||
+      !it->second.synchronizing_with_child_on_next_frame_)
+    return;
+  it->second.synchronizing_with_child_on_next_frame_ = false;
   // Unit tests have a null widget and thus may not have an associated
   // WindowTreeHost.
   if (host) {
     host->dispatcher()->HoldPointerMoves();
-    holding_pointer_moves_ = true;
+    it->second.holding_pointer_moves_ = true;
   }
 }
 
 void WindowTreeClient::OnCompositingEnded(ui::Compositor* compositor) {
-  if (!holding_pointer_moves_)
-    return;
   WindowTreeHost* host =
       WindowTreeHost::GetForAcceleratedWidget(compositor->widget());
+
+  auto it = host_sync_data_.find(host);
+  if (it == host_sync_data_.end() || !it->second.holding_pointer_moves_)
+    return;
   host->dispatcher()->ReleasePointerMoves();
-  holding_pointer_moves_ = false;
+  it->second.holding_pointer_moves_ = false;
+  host_sync_data_.erase(it);
 }
 
 void WindowTreeClient::OnCompositingLockStateChanged(
