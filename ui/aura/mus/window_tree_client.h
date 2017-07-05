@@ -80,6 +80,7 @@ class WindowTreeClientPrivate;
 class WindowTreeClientObserver;
 class WindowTreeClientTestObserver;
 class WindowTreeHostMus;
+class WindowTreeHost;
 
 using EventResultCallback = base::Callback<void(ui::mojom::EventResult)>;
 
@@ -692,11 +693,15 @@ class AURA_EXPORT WindowTreeClient
   // Set to true once OnWmDisplayAdded() is called.
   bool got_initial_displays_ = false;
 
-  // Set to true if the next CompositorFrame will block on a new child surface.
-  bool synchronizing_with_child_on_next_frame_ = false;
+  struct SyncData {
+    // Set to true if the next CompositorFrame will block on a new child
+    // surface.
+    bool synchronizing_with_child_on_next_frame_;
 
-  // Set to true if this WindowTreeClient is currently holding pointer moves.
-  bool holding_pointer_moves_ = false;
+    // Set to true if this WindowTreeClient is currently holding pointer moves.
+    bool holding_pointer_moves_;
+  };
+  std::map<WindowTreeHost*, SyncData> host_sync_data_;
 
   gfx::Insets normal_client_area_insets_;
 
