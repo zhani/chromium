@@ -48,6 +48,8 @@ class MockXdgSurface : public ServerObject {
   MOCK_METHOD1(SetTitle, void(const char* title));
   MOCK_METHOD1(SetAppId, void(const char* app_id));
   MOCK_METHOD1(AckConfigure, void(uint32_t serial));
+  MOCK_METHOD4(SetWindowGeometry,
+               void(int32_t x, int32_t y, int32_t widht, int32_t height));
   MOCK_METHOD0(SetMaximized, void());
   MOCK_METHOD0(UnsetMaximized, void());
   MOCK_METHOD0(SetFullScreen, void());
