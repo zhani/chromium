@@ -9,6 +9,12 @@
 
 #include <memory>
 
+struct zxdg_shell_v6;
+struct zxdg_surface_v6;
+struct zxdg_toplevel_v6;
+struct zxdg_popup_v6;
+struct zxdg_positioner_v6;
+
 struct wl_buffer;
 struct wl_compositor;
 struct wl_keyboard;
@@ -27,6 +33,36 @@ namespace wl {
 
 template <typename T>
 struct ObjectTraits;
+
+template <>
+struct ObjectTraits<zxdg_shell_v6> {
+  static const wl_interface* interface;
+  static void (*deleter)(zxdg_shell_v6*);
+};
+
+template <>
+struct ObjectTraits<zxdg_surface_v6> {
+  static const wl_interface* interface;
+  static void (*deleter)(zxdg_surface_v6*);
+};
+
+template <>
+struct ObjectTraits<zxdg_toplevel_v6> {
+  static const wl_interface* interface;
+  static void (*deleter)(zxdg_toplevel_v6*);
+};
+
+template <>
+struct ObjectTraits<zxdg_popup_v6> {
+  static const wl_interface* interface;
+  static void (*deleter)(zxdg_popup_v6*);
+};
+
+template <>
+struct ObjectTraits<zxdg_positioner_v6> {
+  static const wl_interface* interface;
+  static void (*deleter)(zxdg_positioner_v6*);
+};
 
 template <>
 struct ObjectTraits<wl_buffer> {
