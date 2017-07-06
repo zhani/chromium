@@ -33,7 +33,6 @@ views::Widget::InitParams BrowserFrameMus::GetWidgetParams() {
   views::Widget::InitParams params;
   params.name = "BrowserFrame";
   params.native_widget = this;
-  params.bounds = gfx::Rect(10, 10, 640, 480);
   params.delegate = browser_view_;
   std::map<std::string, std::vector<uint8_t>> properties =
       views::MusClient::ConfigurePropertiesFromParams(params);
@@ -42,6 +41,7 @@ views::Widget::InitParams BrowserFrameMus::GetWidgetParams() {
   properties[ui::mojom::WindowManager::kDisableImmersive_InitProperty] =
       mojo::ConvertTo<std::vector<uint8_t>>(true);
 #if defined(OS_CHROMEOS)
+  params.bounds = gfx::Rect(10, 10, 640, 480);
   properties[ash::mojom::kAshWindowStyle_InitProperty] =
       mojo::ConvertTo<std::vector<uint8_t>>(
           static_cast<int32_t>(ash::mojom::WindowStyle::BROWSER));
