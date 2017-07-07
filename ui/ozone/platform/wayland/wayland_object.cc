@@ -6,6 +6,7 @@
 
 #include <wayland-client.h>
 #include <xdg-shell-unstable-v5-client-protocol.h>
+#include <xdg-shell-unstable-v6-client-protocol.h>
 
 namespace wl {
 namespace {
@@ -32,6 +33,31 @@ void delete_seat(wl_seat* seat) {
 }
 
 }  // namespace
+
+const wl_interface* ObjectTraits<zxdg_shell_v6>::interface =
+    &zxdg_shell_v6_interface;
+void (*ObjectTraits<zxdg_shell_v6>::deleter)(zxdg_shell_v6*) =
+    &zxdg_shell_v6_destroy;
+
+const wl_interface* ObjectTraits<zxdg_surface_v6>::interface =
+    &zxdg_surface_v6_interface;
+void (*ObjectTraits<zxdg_surface_v6>::deleter)(zxdg_surface_v6*) =
+    &zxdg_surface_v6_destroy;
+
+const wl_interface* ObjectTraits<zxdg_toplevel_v6>::interface =
+    &zxdg_toplevel_v6_interface;
+void (*ObjectTraits<zxdg_toplevel_v6>::deleter)(zxdg_toplevel_v6*) =
+    &zxdg_toplevel_v6_destroy;
+
+const wl_interface* ObjectTraits<zxdg_popup_v6>::interface =
+    &zxdg_popup_v6_interface;
+void (*ObjectTraits<zxdg_popup_v6>::deleter)(zxdg_popup_v6*) =
+    &zxdg_popup_v6_destroy;
+
+const wl_interface* ObjectTraits<zxdg_positioner_v6>::interface =
+    &zxdg_positioner_v6_interface;
+void (*ObjectTraits<zxdg_positioner_v6>::deleter)(zxdg_positioner_v6*) =
+    &zxdg_positioner_v6_destroy;
 
 const wl_interface* ObjectTraits<wl_buffer>::interface = &wl_buffer_interface;
 void (*ObjectTraits<wl_buffer>::deleter)(wl_buffer*) = &wl_buffer_destroy;
