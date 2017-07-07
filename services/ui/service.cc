@@ -323,6 +323,8 @@ void Service::OnWillCreateTreeForWindowManager(
       ws::DisplayCreationConfig::MANUAL) {
 #if defined(USE_OZONE) && defined(OS_CHROMEOS)
     screen_manager_ = base::MakeUnique<display::ScreenManagerForwarding>();
+#elif defined(USE_OZONE) && !defined(OS_CHROMEOS)
+    screen_manager_ = display::ScreenManager::Create();
 #else
     CHECK(false);
 #endif

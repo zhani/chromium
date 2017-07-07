@@ -863,6 +863,19 @@ void WindowServer::OnWindowCursorChanged(ServerWindow* window,
   if (in_destructor_)
     return;
 
+  // In external window mode, cursor changes are forwarded to
+  // the visible root for the client associated ws::Display.
+  // This is because we are not using the WindowTree::WmSetGlobalOverrideCursor
+  // that mushrome uses. It arrive here via WindowTree::SetCursor.
+  // See comments in EventDispatcher::GetWindowForMouseCursor for details.
+  if (IsInExternalWindowMode()) {
+    WindowManagerDisplayRoot* display_root =
+        display_manager_->GetWindowManagerDisplayRoot(window);
+    if (display_root && display_root->GetClientVisibleRoot() == window) {
+      display_root->root()->SetCursor(cursor);
+    }
+  }
+
   ProcessWillChangeWindowCursor(window, cursor);
 
   UpdateNativeCursorIfOver(window);
