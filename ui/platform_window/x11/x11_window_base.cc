@@ -219,10 +219,12 @@ void X11WindowBase::Create() {
   size_hints.win_gravity = StaticGravity;
   XSetWMNormalHints(xdisplay_, xwindow_, &size_hints);
 
-  // Disable native frame by default for now.
+  // Disable native frame by default in non-ChromeOS builds for now.
   // TODO(msisov, tonikitoo): check if native frame should be used by checking
   // Widget::InitParams::remove_standard_frame.
+#if !defined(OS_CHROMEOS)
   ui::SetUseOSWindowFrame(xwindow_, false);
+#endif
 
   // TODO(sky): provide real scale factor.
   delegate_->OnAcceleratedWidgetAvailable(xwindow_, 1.f);
