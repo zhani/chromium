@@ -745,7 +745,7 @@ void WindowTreeClient::ScheduleInFlightBoundsChange(
       window->window_mus_type() == WindowMusType::DISPLAY_MANUALLY_CREATED ||
       window->HasLocalLayerTreeFrameSink()) {
     local_surface_id = window->GetOrAllocateLocalSurfaceId(new_bounds.size());
-    host_sync_data_[GetWindowTreeHostMus(window)] = { true, false };
+    host_sync_data_[GetWindowTreeHostMus(window)] = {true, false};
   }
   tree_->SetWindowBounds(change_id, window->server_id(), new_bounds,
                          local_surface_id);
@@ -2289,8 +2289,8 @@ void WindowTreeClient::OnCompositingStarted(ui::Compositor* compositor,
       WindowTreeHost::GetForAcceleratedWidget(compositor->widget());
 
   auto it = host_sync_data_.find(host);
-  DCHECK(it != host_sync_data_.end());
-  if (!it->second.synchronizing_with_child_on_next_frame_)
+  if (it == host_sync_data_.end() ||
+      !it->second.synchronizing_with_child_on_next_frame_)
     return;
   it->second.synchronizing_with_child_on_next_frame_ = false;
   // Unit tests have a null widget and thus may not have an associated
@@ -2306,8 +2306,7 @@ void WindowTreeClient::OnCompositingEnded(ui::Compositor* compositor) {
       WindowTreeHost::GetForAcceleratedWidget(compositor->widget());
 
   auto it = host_sync_data_.find(host);
-  DCHECK(it != host_sync_data_.end());
-  if (!it->second.holding_pointer_moves_)
+  if (it == host_sync_data_.end() || !it->second.holding_pointer_moves_)
     return;
   host->dispatcher()->ReleasePointerMoves();
   it->second.holding_pointer_moves_ = false;
