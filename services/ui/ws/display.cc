@@ -363,18 +363,9 @@ void Display::OnBoundsChanged(const gfx::Rect& new_bounds) {
 
   // WindowManagerDisplayRoot::root_ needs to be at 0,0 position relative
   // to its parent not to break mouse/touch events.
-  for (auto& pair : window_manager_display_root_map_) {
+  for (auto& pair : window_manager_display_root_map_)
     pair.second->root()->SetBounds(
         gfx::Rect(new_bounds.size()), allocator_.GenerateId());
-
-    // Null-check the ServerWindow here, because this call might be in
-    // the middle of a PlatformDisplay creation, before WT::AddRoot,
-    // where the visible root for the client is set.
-    if (pair.second->GetClientVisibleRoot()) {
-      pair.second->GetClientVisibleRoot()->SetBounds(
-          gfx::Rect(new_bounds.size()), allocator_.GenerateId());
-    }
-  }
 }
 
 void Display::OnCloseRequest() {
@@ -481,8 +472,7 @@ void Display::OnFocusChanged(FocusControllerChangeSource change_source,
     }
     embedded_tree_old = window_server_->GetTreeWithRoot(old_focused_window);
     if (embedded_tree_old) {
-      // In external window mode, old and new tree can be the same.
-      // DCHECK_NE(owning_tree_old, embedded_tree_old);
+      DCHECK_NE(owning_tree_old, embedded_tree_old);
       embedded_tree_old->ProcessFocusChanged(old_focused_window,
                                              new_focused_window);
     }
@@ -500,8 +490,7 @@ void Display::OnFocusChanged(FocusControllerChangeSource change_source,
     embedded_tree_new = window_server_->GetTreeWithRoot(new_focused_window);
     if (embedded_tree_new && embedded_tree_new != owning_tree_old &&
         embedded_tree_new != embedded_tree_old) {
-      // In external window mode, old and new tree can be the same.
-      // DCHECK_NE(owning_tree_new, embedded_tree_new);
+      DCHECK_NE(owning_tree_new, embedded_tree_new);
       embedded_tree_new->ProcessFocusChanged(old_focused_window,
                                              new_focused_window);
     }
