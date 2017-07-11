@@ -4,7 +4,7 @@
 
 #include "services/ui/ws/external_window_tree_factory.h"
 
-#include "services/ui/ws/window_manager_access_policy.h"
+#include "services/ui/ws/external_window_access_policy.h"
 #include "services/ui/ws/window_server.h"
 #include "services/ui/ws/window_server_delegate.h"
 #include "services/ui/ws/window_tree.h"
@@ -33,10 +33,9 @@ void ExternalWindowTreeFactory::Register(
   window_server_->delegate()->OnWillCreateTreeForWindowManager(
       automatically_create_display_roots);
 
-  // FIXME(tonikitoo,msisov,fwang): Do we need our own AccessPolicy?
   std::unique_ptr<ws::WindowTree> tree(
       new ws::WindowTree(window_server_, user_id_, nullptr /*ServerWindow*/,
-                         base::WrapUnique(new WindowManagerAccessPolicy)));
+                         base::WrapUnique(new ExternalWindowAccessPolicy)));
 
   std::unique_ptr<ws::DefaultWindowTreeBinding> tree_binding(
       new ws::DefaultWindowTreeBinding(tree.get(), window_server_,
