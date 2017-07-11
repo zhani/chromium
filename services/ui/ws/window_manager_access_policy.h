@@ -68,7 +68,7 @@ class WindowManagerAccessPolicy : public AccessPolicy {
   bool CanSetWindowManager() const override;
   bool IsValidIdForNewWindow(const ClientWindowId& id) const override;
 
- private:
+ protected:
   bool IsWindowKnown(const ServerWindow* window) const;
   bool WasCreatedByThisClient(const ServerWindow* window) const;
 
