@@ -14,7 +14,14 @@ ExternalWindowAccessPolicy::ExternalWindowAccessPolicy() {}
 
 ExternalWindowAccessPolicy::~ExternalWindowAccessPolicy() {}
 
-bool ExternalWindowAccessPolicy::CanSetWindowBounds(const ServerWindow* window) const {
+bool ExternalWindowAccessPolicy::CanSetWindowBounds(
+    const ServerWindow* window) const {
+  return WasCreatedByThisClient(window) ||
+         delegate_->HasRootForAccessPolicy(window);
+}
+
+bool ExternalWindowAccessPolicy::CanSetWindowProperties(
+    const ServerWindow* window) const {
   return WasCreatedByThisClient(window) ||
          delegate_->HasRootForAccessPolicy(window);
 }
