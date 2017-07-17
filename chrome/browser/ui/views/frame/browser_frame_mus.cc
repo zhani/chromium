@@ -23,6 +23,10 @@
 #include "services/ui/public/interfaces/window_manager.mojom.h"
 #endif
 
+#if defined(USE_OZONE) && defined(OS_LINUX) && !defined(OS_CHROMEOS)
+#include "base/command_line.h"
+#endif
+
 BrowserFrameMus::BrowserFrameMus(BrowserFrame* browser_frame,
                                  BrowserView* browser_view)
     : views::DesktopNativeWidgetAura(browser_frame),
@@ -56,6 +60,10 @@ views::Widget::InitParams BrowserFrameMus::GetWidgetParams() {
   aura::WindowTreeHostMusInitParams window_tree_host_init_params =
       aura::CreateInitParamsForTopLevel(
           views::MusClient::Get()->window_tree_client(), std::move(properties));
+#if defined(USE_OZONE) && defined(OS_LINUX) && !defined(OS_CHROMEOS)
+  window_tree_host_init_params.use_classic_ime =
+      !base::CommandLine::ForCurrentProcess()->HasSwitch("use-ime-service");
+#endif
   std::unique_ptr<views::DesktopWindowTreeHostMus> desktop_window_tree_host =
       base::MakeUnique<views::DesktopWindowTreeHostMus>(
           std::move(window_tree_host_init_params), browser_frame_, this);
