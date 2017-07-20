@@ -781,6 +781,7 @@ bool RenderWidgetHostImpl::GetResizeParams(ResizeParams* resize_params) {
        !resize_params->physical_backing_size.IsEmpty());
   bool dirty =
       size_changed ||
+      old_resize_params_->local_surface_id != resize_params->local_surface_id ||
       old_resize_params_->screen_info != resize_params->screen_info ||
       old_resize_params_->physical_backing_size !=
           resize_params->physical_backing_size ||
