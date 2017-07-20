@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef SERVICES_UI_WS_DEFAULT_ACCESS_POLICY_H_
-#define SERVICES_UI_WS_DEFAULT_ACCESS_POLICY_H_
+#ifndef SERVICES_UI_WS_EXTERNAL_WINDOW_ACCESS_POLICY_H_
+#define SERVICES_UI_WS_EXTERNAL_WINDOW_ACCESS_POLICY_H_
 
 #include <stdint.h>
 
@@ -21,6 +21,7 @@ class ExternalWindowAccessPolicy : public WindowManagerAccessPolicy {
   ExternalWindowAccessPolicy();
   ~ExternalWindowAccessPolicy() override;
 
+ private:
   // WindowManagerAccessPolicy:
   bool CanSetWindowBounds(const ServerWindow* window) const override;
   bool CanSetWindowProperties(const ServerWindow* window) const override;
@@ -31,4 +32,4 @@ class ExternalWindowAccessPolicy : public WindowManagerAccessPolicy {
 }  // namespace ws
 }  // namespace ui
 
-#endif  // SERVICES_UI_WS_DEFAULT_ACCESS_POLICY_H_
+#endif  // SERVICES_UI_WS_EXTERNAL_WINDOW_ACCESS_POLICY_H_

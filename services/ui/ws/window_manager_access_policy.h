@@ -5,8 +5,6 @@
 #ifndef SERVICES_UI_WS_WINDOW_MANAGER_ACCESS_POLICY_H_
 #define SERVICES_UI_WS_WINDOW_MANAGER_ACCESS_POLICY_H_
 
-#include <stdint.h>
-
 #include "base/macros.h"
 #include "services/ui/ws/access_policy.h"
 
@@ -69,11 +67,14 @@ class WindowManagerAccessPolicy : public AccessPolicy {
   bool IsValidIdForNewWindow(const ClientWindowId& id) const override;
 
  protected:
-  bool IsWindowKnown(const ServerWindow* window) const;
   bool WasCreatedByThisClient(const ServerWindow* window) const;
 
-  ClientSpecificId client_id_ = 0u;
   AccessPolicyDelegate* delegate_ = nullptr;
+
+ private:
+  bool IsWindowKnown(const ServerWindow* window) const;
+
+  ClientSpecificId client_id_ = 0u;
 
   DISALLOW_COPY_AND_ASSIGN(WindowManagerAccessPolicy);
 };
