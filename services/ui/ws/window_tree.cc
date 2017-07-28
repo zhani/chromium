@@ -160,9 +160,6 @@ void WindowTree::DoOnEmbed(mojom::WindowTreePtr tree,
     ClientWindowId window_id;
     IsWindowKnown(root_window, &window_id);
 
-    // In external window mode, every platform window is an activation parent.
-    AddActivationParent(window_id);
-
     // In case of external window mode, when aura/mus sets the initial focus
     // to the Chrome's server window (WindowManagerDisplayRoot::root_), the
     // call chain checks either WindowManagerDisplayRoot::root_'s parent window
