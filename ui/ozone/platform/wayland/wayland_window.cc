@@ -7,6 +7,7 @@
 #include <wayland-client.h>
 
 #include "base/bind.h"
+#include "base/memory/ptr_util.h"
 #include "ui/base/hit_test.h"
 #include "ui/events/event.h"
 #include "ui/events/ozone/events_ozone.h"
@@ -101,9 +102,10 @@ bool WaylandWindow::Initialize() {
   // There is now default initialization for this type. Initialize it
   // to ::WINDOW here. It will be changed by delelgate if it know the
   // type of the window.
-  ui::mojom::WindowType window_type = ui::mojom::WindowType::WINDOW;
-  delegate_->GetWindowType(&window_type);
-  if (window_type == ui::mojom::WindowType::WINDOW) {
+  ui::PlatformWindowType ui_window_type =
+      ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_WINDOW;
+  delegate_->GetWindowType(&ui_window_type);
+  if (ui_window_type == ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_WINDOW) {
     xdg_surface_ =
         xdg_shell_objects_factory_->CreateXDGSurface(connection_, this);
     if (!xdg_surface_ ||
