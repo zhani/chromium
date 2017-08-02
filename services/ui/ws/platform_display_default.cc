@@ -11,6 +11,7 @@
 #include "gpu/ipc/client/gpu_channel_host.h"
 #include "services/ui/display/screen_manager.h"
 #include "services/ui/public/interfaces/cursor/cursor_struct_traits.h"
+#include "services/ui/public/interfaces/window_manager_constants.mojom.h"
 #include "services/ui/ws/server_window.h"
 #include "services/ui/ws/threaded_image_cursors.h"
 #include "ui/display/display.h"
@@ -145,9 +146,16 @@ void PlatformDisplayDefault::SetNativeWindowState(ui::mojom::ShowState state) {
   }
 }
 
-void PlatformDisplayDefault::GetWindowType(ui::mojom::WindowType* result) {
-  DCHECK(result);
-  *result = metrics_.window_type;
+void PlatformDisplayDefault::GetWindowType(
+    ui::PlatformWindowType* window_type) {
+  DCHECK(window_type);
+  // TODO(tonikitoo, msisov): it might be better to pass more params through
+  // Widget::InitParams to ozone windows. For now, just do a check whether it's
+  // a normal window or menu..
+  if (metrics_.window_type == ui::mojom::WindowType::WINDOW)
+    *window_type = ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_WINDOW;
+  else
+    *window_type = ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_MENU;
 }
 
 void PlatformDisplayDefault::PerformNativeWindowDragOrResize(uint32_t hittest) {
