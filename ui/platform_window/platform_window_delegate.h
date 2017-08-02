@@ -5,7 +5,6 @@
 #ifndef UI_PLATFORM_WINDOW_PLATFORM_WINDOW_DELEGATE_H_
 #define UI_PLATFORM_WINDOW_PLATFORM_WINDOW_DELEGATE_H_
 
-#include "services/ui/public/interfaces/window_manager_constants.mojom.h"
 #include "ui/gfx/native_widget_types.h"
 
 namespace gfx {
@@ -13,6 +12,9 @@ class Rect;
 }
 
 namespace ui {
+namespace mojom {
+enum class WindowType;
+}
 
 class Event;
 
