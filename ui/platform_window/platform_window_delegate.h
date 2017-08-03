@@ -5,7 +5,6 @@
 #ifndef UI_PLATFORM_WINDOW_PLATFORM_WINDOW_DELEGATE_H_
 #define UI_PLATFORM_WINDOW_PLATFORM_WINDOW_DELEGATE_H_
 
-#include "services/ui/public/interfaces/window_manager_constants.mojom.h"
 #include "ui/gfx/native_widget_types.h"
 
 namespace gfx {
@@ -22,6 +21,11 @@ enum PlatformWindowState {
   PLATFORM_WINDOW_STATE_MINIMIZED,
   PLATFORM_WINDOW_STATE_NORMAL,
   PLATFORM_WINDOW_STATE_FULLSCREEN,
+};
+
+enum PlatformWindowType {
+  PLATFORM_WINDOW_TYPE_WINDOW,
+  PLATFORM_WINDOW_TYPE_MENU,
 };
 
 class PlatformWindowDelegate {
@@ -56,7 +60,7 @@ class PlatformWindowDelegate {
   // TODO(tonikitoo,msisov): Adding this method with an out parameter so that
   // we can have a default implementation here and not need to add stubs to
   // all subclasses. To be discussed when upstraming.
-  virtual void GetWindowType(ui::mojom::WindowType* result) {}
+  virtual void GetWindowType(PlatformWindowType* window_type) {}
 };
 
 }  // namespace ui
