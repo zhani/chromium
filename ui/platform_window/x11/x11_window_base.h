@@ -9,8 +9,6 @@
 
 #include <X11/Xutil.h>
 
-#include <set>
-
 #include "base/callback.h"
 #include "base/macros.h"
 #include "ui/gfx/geometry/rect.h"

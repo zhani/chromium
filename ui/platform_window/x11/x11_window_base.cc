@@ -12,7 +12,6 @@
 #include <string>
 
 #include "base/strings/utf_string_conversions.h"
-#include "services/ui/public/interfaces/window_manager_constants.mojom.h"
 #include "ui/base/hit_test.h"
 #include "ui/base/platform_window_defaults.h"
 #include "ui/base/x/x11_util.h"
