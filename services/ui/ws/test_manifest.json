@@ -12,9 +12,9 @@
         "*": [ "app" ],
         "ui_service_unittests": [ "ui:window_tree_client" ],
         "ui": [
+          "external_window_tree_factory",
           "window_manager",
-          "window_tree_host_factory",
-          "window_tree_host_factory_registrar"
+          "window_tree_host_factory"
         ]
       }
     }

@@ -21,12 +21,14 @@
 #include "cc/ipc/surface_id.mojom.h"
 #include "mojo/public/cpp/bindings/associated_binding.h"
 #include "services/ui/public/interfaces/window_tree.mojom.h"
+#include "services/ui/public/interfaces/window_tree_host.mojom.h"
 #include "services/ui/ws/access_policy_delegate.h"
 #include "services/ui/ws/drag_source.h"
 #include "services/ui/ws/drag_target_connection.h"
 #include "services/ui/ws/ids.h"
 #include "services/ui/ws/user_id.h"
 #include "services/ui/ws/window_tree_binding.h"
+#include "services/ui/ws/window_tree_host_factory.h"
 
 namespace gfx {
 class Insets;
@@ -516,6 +518,9 @@ class WindowTree : public mojom::WindowTree,
   void GetWindowManagerClient(
       mojo::AssociatedInterfaceRequest<mojom::WindowManagerClient> internal)
       override;
+  void GetWindowTreeHostFactory(
+      mojo::AssociatedInterfaceRequest<mojom::WindowTreeHostFactory> request)
+      override;
   void GetCursorLocationMemory(const GetCursorLocationMemoryCallback& callback)
       override;
   void PerformDragDrop(
@@ -684,6 +689,13 @@ class WindowTree : public mojom::WindowTree,
       window_manager_internal_client_binding_;
   mojom::WindowManager* window_manager_internal_;
   std::unique_ptr<WindowManagerState> window_manager_state_;
+
+  // Uses WindowTreeHostFactory as an associated interface to WindowTree.
+  // This allows both interfaces to share the same mojo pipe, and then,
+  // ensure ordering of messages.
+  std::unique_ptr<mojo::AssociatedBinding<mojom::WindowTreeHostFactory>>
+      window_tree_host_factory_binding_;
+  std::unique_ptr<WindowTreeHostFactory> window_tree_host_factory_;
 
   // See mojom for details.
   bool automatically_create_display_roots_ = true;

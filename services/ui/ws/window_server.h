@@ -26,7 +26,6 @@
 #include "services/ui/ws/user_id_tracker.h"
 #include "services/ui/ws/user_id_tracker_observer.h"
 #include "services/ui/ws/window_manager_window_tree_factory_set.h"
-#include "services/ui/ws/window_tree_host_factory.h"
 #include "services/viz/compositing/privileged/interfaces/frame_sink_manager.mojom.h"
 
 namespace ui {
@@ -157,12 +156,6 @@ class WindowServer : public ServerWindowDelegate,
 
   WindowManagerWindowTreeFactorySet* window_manager_window_tree_factory_set() {
     return &window_manager_window_tree_factory_set_;
-  }
-
-  void set_window_tree_host_factory(
-      std::unique_ptr<WindowTreeHostFactory> factory) {
-    DCHECK(factory);
-    window_tree_host_factory_ = std::move(factory);
   }
 
   // Sets focus to |window|. Returns true if |window| already has focus, or
@@ -429,8 +422,6 @@ class WindowServer : public ServerWindowDelegate,
   UserActivityMonitorMap activity_monitor_map_;
 
   WindowManagerWindowTreeFactorySet window_manager_window_tree_factory_set_;
-
-  std::unique_ptr<WindowTreeHostFactory> window_tree_host_factory_;
 
   viz::SurfaceId root_surface_id_;
 

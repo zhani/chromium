@@ -2,33 +2,26 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "services/ui/ws/window_tree_host_factory_registrar.h"
+#include "services/ui/ws/external_window_tree_factory.h"
 
 #include "services/ui/ws/external_window_access_policy.h"
 #include "services/ui/ws/window_server.h"
 #include "services/ui/ws/window_server_delegate.h"
 #include "services/ui/ws/window_tree.h"
-#include "services/ui/ws/window_tree_host_factory.h"
 
 namespace ui {
 namespace ws {
 
-WindowTreeHostFactoryRegistrar::WindowTreeHostFactoryRegistrar(
+ExternalWindowTreeFactory::ExternalWindowTreeFactory(
     WindowServer* window_server,
     const UserId& user_id)
     : window_server_(window_server), user_id_(user_id) {}
 
-WindowTreeHostFactoryRegistrar::~WindowTreeHostFactoryRegistrar() {}
+ExternalWindowTreeFactory::~ExternalWindowTreeFactory() {}
 
-void WindowTreeHostFactoryRegistrar::Register(
-    mojom::WindowTreeHostFactoryRequest host_factory_request,
+void ExternalWindowTreeFactory::Register(
     mojom::WindowTreeRequest tree_request,
     mojom::WindowTreeClientPtr tree_client) {
-  std::unique_ptr<WindowTreeHostFactory> host_factory(
-      new WindowTreeHostFactory(window_server_, user_id_));
-
-  host_factory->AddBinding(std::move(host_factory_request));
-
   // NOTE: The code below is analogous to WS::CreateTreeForWindowManager,
   // but for the sake of an easier rebase, we are concentrating additions
   // like this here.
@@ -62,7 +55,6 @@ void WindowTreeHostFactoryRegistrar::Register(
   window_server_->AddTree(std::move(tree), std::move(tree_binding),
                           nullptr /*mojom::WindowTreePtr*/);
   tree_ptr->ConfigureRootWindowTreeClient(automatically_create_display_roots);
-  window_server_->set_window_tree_host_factory(std::move(host_factory));
 }
 
 }  // namespace ws
