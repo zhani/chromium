@@ -308,22 +308,24 @@ bool WaylandWindow::CanDispatchEvent(const PlatformEvent& native_event) {
   Event* event = static_cast<Event*>(native_event);
   if (event->IsMouseEvent()) {
     if (g_current_capture_ == this) {
-      if (has_pointer_focus_ || child_window_->is_focused_popup())
+      if (has_pointer_or_touch_focus() || child_window_->is_focused_popup())
         return true;
       else
         return false;
     } else {
-      return has_pointer_focus_;
+      return has_pointer_or_touch_focus();
     }
   }
   if (event->IsKeyEvent())
     return has_keyboard_focus_;
+  if (event->IsTouchEvent())
+    return has_touch_focus_;
   return false;
 }
 
 uint32_t WaylandWindow::DispatchEvent(const PlatformEvent& native_event) {
   Event* event = static_cast<Event*>(native_event);
-  if (event->IsLocatedEvent() && !has_pointer_focus_)
+  if (event->IsLocatedEvent() && !has_pointer_or_touch_focus())
     ConvertEventLocationToCurrentWindowLocation(event);
 
   DispatchEventFromNativeUiEvent(
