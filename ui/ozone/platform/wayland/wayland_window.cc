@@ -7,8 +7,6 @@
 #include <wayland-client.h>
 
 #include "base/bind.h"
-#include "base/memory/ptr_util.h"
-#include "services/ui/public/interfaces/window_manager_constants.mojom.h"
 #include "ui/base/hit_test.h"
 #include "ui/events/event.h"
 #include "ui/events/ozone/events_ozone.h"
