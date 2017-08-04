@@ -217,7 +217,8 @@ void WindowTree::ConfigureRootWindowTreeClient(
     bool automatically_create_display_roots) {
   DCHECK(window_server_->IsInExternalWindowMode());
   automatically_create_display_roots_ = automatically_create_display_roots;
-  binding_->GetWindowManager()->OnConnect(id_);
+  window_manager_internal_ = binding_->GetWindowManager();
+  window_manager_internal_->OnConnect(id_);
 
   window_tree_host_factory_.reset(
       new WindowTreeHostFactory(window_server_, user_id_));
