@@ -78,10 +78,10 @@ WaylandWindow::WaylandWindow(PlatformWindowDelegate* delegate,
       bounds_(bounds) {}
 
 WaylandWindow::~WaylandWindow() {
-  if (xdg_surface_) {
-    PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
-    connection_->RemoveWindow(surface_.id());
-  }
+  PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
+  connection_->RemoveWindow(surface_.id());
+  if (parent_window_)
+    parent_window_->set_child_window(nullptr);
 }
 
 // static

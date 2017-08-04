@@ -28,7 +28,9 @@ const uint32_t kMaxXdgShellVersion = 1;
 
 WaylandConnection::WaylandConnection() : controller_(FROM_HERE) {}
 
-WaylandConnection::~WaylandConnection() {}
+WaylandConnection::~WaylandConnection() {
+  DCHECK(window_map_.empty());
+}
 
 bool WaylandConnection::Initialize() {
   static const wl_registry_listener registry_listener = {
