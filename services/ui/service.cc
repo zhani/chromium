@@ -30,6 +30,7 @@
 #include "services/ui/ws/display_binding.h"
 #include "services/ui/ws/display_creation_config.h"
 #include "services/ui/ws/display_manager.h"
+#include "services/ui/ws/external_window_tree_factory.h"
 #include "services/ui/ws/frame_sink_manager_client_binding.h"
 #include "services/ui/ws/gpu_host.h"
 #include "services/ui/ws/threaded_image_cursors.h"
@@ -41,8 +42,6 @@
 #include "services/ui/ws/window_tree.h"
 #include "services/ui/ws/window_tree_binding.h"
 #include "services/ui/ws/window_tree_factory.h"
-#include "services/ui/ws/window_tree_host_factory.h"
-#include "services/ui/ws/window_tree_host_factory_registrar.h"
 #include "ui/base/cursor/image_cursors.h"
 #include "ui/base/platform_window_defaults.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -297,9 +296,8 @@ void Service::OnStart() {
       &Service::BindUserAccessManagerRequest, base::Unretained(this)));
   registry_.AddInterface<mojom::UserActivityMonitor>(base::Bind(
       &Service::BindUserActivityMonitorRequest, base::Unretained(this)));
-  registry_.AddInterface<mojom::WindowTreeHostFactoryRegistrar>(
-      base::Bind(&Service::BindWindowTreeHostFactoryRegistrarRequest,
-                 base::Unretained(this)));
+  registry_.AddInterface<mojom::ExternalWindowTreeFactory>(base::Bind(
+      &Service::BindExternalWindowTreeFactoryRequest, base::Unretained(this)));
   registry_.AddInterface<mojom::WindowManagerWindowTreeFactory>(
       base::Bind(&Service::BindWindowManagerWindowTreeFactoryRequest,
                  base::Unretained(this)));
@@ -500,12 +498,12 @@ void Service::BindWindowTreeFactoryRequest(
       std::move(request));
 }
 
-void Service::BindWindowTreeHostFactoryRegistrarRequest(
-    mojom::WindowTreeHostFactoryRegistrarRequest request,
+void Service::BindExternalWindowTreeFactoryRequest(
+    mojom::ExternalWindowTreeFactoryRequest request,
     const service_manager::BindSourceInfo& source_info) {
   AddUserIfNecessary(source_info.identity);
   mojo::MakeStrongBinding(
-      base::MakeUnique<ws::WindowTreeHostFactoryRegistrar>(
+      base::MakeUnique<ws::ExternalWindowTreeFactory>(
           window_server_.get(), source_info.identity.user_id()),
       std::move(request));
   window_server_->SetInExternalWindowMode();

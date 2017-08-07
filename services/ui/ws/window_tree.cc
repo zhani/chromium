@@ -218,6 +218,9 @@ void WindowTree::ConfigureRootWindowTreeClient(
   DCHECK(window_server_->IsInExternalWindowMode());
   automatically_create_display_roots_ = automatically_create_display_roots;
   binding_->GetWindowManager()->OnConnect(id_);
+
+  window_tree_host_factory_.reset(
+      new WindowTreeHostFactory(window_server_, user_id_));
 }
 
 const ServerWindow* WindowTree::GetWindow(const WindowId& id) const {
@@ -2169,6 +2172,17 @@ void WindowTree::GetWindowManagerClient(
   window_manager_internal_client_binding_.reset(
       new mojo::AssociatedBinding<mojom::WindowManagerClient>(
           this, std::move(internal)));
+}
+
+void WindowTree::GetWindowTreeHostFactory(
+    mojo::AssociatedInterfaceRequest<mojom::WindowTreeHostFactory> request) {
+  if (!window_server_->IsInExternalWindowMode() || !window_tree_host_factory_ ||
+      window_tree_host_factory_binding_) {
+    return;
+  }
+  window_tree_host_factory_binding_.reset(
+      new mojo::AssociatedBinding<mojom::WindowTreeHostFactory>(
+          window_tree_host_factory_.get(), std::move(request)));
 }
 
 void WindowTree::GetCursorLocationMemory(

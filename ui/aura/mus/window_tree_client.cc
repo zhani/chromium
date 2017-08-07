@@ -294,20 +294,18 @@ void WindowTreeClient::ConnectViaWindowTreeHostFactory() {
   // The client id doesn't really matter, we use 101 purely for debugging.
   client_id_ = 101;
 
-  ui::mojom::WindowTreeHostFactoryRegistrarPtr host_factory_registrar;
-  connector_->BindInterface(ui::mojom::kServiceName, &host_factory_registrar);
+  ui::mojom::ExternalWindowTreeFactoryPtr factory;
+  connector_->BindInterface(ui::mojom::kServiceName, &factory);
 
   ui::mojom::WindowTreePtr window_tree;
 
   ui::mojom::WindowTreeClientPtr client;
   binding_.Bind(MakeRequest(&client));
-  host_factory_registrar->Register(MakeRequest(&window_tree_host_factory_ptr_),
-                                   MakeRequest(&window_tree),
-                                   std::move(client));
-
-  SetWindowTree(std::move(window_tree));
+  factory->Register(MakeRequest(&window_tree), std::move(client));
 
   in_external_window_mode_ = true;
+
+  SetWindowTree(std::move(window_tree));
 
   // Similarly in AshConfig::MUS, it is important to have
   // the connection with the root window tree established before
@@ -591,6 +589,12 @@ void WindowTreeClient::SetWindowTree(ui::mojom::WindowTreePtr window_tree_ptr) {
     tree_ptr_->GetWindowManagerClient(
         MakeRequest(&window_manager_internal_client_));
     window_manager_client_ = window_manager_internal_client_.get();
+  }
+
+  if (in_external_window_mode_) {
+    tree_ptr_->GetWindowTreeHostFactory(
+        MakeRequest(&window_tree_host_factory_));
+    window_tree_host_factory_ptr_ = window_tree_host_factory_.get();
   }
 }
 

@@ -17,6 +17,7 @@
 #include "services/service_manager/public/cpp/binder_registry.h"
 #include "services/service_manager/public/cpp/service_test.h"
 #include "services/ui/public/interfaces/constants.mojom.h"
+#include "services/ui/public/interfaces/external_window_tree_factory.mojom.h"
 #include "services/ui/public/interfaces/window_tree.mojom.h"
 #include "services/ui/public/interfaces/window_tree_host.mojom.h"
 #include "services/ui/ws/ids.h"
@@ -698,21 +699,26 @@ class WindowTreeClientTest : public WindowServerServiceTestBase {
 
     WindowServerServiceTestBase::SetUp();
 
-    ui::mojom::WindowTreeHostFactoryRegistrarPtr factory_registrar;
-    connector()->BindInterface(ui::mojom::kServiceName, &factory_registrar);
+    ui::mojom::ExternalWindowTreeFactoryPtr tree_factory;
+    connector()->BindInterface(ui::mojom::kServiceName, &tree_factory);
 
-    mojom::WindowTreeHostFactoryPtr factory;
-    ui::mojom::WindowTreePtr window_tree;
+    ui::mojom::WindowTreePtr tree;
     mojom::WindowTreeClientPtr tree_client_ptr;
     wt_client1_ = base::MakeUnique<TestWindowTreeClient>();
     wt_client1_->Bind(MakeRequest(&tree_client_ptr));
-    factory_registrar->Register(MakeRequest(&factory),
-                                MakeRequest(&window_tree),
-                                std::move(tree_client_ptr));
-    wt_client1_->set_tree(std::move(window_tree));
+    tree_factory->Register(MakeRequest(&tree), std::move(tree_client_ptr));
+
+    ui::mojom::WindowTreeHostFactoryAssociatedPtr tree_host_factory;
+    ui::mojom::WindowTreeHostFactory* tree_host_factory_ptr = nullptr;
+
+    tree->GetWindowTreeHostFactory(MakeRequest(&tree_host_factory));
+    tree_host_factory_ptr = tree_host_factory.get();
+
+    wt_client1_->set_tree(std::move(tree));
+
     std::unordered_map<std::string, std::vector<uint8_t>> transport_properties;
-    factory->CreatePlatformWindow(MakeRequest(&host_), BuildWindowId(1, 0),
-                                  transport_properties);
+    tree_host_factory_ptr->CreatePlatformWindow(
+        MakeRequest(&host_), BuildWindowId(1, 0), transport_properties);
 
     // Next we should get an embed call on the "window manager" client.
     wt_client1_->WaitForOnEmbed();

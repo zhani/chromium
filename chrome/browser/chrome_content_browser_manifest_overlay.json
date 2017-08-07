@@ -41,10 +41,10 @@
         "preferences": [ "pref_client", "pref_control" ],
         "ui": [
           "display_controller",
+          "external_window_tree_factory",
           "ime_registrar",
           "input_device_controller",
-          "window_manager",
-          "window_tree_host_factory_registrar"
+          "window_manager"
         ]
       }
     },

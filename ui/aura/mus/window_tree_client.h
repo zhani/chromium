@@ -22,6 +22,7 @@
 #include "components/viz/common/surfaces/local_surface_id_allocator.h"
 #include "mojo/public/cpp/bindings/associated_binding.h"
 #include "mojo/public/cpp/bindings/strong_binding.h"
+#include "services/ui/public/interfaces/external_window_tree_factory.mojom.h"
 #include "services/ui/public/interfaces/window_tree.mojom.h"
 #include "services/ui/public/interfaces/window_tree_host.mojom.h"
 #include "ui/aura/aura_export.h"
@@ -694,7 +695,8 @@ class AURA_EXPORT WindowTreeClient
   // removed.
   bool install_drag_drop_client_ = true;
 
-  ui::mojom::WindowTreeHostFactoryPtr window_tree_host_factory_ptr_;
+  ui::mojom::WindowTreeHostFactoryAssociatedPtr window_tree_host_factory_;
+  ui::mojom::WindowTreeHostFactory* window_tree_host_factory_ptr_ = nullptr;
 
   base::WeakPtrFactory<WindowTreeClient> weak_factory_;
 
