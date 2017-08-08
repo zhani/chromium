@@ -138,7 +138,7 @@ if (is_chromeos || (use_ozone && is_linux)) {
     ]
 
     # TODO(tonikitoo,msisov): Upstream and non-chromeos bits.
-    if (use_ozone && is_linux) {
+    if (use_ozone && is_linux && !is_chromeos) {
       embedded_services += [ "//services/ui:manifest" ]
     }
 
