@@ -170,6 +170,9 @@
 #endif  // ENABLE_PLUGINS
 
 namespace content {
+
+bool g_can_react_to_visibility_change = true;
+
 namespace {
 
 const int kMinimumDelayBetweenLoadingUpdatesMS = 100;
@@ -366,6 +369,10 @@ WebContents* WebContents::FromFrameTreeNodeId(int frame_tree_node_id) {
 void WebContents::SetScreenOrientationDelegate(
     ScreenOrientationDelegate* delegate) {
   ScreenOrientationProvider::SetDelegate(delegate);
+}
+
+void WebContents::SetDisallowReactionToWindowVisibilityChange(bool value) {
+  g_can_react_to_visibility_change = !value;
 }
 
 // WebContentsImpl::DestructionObserver ----------------------------------------
@@ -5826,6 +5833,9 @@ int WebContentsImpl::GetCurrentlyPlayingVideoCount() {
 }
 
 void WebContentsImpl::UpdateWebContentsVisibility(bool visible) {
+  if (!g_can_react_to_visibility_change)
+    return;
+
   if (!did_first_set_visible_) {
     // If this WebContents has not yet been set to be visible for the first
     // time, ignore any requests to make it hidden, since resources would

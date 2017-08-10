@@ -618,8 +618,11 @@ class SessionRestoreImpl : public content::NotificationObserver {
     if (!is_selected_tab)
       return;
 
+    WebContents::SetDisallowReactionToWindowVisibilityChange(true);
     ShowBrowser(browser, browser->tab_strip_model()->GetIndexOfWebContents(
                              web_contents));
+    WebContents::SetDisallowReactionToWindowVisibilityChange(false);
+
     // TODO(sky): remove. For debugging 368236.
     CHECK_EQ(browser->tab_strip_model()->GetActiveWebContents(), web_contents);
   }

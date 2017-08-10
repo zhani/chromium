@@ -204,6 +204,18 @@ class WebContents : public PageNavigator,
   CONTENT_EXPORT static void SetScreenOrientationDelegate(
       ScreenOrientationDelegate* delegate);
 
+  // Disallow WebContents instances to react to window visibility changes.
+  // This is useful during session restore, where there are assumptions
+  // (see SessionRestoreStatsCollector) that only the last active tab is
+  // loaded by the time browser is shown.
+  // In setups like chromeos/mash, DesktopWindowTreeHostMus::Show will
+  // trigger Window::Show calls, which will notify its observers of the
+  // visibility change, being WebContentsViewAura one of them.
+  // This might call WebContents::UpdateWebContentsVisibility which might
+  // trigger an expected load.
+  CONTENT_EXPORT static void SetDisallowReactionToWindowVisibilityChange(
+      bool value);
+
   ~WebContents() override {}
 
   // Intrinsic tab state -------------------------------------------------------
