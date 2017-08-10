@@ -163,6 +163,7 @@ void WaylandWindow::Show() {
   if (!xdg_popup_) {
     if (!CreatePopupWindow())
       CHECK(false) << "Failed to create popup window";
+    parent_window_->set_child_window(this);
     connection_->ScheduleFlush();
   }
 }
@@ -172,8 +173,10 @@ void WaylandWindow::Show() {
 void WaylandWindow::Hide() {
   if (child_window_)
     child_window_->Hide();
-  if (xdg_popup_)
+  if (xdg_popup_) {
+    parent_window_->set_child_window(nullptr);
     xdg_popup_.reset();
+  }
 }
 
 void WaylandWindow::Close() {
