@@ -15,6 +15,21 @@
 
 namespace ui {
 
+namespace {
+
+TouchPoint::TouchPoint() = default;
+
+TouchPoint::TouchPoint(gfx::Point location,
+                       std::unique_ptr<TouchEvent> touch_event,
+                       wl_surface* current_surface)
+    : surface(current_surface),
+      event(std::move(touch_event)),
+      last_known_location(location) {}
+
+TouchPoint::~TouchPoint() = default;
+
+}  // namespace
+
 WaylandTouch::WaylandTouch(wl_touch* touch,
                            const EventDispatchCallback& callback)
     : obj_(touch), callback_(callback) {
@@ -52,17 +67,19 @@ void WaylandTouch::Down(void* data,
   std::unique_ptr<TouchEvent> event(
       new TouchEvent(type, location, time_stamp, pointer_details));
   touch->callback_.Run(event.get());
-  touch->current_points_[id] = {surface, std::move(event), location};
+
+  std::unique_ptr<TouchPoint> point(
+      new TouchPoint(location, std::move(event), surface));
+  touch->current_points_[id] = std::move(point);
 }
 
-static void MaybeUnsetFocus(
-    const std::unordered_map<int32_t, TouchPoint>& points,
-    int32_t id) {
-  wl_surface* surface = points.find(id)->second.surface;
+static void MaybeUnsetFocus(const WaylandTouch::TouchPoints& points,
+                            int32_t id) {
+  wl_surface* surface = points.find(id)->second->surface;
 
   for (const auto& point : points) {
     // Return early on the first other point having this surface.
-    if (surface == point.second.surface && id != point.first)
+    if (surface == point.second->surface && id != point.first)
       return;
   }
   WaylandWindow::FromSurface(surface)->set_touch_focus(false);
@@ -84,7 +101,7 @@ void WaylandTouch::Up(void* data,
   base::TimeTicks time_stamp =
       base::TimeTicks() + base::TimeDelta::FromMilliseconds(time);
   PointerDetails pointer_details(EventPointerType::POINTER_TYPE_TOUCH, id);
-  TouchEvent event(type, touch->current_points_[id].last_known_location,
+  TouchEvent event(type, touch->current_points_[id]->last_known_location,
                    time_stamp, pointer_details);
   touch->callback_.Run(&event);
 
@@ -111,8 +128,8 @@ void WaylandTouch::Motion(void* data,
   std::unique_ptr<TouchEvent> event(
       new TouchEvent(type, location, time_stamp, pointer_details));
   touch->callback_.Run(event.get());
-  touch->current_points_[id].event = std::move(event);
-  touch->current_points_[id].last_known_location = location;
+  touch->current_points_[id]->event = std::move(event);
+  touch->current_points_[id]->last_known_location = location;
 }
 
 void WaylandTouch::Frame(void* data, wl_touch* obj) {
@@ -121,7 +138,7 @@ void WaylandTouch::Frame(void* data, wl_touch* obj) {
     // Replaces the TouchEvent created in a previous event in the frame with
     // nullptr.
     std::unique_ptr<TouchEvent> event = nullptr;
-    event.swap(point.second.event);
+    event.swap(point.second->event);
 
     // Not all ids have to had been changed in a single frame.
     if (event)
@@ -134,7 +151,7 @@ void WaylandTouch::Cancel(void* data, wl_touch* obj) {
   for (auto& point : touch->current_points_) {
     int32_t id = point.first;
 
-    DCHECK(!point.second.event);
+    DCHECK(!point.second->event);
 
     EventType type = ET_TOUCH_CANCELLED;
     base::TimeTicks time_stamp = base::TimeTicks::Now();
@@ -142,7 +159,7 @@ void WaylandTouch::Cancel(void* data, wl_touch* obj) {
     TouchEvent event(type, gfx::Point(), time_stamp, pointer_details);
     touch->callback_.Run(&event);
 
-    WaylandWindow::FromSurface(point.second.surface)->set_touch_focus(false);
+    WaylandWindow::FromSurface(point.second->surface)->set_touch_focus(false);
   }
   touch->current_points_.clear();
 }

@@ -17,16 +17,26 @@ namespace ui {
 class WaylandConnection;
 class TouchEvent;
 
-// TODO(msisov, tonikitoo): fix the "warning: [chromium-style] Complex
-// class/struct needs an explicit out-of-line constructor."
+namespace {
+
 struct TouchPoint {
+  TouchPoint();
+  TouchPoint(gfx::Point location,
+             std::unique_ptr<TouchEvent> touch_event,
+             wl_surface* current_surface);
+  ~TouchPoint();
+
   wl_surface* surface;
   std::unique_ptr<TouchEvent> event;
   gfx::Point last_known_location;
 };
 
+}  // namespace
+
 class WaylandTouch {
  public:
+  using TouchPoints = std::unordered_map<int32_t, std::unique_ptr<TouchPoint>>;
+
   WaylandTouch(wl_touch* touch, const EventDispatchCallback& callback);
   virtual ~WaylandTouch();
 
@@ -63,7 +73,7 @@ class WaylandTouch {
   WaylandConnection* connection_ = nullptr;
   wl::Object<wl_touch> obj_;
   EventDispatchCallback callback_;
-  std::unordered_map<int32_t, TouchPoint> current_points_;
+  TouchPoints current_points_;
 };
 
 }  // namespace ui
