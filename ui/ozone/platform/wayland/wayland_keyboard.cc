@@ -73,7 +73,8 @@ void WaylandKeyboard::Enter(void* data,
                             wl_array* keys) {
   WaylandKeyboard* keyboard = static_cast<WaylandKeyboard*>(data);
   keyboard->SetSerial(serial);
-  WaylandWindow::FromSurface(surface)->set_keyboard_focus(true);
+  if (surface)
+    WaylandWindow::FromSurface(surface)->set_keyboard_focus(true);
 }
 
 void WaylandKeyboard::Leave(void* data,
@@ -82,7 +83,8 @@ void WaylandKeyboard::Leave(void* data,
                             wl_surface* surface) {
   WaylandKeyboard* keyboard = static_cast<WaylandKeyboard*>(data);
   keyboard->SetSerial(serial);
-  WaylandWindow::FromSurface(surface)->set_keyboard_focus(false);
+  if (surface)
+    WaylandWindow::FromSurface(surface)->set_keyboard_focus(false);
 }
 
 void WaylandKeyboard::Key(void* data,
