@@ -37,8 +37,10 @@ class WindowTreeDataExternal : public WindowTreeData {
     aura::WindowTreeHostMusInitParams init_params =
         CreateInitParamsForTopLevel(window_tree_client, properties);
 
-    SetWindowTreeHost(
-        base::MakeUnique<aura::WindowTreeHostMus>(std::move(init_params)));
+    std::unique_ptr<aura::WindowTreeHostMus> tree_host =
+        base::MakeUnique<aura::WindowTreeHostMus>(std::move(init_params));
+    tree_host->InitHost();
+    SetWindowTreeHost(std::move(tree_host));
   }
 
   DISALLOW_COPY_AND_ASSIGN(WindowTreeDataExternal);
