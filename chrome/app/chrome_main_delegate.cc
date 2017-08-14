@@ -1130,14 +1130,6 @@ service_manager::ProcessType ChromeMainDelegate::OverrideProcessType() {
 #if BUILDFLAG(ENABLE_PACKAGE_MASH_SERVICES)
   if (command_line.HasSwitch(switches::kMash))
     return service_manager::ProcessType::kServiceManager;
-// Chrome/mus on Linux still runs the UI service on its own process,
-// differently from Chrome/mus on ChromeOS.
-// See BrowserProcessPlatformPart::BrowserProcessPlatformPart for details.
-#if !defined(OS_CHROMEOS) && defined(OS_LINUX) && defined(USE_OZONE)
-  if (command_line.HasSwitch(switches::kMus)) {
-    return service_manager::ProcessType::kServiceManager;
-  }
-#endif
 #endif
 
   return service_manager::ProcessType::kDefault;
