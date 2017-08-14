@@ -1098,7 +1098,10 @@ void WindowTreeClient::OnEmbed(
     DCHECK(it != windows_.end());
 
     WindowTreeHostMus* window_tree_host = GetWindowTreeHostMus(it->second);
-    window_tree_host->InitHost();
+    // By this time, the window_tree_host and the compositor it owns must
+    // be initialized. It is done during start up as soon as
+    // BrowserFrame::InitBrowserFrame() is called.
+    DCHECK(window_tree_host->compositor()->root_layer());
     ConfigureWindowDataFromServer(window_tree_host, *root_data,
                                   local_surface_id);
 
