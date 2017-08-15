@@ -93,7 +93,6 @@ void WaylandTouch::Up(void* data,
                       uint32_t time,
                       int32_t id) {
   WaylandTouch* touch = static_cast<WaylandTouch*>(data);
-  touch->SetSerial(serial);
   const auto iterator = touch->current_points_.find(id);
 
   // Make sure this touch point was present before.

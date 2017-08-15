@@ -71,8 +71,6 @@ void WaylandKeyboard::Enter(void* data,
                             uint32_t serial,
                             wl_surface* surface,
                             wl_array* keys) {
-  WaylandKeyboard* keyboard = static_cast<WaylandKeyboard*>(data);
-  keyboard->SetSerial(serial);
   if (surface)
     WaylandWindow::FromSurface(surface)->set_keyboard_focus(true);
 }
@@ -81,8 +79,6 @@ void WaylandKeyboard::Leave(void* data,
                             wl_keyboard* obj,
                             uint32_t serial,
                             wl_surface* surface) {
-  WaylandKeyboard* keyboard = static_cast<WaylandKeyboard*>(data);
-  keyboard->SetSerial(serial);
   if (surface)
     WaylandWindow::FromSurface(surface)->set_keyboard_focus(false);
 }
@@ -125,12 +121,11 @@ void WaylandKeyboard::Modifiers(void* data,
                                 uint32_t mods_latched,
                                 uint32_t mods_locked,
                                 uint32_t group) {
-  WaylandKeyboard* keyboard = static_cast<WaylandKeyboard*>(data);
-  keyboard->SetSerial(serial);
 #if BUILDFLAG(USE_XKBCOMMON)
   auto* engine = static_cast<WaylandXkbKeyboardLayoutEngine*>(
       KeyboardLayoutEngineManager::GetKeyboardLayoutEngine());
 
+  WaylandKeyboard* keyboard = static_cast<WaylandKeyboard*>(data);
   keyboard->modifiers_ =
       engine->UpdateModifiers(mods_depressed, mods_latched, mods_locked, group);
 

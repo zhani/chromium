@@ -36,7 +36,6 @@ void WaylandPointer::Enter(void* data,
                            wl_fixed_t surface_x,
                            wl_fixed_t surface_y) {
   WaylandPointer* pointer = static_cast<WaylandPointer*>(data);
-  pointer->SetSerial(serial);
   pointer->location_.SetPoint(wl_fixed_to_double(surface_x),
                               wl_fixed_to_double(surface_y));
   if (surface)
@@ -48,8 +47,6 @@ void WaylandPointer::Leave(void* data,
                            wl_pointer* obj,
                            uint32_t serial,
                            wl_surface* surface) {
-  WaylandPointer* pointer = static_cast<WaylandPointer*>(data);
-  pointer->SetSerial(serial);
   if (surface)
     WaylandWindow::FromSurface(surface)->set_pointer_focus(false);
 }
@@ -79,7 +76,6 @@ void WaylandPointer::Button(void* data,
                             uint32_t button,
                             uint32_t state) {
   WaylandPointer* pointer = static_cast<WaylandPointer*>(data);
-  pointer->SetSerial(serial);
   int flag;
   switch (button) {
     case BTN_LEFT:
@@ -104,6 +100,9 @@ void WaylandPointer::Button(void* data,
   EventType type;
   if (state == WL_POINTER_BUTTON_STATE_PRESSED) {
     type = ET_MOUSE_PRESSED;
+    // We are especially interested in mouse press serial as long as it is one
+    // of the serials that can be used to create new subsurfaces.
+    pointer->SetSerial(serial);
     pointer->flags_ |= flag;
   } else {
     type = ET_MOUSE_RELEASED;
