@@ -766,7 +766,11 @@ void WindowTreeClient::ScheduleInFlightBoundsChange(
       window->window_mus_type() == WindowMusType::DISPLAY_MANUALLY_CREATED ||
       window->HasLocalLayerTreeFrameSink()) {
     local_surface_id = window->GetOrAllocateLocalSurfaceId(new_bounds.size());
-    host_sync_data_[GetWindowTreeHostMus(window)] = {true, false};
+
+    WindowTreeHostMus* host = GetWindowTreeHostMus(window);
+    DCHECK(host);
+    if (host_sync_data_.find(host) == host_sync_data_.end())
+      host_sync_data_[host] = {true, false};
   }
   tree_->SetWindowBounds(change_id, window->server_id(), new_bounds,
                          local_surface_id);
@@ -2443,6 +2447,7 @@ void WindowTreeClient::OnCompositingEnded(ui::Compositor* compositor) {
     return;
   host->dispatcher()->ReleasePointerMoves();
   it->second.holding_pointer_moves_ = false;
+  host_sync_data_.erase(it);
 }
 
 void WindowTreeClient::OnCompositingLockStateChanged(
