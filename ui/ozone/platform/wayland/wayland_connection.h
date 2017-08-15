@@ -99,6 +99,8 @@ class WaylandConnection : public PlatformEventSource,
 
   std::vector<std::unique_ptr<WaylandOutput>> output_list_;
 
+  // This serial number corresponds to key press, mouse button press or touch
+  // press event. It is used to create new subsurfaces.
   uint32_t serial_ = 0;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandConnection);
