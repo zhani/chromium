@@ -176,6 +176,10 @@ void WaylandWindow::Hide() {
   if (xdg_popup_) {
     parent_window_->set_child_window(nullptr);
     xdg_popup_.reset();
+    // Detach buffer from surface in order to completely shutdown popups and
+    // release resources.
+    wl_surface_attach(surface_.get(), NULL, 0, 0);
+    wl_surface_commit(surface_.get());
   }
 }
 
