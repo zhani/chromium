@@ -768,8 +768,7 @@ void WindowTreeClient::ScheduleInFlightBoundsChange(
     local_surface_id = window->GetOrAllocateLocalSurfaceId(new_bounds.size());
 
     WindowTreeHostMus* host = GetWindowTreeHostMus(window);
-    DCHECK(host);
-    if (host_sync_data_.find(host) == host_sync_data_.end())
+    if (host && host_sync_data_.find(host) == host_sync_data_.end())
       host_sync_data_[host] = {true, false};
   }
   tree_->SetWindowBounds(change_id, window->server_id(), new_bounds,
