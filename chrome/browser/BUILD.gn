@@ -141,6 +141,8 @@ split_static_library("browser") {
     "browser_process_platform_part_chromeos.h",
     "browser_process_platform_part_mac.h",
     "browser_process_platform_part_mac.mm",
+    "browser_process_platform_part_ozone.cc",
+    "browser_process_platform_part_ozone.h",
     "browser_process_platform_part_win.cc",
     "browser_process_platform_part_win.h",
     "browser_shutdown.cc",
@@ -1469,6 +1471,13 @@ split_static_library("browser") {
     "win/titlebar_config.cc",
     "win/titlebar_config.h",
   ]
+
+  if (!is_android) {
+    sources += [
+      "embedded_ui_service_info_factory.cc",
+      "embedded_ui_service_info_factory.h",
+    ]
+  }
 
   configs += [
     "//build/config/compiler:wexit_time_destructors",

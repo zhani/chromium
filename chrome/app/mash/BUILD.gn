@@ -136,12 +136,6 @@ if (is_chromeos || (use_ozone && is_linux)) {
       # TODO(sky): verify if we need this.
       "//services/ui/ime/test_ime_driver:manifest",
     ]
-
-    # TODO(tonikitoo,msisov): Upstream and non-chromeos bits.
-    if (use_ozone && is_linux && !is_chromeos) {
-      embedded_services += [ "//services/ui:manifest" ]
-    }
-
     if (enable_nacl) {
       embedded_services += [ "//components/nacl/loader:nacl_loader_manifest" ]
     }
