@@ -202,6 +202,16 @@ void AckConfigure(wl_client* client, wl_resource* resource, uint32_t serial) {
       ->AckConfigure(serial);
 }
 
+void SetWindowGeometry(wl_client* client,
+                       wl_resource* resource,
+                       int32_t x,
+                       int32_t y,
+                       int32_t width,
+                       int32_t height) {
+  static_cast<MockXdgSurface*>(wl_resource_get_user_data(resource))
+      ->SetWindowGeometry(x, y, width, height);
+}
+
 void SetMaximized(wl_client* client, wl_resource* resource) {
   static_cast<MockXdgSurface*>(wl_resource_get_user_data(resource))
       ->SetMaximized();
@@ -230,20 +240,20 @@ void SetMinimized(wl_client* client, wl_resource* resource) {
 }
 
 const struct xdg_surface_interface xdg_surface_impl = {
-    &DestroyResource,  // destroy
-    nullptr,           // set_parent
-    &SetTitle,         // set_title
-    &SetAppId,         // set_app_id
-    nullptr,           // show_window_menu
-    nullptr,           // move
-    nullptr,           // resize
-    &AckConfigure,     // ack_configure
-    nullptr,           // set_window_geometry
-    &SetMaximized,     // set_maximized
-    &UnsetMaximized,   // set_unmaximized
-    &SetFullScreen,    // set_fullscreen
-    &UnsetFullScreen,  // unset_fullscreen
-    &SetMinimized,     // set_minimized
+    &DestroyResource,    // destroy
+    nullptr,             // set_parent
+    &SetTitle,           // set_title
+    &SetAppId,           // set_app_id
+    nullptr,             // show_window_menu
+    nullptr,             // move
+    nullptr,             // resize
+    &AckConfigure,       // ack_configure
+    &SetWindowGeometry,  // set_window_geometry
+    &SetMaximized,       // set_maximized
+    &UnsetMaximized,     // set_unmaximized
+    &SetFullScreen,      // set_fullscreen
+    &UnsetFullScreen,    // unset_fullscreen
+    &SetMinimized,       // set_minimized
 };
 
 }  // namespace

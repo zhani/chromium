@@ -9,6 +9,10 @@
 
 #include "base/macros.h"
 
+namespace gfx {
+class Rect;
+}
+
 namespace ui {
 
 class WaylandConnection;
@@ -31,6 +35,7 @@ class XDGSurfaceWrapperV6 : public XDGSurfaceWrapper {
   void SurfaceResize(WaylandConnection* connection, uint32_t hittest) override;
   void SetTitle(const base::string16& title) override;
   void AckConfigure() override;
+  void SetWindowGeometry(const gfx::Rect& bounds) override;
 
   // xdg_surface_listener
   static void Configure(void* data,

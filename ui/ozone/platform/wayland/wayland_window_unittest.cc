@@ -166,7 +166,22 @@ TEST_F(WaylandWindowTest, ConfigureEvent) {
   // Make sure that the implementation does not call OnBoundsChanged for each
   // configure event if it receives multiple in a row.
   EXPECT_CALL(delegate, OnBoundsChanged(Eq(gfx::Rect(0, 0, 1500, 1000))));
+  // Responding to a configure event, the window geometry in here must respect
+  // the sizing negotiations specified by the configure event.
+  EXPECT_CALL(*xdg_surface, SetWindowGeometry(0, 0, 1500, 1000)).Times(1);
   EXPECT_CALL(*xdg_surface, AckConfigure(13));
+}
+
+TEST_F(WaylandWindowTest, ConfigureEventWithNulledSize) {
+  wl_array states;
+  wl_array_init(&states);
+
+  // If Wayland sends configure event with 0 width and 0 size, client should
+  // call back with desired sizes. In this case, that's the actual size of
+  // the window.
+  SendConfigureEvent(0, 0, 14, &states);
+  EXPECT_CALL(*xdg_surface, SetWindowGeometry(0, 0, 800, 600));
+  EXPECT_CALL(*xdg_surface, AckConfigure(14));
 }
 
 }  // namespace ui

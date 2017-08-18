@@ -140,6 +140,7 @@ void WaylandWindow::ApplyPendingBounds() {
 
   SetBounds(pending_bounds_);
   DCHECK(xdg_surface_);
+  xdg_surface_->SetWindowGeometry(bounds_);
   xdg_surface_->AckConfigure();
   pending_bounds_ = gfx::Rect();
   connection_->ScheduleFlush();
