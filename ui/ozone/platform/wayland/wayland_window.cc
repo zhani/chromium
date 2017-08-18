@@ -312,7 +312,8 @@ bool WaylandWindow::CanDispatchEvent(const PlatformEvent& native_event) {
   Event* event = static_cast<Event*>(native_event);
   if (event->IsMouseEvent()) {
     if (g_current_capture_ == this) {
-      if (has_pointer_or_touch_focus() || child_window_->is_focused_popup())
+      if (has_pointer_or_touch_focus() ||
+          (child_window_ && child_window_->is_focused_popup()))
         return true;
       else
         return false;
