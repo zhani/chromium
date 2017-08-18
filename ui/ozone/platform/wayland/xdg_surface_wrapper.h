@@ -8,6 +8,10 @@
 #include "base/strings/string16.h"
 #include "ui/ozone/platform/wayland/wayland_object.h"
 
+namespace gfx {
+class Rect;
+}
+
 namespace ui {
 
 class WaylandConnection;
@@ -50,6 +54,9 @@ class XDGSurfaceWrapper {
 
   // Sends acknowledge configure event back to wayland.
   virtual void AckConfigure() = 0;
+
+  // Sets a desired window geometry once wayland requests client to do so.
+  virtual void SetWindowGeometry(const gfx::Rect& bounds) = 0;
 };
 
 }  // namespace ui

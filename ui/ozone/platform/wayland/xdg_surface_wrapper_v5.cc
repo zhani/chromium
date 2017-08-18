@@ -115,6 +115,11 @@ void XDGSurfaceWrapperV5::AckConfigure() {
   xdg_surface_ack_configure(xdg_surface_.get(), pending_configure_serial_);
 }
 
+void XDGSurfaceWrapperV5::SetWindowGeometry(const gfx::Rect& bounds) {
+  xdg_surface_set_window_geometry(xdg_surface_.get(), bounds.x(), bounds.y(),
+                                  bounds.width(), bounds.height());
+}
+
 // static
 void XDGSurfaceWrapperV5::Configure(void* data,
                                     xdg_surface* obj,

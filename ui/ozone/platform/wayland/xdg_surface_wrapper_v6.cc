@@ -157,6 +157,13 @@ void XDGSurfaceWrapperV6::AckConfigure() {
                                 pending_configure_serial_);
 }
 
+void XDGSurfaceWrapperV6::SetWindowGeometry(const gfx::Rect& bounds) {
+  DCHECK(zxdg_surface_v6_);
+  zxdg_surface_v6_set_window_geometry(zxdg_surface_v6_.get(), bounds.x(),
+                                      bounds.y(), bounds.width(),
+                                      bounds.height());
+}
+
 // static
 void XDGSurfaceWrapperV6::Configure(void* data,
                                     struct zxdg_surface_v6* zxdg_surface_v6,
