@@ -42,7 +42,9 @@ WaylandTouch::WaylandTouch(wl_touch* touch,
   wl_touch_add_listener(obj_.get(), &listener, this);
 }
 
-WaylandTouch::~WaylandTouch() {}
+WaylandTouch::~WaylandTouch() {
+  DCHECK(current_points_.empty());
+}
 
 void WaylandTouch::Down(void* data,
                         wl_touch* obj,
@@ -149,8 +151,6 @@ void WaylandTouch::Cancel(void* data, wl_touch* obj) {
   WaylandTouch* touch = static_cast<WaylandTouch*>(data);
   for (auto& point : touch->current_points_) {
     int32_t id = point.first;
-
-    DCHECK(!point.second->event);
 
     EventType type = ET_TOUCH_CANCELLED;
     base::TimeTicks time_stamp = base::TimeTicks::Now();
