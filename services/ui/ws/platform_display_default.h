@@ -74,6 +74,8 @@ class PlatformDisplayDefault : public PlatformDisplay,
                                     float device_scale_factor) override;
   void OnAcceleratedWidgetDestroyed() override;
   void OnActivationChanged(bool active) override;
+  void GetParentWindowAcceleratedWidget(
+      gfx::AcceleratedWidget* widget) override;
 
   ServerWindow* root_window_;
 
