@@ -1409,6 +1409,16 @@ mojom::WindowDataPtr WindowTree::WindowToWindowData(
       transient_parent ? ClientWindowIdForWindow(transient_parent).id
                        : ClientWindowId().id;
   window_data->bounds = window->bounds();
+  // In external window mode, we cap the bounds WindowManagerDisplayRoot's
+  // root window to 0,0. So send the bounds of Display's root, which has the
+  // same size but contains the proper window placement (x, y).
+  if (window_server_->IsInExternalWindowMode()) {
+    WindowManagerDisplayRoot* display_root =
+        GetWindowManagerDisplayRoot(window);
+    if (display_root && display_root->GetClientVisibleRoot() == window)
+      window_data->bounds = GetDisplay(window)->root_window()->bounds();
+  }
+
   window_data->properties = mojo::MapToUnorderedMap(window->properties());
   window_data->visible = window->visible();
   return window_data;
