@@ -458,12 +458,16 @@ class WindowTree : public mojom::WindowTree,
   bool ProcessSetBlockingContainers(std::vector<mojom::BlockingContainersPtr>
                                         transport_all_blocking_containers);
 
+ // TODO(tonikitoo,msisov): Make these methods public in order to use them
+ // from WindowTreeHostFactory.
+ public:
   // Returns the ClientWindowId from a transport id or WindowId. Uses id_ as the
   // ClientWindowId::client_id part if it was invalid. These functions do a
   // straight mapping, there may not be a window with the returned id.
   ClientWindowId MakeClientWindowId(Id transport_window_id) const;
   ClientWindowId MakeClientWindowId(const WindowId& id) const;
 
+ private:
   // WindowTree:
   void NewWindow(uint32_t change_id,
                  Id transport_window_id,
