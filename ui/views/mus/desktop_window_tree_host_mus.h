@@ -46,6 +46,8 @@ class VIEWS_MUS_EXPORT DesktopWindowTreeHostMus
     auto_update_client_area_ = value;
   }
 
+  ui::EventDispatchDetails SendEventToSink(ui::Event* event) override;
+
  private:
   void SendClientAreaToServer();
   void SendHitTestMaskToServer();

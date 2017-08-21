@@ -112,6 +112,10 @@ void WindowTreeHostMus::SetBoundsFromServer(const gfx::Rect& bounds_in_pixels) {
   SetBoundsInPixels(bounds_in_pixels);
 }
 
+ui::EventDispatchDetails WindowTreeHostMus::SendEventToSink(ui::Event* event) {
+  return aura::WindowTreeHostPlatform::SendEventToSink(event);
+}
+
 void WindowTreeHostMus::SetClientArea(
     const gfx::Insets& insets,
     const std::vector<gfx::Rect>& additional_client_area) {

@@ -237,6 +237,29 @@ DesktopWindowTreeHostMus::~DesktopWindowTreeHostMus() {
   desktop_native_widget_aura_->OnDesktopWindowTreeHostDestroyed(this);
 }
 
+ui::EventDispatchDetails DesktopWindowTreeHostMus::SendEventToSink(ui::Event* event) {
+  // We need to make sure it is appropriately marked as non-client if it's in the non
+  // client area, or otherwise, we can get into a state where the a window is
+  // set as the |mouse_pressed_handler_| in window_event_dispatcher.cc
+  // despite the mouse button being released. X11 also does the same.
+  //
+  // See comment in DesktopWindowTreeHostX11::DispatchMouseEvent for details.
+  aura::Window* content_window = desktop_native_widget_aura_->content_window();
+  if (content_window && content_window->delegate()) {
+    if (event->IsMouseEvent()) {
+      ui::MouseEvent* mouse_event = event->AsMouseEvent();
+      int flags = mouse_event->flags();
+      int hit_test_code =
+          content_window->delegate()->GetNonClientComponent(mouse_event->location());
+      if (hit_test_code != HTCLIENT && hit_test_code != HTNOWHERE)
+        flags |= ui::EF_IS_NON_CLIENT;
+      mouse_event->set_flags(flags);
+    }
+  }
+
+  return aura::WindowTreeHostMus::SendEventToSink(event);
+}
+
 void DesktopWindowTreeHostMus::SendClientAreaToServer() {
   if (!ShouldSendClientAreaToServer())
     return;

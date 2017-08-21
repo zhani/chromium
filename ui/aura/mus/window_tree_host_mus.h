@@ -42,9 +42,7 @@ class AURA_EXPORT WindowTreeHostMus : public aura::WindowTreeHostPlatform {
   // Sets the bounds in pixels.
   void SetBoundsFromServer(const gfx::Rect& bounds_in_pixels);
 
-  ui::EventDispatchDetails SendEventToSink(ui::Event* event) {
-    return aura::WindowTreeHostPlatform::SendEventToSink(event);
-  }
+  virtual ui::EventDispatchDetails SendEventToSink(ui::Event* event);
 
   InputMethodMus* input_method() { return input_method_.get(); }
 
