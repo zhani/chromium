@@ -2373,6 +2373,10 @@ void WindowTree::PerformNativeWindowDragOrResize(Id window_id,
     return;
   }
   display_root->display()->PerformNativeWindowDragOrResize(hittest);
+
+  // Reset states so that the next events are processed without any
+  // left over state.
+  display_root->window_manager_state()->event_dispatcher()->Reset();
 }
 
 void WindowTree::CancelWindowMove(Id window_id) {
