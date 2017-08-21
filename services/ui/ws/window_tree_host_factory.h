@@ -15,6 +15,8 @@
 namespace ui {
 namespace ws {
 
+class PlatformDisplay;
+class ServerWindow;
 class WindowServer;
 
 class WindowTreeHostFactory : public mojom::WindowTreeHostFactory {
@@ -32,6 +34,8 @@ class WindowTreeHostFactory : public mojom::WindowTreeHostFactory {
       mojom::WindowTreeHostRequest tree_host_request,
       Id transport_window_id,
       const TransportProperties& transport_properties) override;
+
+  PlatformDisplay* GetPlatformDisplay(ServerWindow* server_window);
 
   WindowServer* window_server_;
   const UserId user_id_;
