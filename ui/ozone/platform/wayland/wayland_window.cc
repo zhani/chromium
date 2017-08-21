@@ -122,7 +122,7 @@ bool WaylandWindow::Initialize() {
 
 void WaylandWindow::CreateXdgPopup() {
   if (!parent_window_)
-    parent_window_ = connection_->GetCurrentFocusedWindow();
+    parent_window_ = GetParentWindow();
 
   DCHECK(parent_window_);
 
@@ -406,6 +406,27 @@ bool WaylandWindow::IsFullScreen() {
 void WaylandWindow::ResetWindowStates() {
   is_maximized_ = false;
   is_fullscreen_ = false;
+}
+
+WaylandWindow* WaylandWindow::GetParentWindow() {
+  gfx::AcceleratedWidget widget = gfx::kNullAcceleratedWidget;
+  delegate_->GetParentWindowAcceleratedWidget(&widget);
+  WaylandWindow* parent_window = connection_->GetWindow(widget);
+
+  // If propagated parent has already had a child, it means that |this| is a
+  // submenu of a 3-dot menu. In aura, the parent of a 3-dot menu and its
+  // submenu is the main native widget, which is the main window. In contrast,
+  // Wayland requires a menu window to be a parent of a submenu window. Thus,
+  // check if the suggested parent has a child. If yes, take its child as a
+  // parent of |this|.
+  // Another case is a notifcation window or a drop down window, which do not
+  // have a parent in aura. In this case, take the current focused window as a
+  // parent.
+  if (parent_window && parent_window->child_window_)
+    return parent_window->child_window_;
+  else if (!parent_window)
+    return connection_->GetCurrentFocusedWindow();
+  return parent_window;
 }
 
 }  // namespace ui
