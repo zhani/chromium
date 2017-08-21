@@ -78,6 +78,10 @@ interface WindowManager {
   // created by the window manager at the request of a client.
   // Type: mojom::WindowType (int32_t).
   const string kWindowType_InitProperty = "init:window-type";
+  
+  // The id of the parent window, which ozone windows can use to make a proper
+  // parenting chain. Type: int32_t.
+  const string kParentWindowId_InitProperty = "init:parent-window-id";
 
   // End properties used only during creation time. ----------------------------
 
