@@ -54,9 +54,6 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
     return has_pointer_focus_ || has_touch_focus_;
   }
 
-  // Tells if it is a focused popup.
-  bool is_focused_popup() { return is_popup() && has_pointer_or_touch_focus(); }
-
   // Tells if this is a popup.
   bool is_popup() { return !!xdg_popup_.get(); }
 
@@ -106,6 +103,9 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
 
   // Creates a popup window, which is visible as a menu window.
   bool CreatePopupWindow();
+
+  // Tells if |this| has capture.
+  bool HasCapture();
 
   // TODO(msisov, tonikitoo): share this with X11WindowBase.
   bool IsMinimized();
