@@ -81,7 +81,7 @@ void Display::Init(const display::ViewportMetrics& metrics,
   binding_ = std::move(binding);
   display_manager()->AddDisplay(this);
 
-  CreateRootWindow(metrics.bounds_in_pixels.size());
+  CreateRootWindow(metrics.bounds_in_pixels);
 
   platform_display_ = PlatformDisplay::Create(
       root_.get(), metrics, window_server_->GetThreadedImageCursorsFactory());
@@ -311,7 +311,7 @@ void Display::CreateWindowManagerDisplayRootFromFactory(
       std::move(display_root_ptr));
 }
 
-void Display::CreateRootWindow(const gfx::Size& size) {
+void Display::CreateRootWindow(const gfx::Rect& bounds) {
   DCHECK(!root_);
 
   root_.reset(window_server_->CreateServerWindow(
@@ -319,7 +319,7 @@ void Display::CreateRootWindow(const gfx::Size& size) {
       ServerWindow::Properties()));
   root_->set_event_targeting_policy(
       mojom::EventTargetingPolicy::DESCENDANTS_ONLY);
-  root_->SetBounds(gfx::Rect(size), allocator_.GenerateId());
+  root_->SetBounds(bounds, allocator_.GenerateId());
   root_->SetVisible(true);
   focus_controller_ = base::MakeUnique<FocusController>(root_.get());
   focus_controller_->AddObserver(this);

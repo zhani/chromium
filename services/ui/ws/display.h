@@ -188,9 +188,9 @@ class Display : public PlatformDisplayDelegate,
   void CreateWindowManagerDisplayRootFromFactory(
       WindowManagerWindowTreeFactory* factory);
 
-  // Creates the root ServerWindow for this display, where |size| is in physical
+  // Creates the root ServerWindow for this display, where |rect| is in physical
   // pixels.
-  void CreateRootWindow(const gfx::Size& size);
+  void CreateRootWindow(const gfx::Rect& bounds);
 
   // Applyes the cursor scale and rotation to the PlatformDisplay.
   void UpdateCursorConfig();
