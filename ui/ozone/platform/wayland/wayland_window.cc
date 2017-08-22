@@ -156,6 +156,10 @@ bool WaylandWindow::CreatePopupWindow() {
                                 parent_window_->surface(), bounds);
 }
 
+bool WaylandWindow::HasCapture() {
+  return g_current_capture_ == this;
+}
+
 // TODO(msisov, tonikitoo): we will want to trigger show and hide of all
 // windows once we pass minimize events from chrome.
 void WaylandWindow::Show() {
@@ -208,7 +212,7 @@ void WaylandWindow::SetTitle(const base::string16& title) {
 }
 
 void WaylandWindow::SetCapture() {
-  if (g_current_capture_ == this)
+  if (HasCapture())
     return;
 
   WaylandWindow* old_capture = g_current_capture_;
@@ -219,7 +223,7 @@ void WaylandWindow::SetCapture() {
 }
 
 void WaylandWindow::ReleaseCapture() {
-  if (g_current_capture_ == this)
+  if (HasCapture())
     g_current_capture_ = nullptr;
 }
 
@@ -309,18 +313,12 @@ void WaylandWindow::PerformNativeWindowDragOrResize(uint32_t hittest) {
 }
 
 bool WaylandWindow::CanDispatchEvent(const PlatformEvent& native_event) {
+  if (HasCapture())
+    return true;
+
   Event* event = static_cast<Event*>(native_event);
-  if (event->IsMouseEvent()) {
-    if (g_current_capture_ == this) {
-      if (has_pointer_or_touch_focus() ||
-          (child_window_ && child_window_->is_focused_popup()))
-        return true;
-      else
-        return false;
-    } else {
-      return has_pointer_or_touch_focus();
-    }
-  }
+  if (event->IsMouseEvent())
+    return has_pointer_focus_;
   if (event->IsKeyEvent())
     return has_keyboard_focus_;
   if (event->IsTouchEvent())
