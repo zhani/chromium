@@ -115,6 +115,9 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   // Resets the maximized and fullscreen window states.
   void ResetWindowStates();
 
+  // May get a parent window for this window.
+  void GetParentWindow();
+
   PlatformWindowDelegate* delegate_;
   WaylandConnection* connection_;
   WaylandWindow* parent_window_ = nullptr;
