@@ -50,6 +50,9 @@ class WaylandConnection : public PlatformEventSource,
   void set_serial(uint32_t serial) { serial_ = serial; }
   uint32_t serial() { return serial_; }
 
+  void SetCursorBitmap(const std::vector<SkBitmap>& bitmaps,
+                       const gfx::Point& location);
+
  private:
   void Flush();
   void DispatchUiEvent(Event* event);

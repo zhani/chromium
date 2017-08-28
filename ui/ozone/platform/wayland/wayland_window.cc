@@ -8,6 +8,7 @@
 
 #include "base/bind.h"
 #include "base/memory/ptr_util.h"
+#include "ui/base/cursor/ozone/bitmap_cursor_factory_ozone.h"
 #include "ui/base/hit_test.h"
 #include "ui/events/event.h"
 #include "ui/events/ozone/events_ozone.h"
@@ -298,7 +299,18 @@ void WaylandWindow::Restore() {
 }
 
 void WaylandWindow::SetCursor(PlatformCursor cursor) {
-  NOTIMPLEMENTED();
+  scoped_refptr<BitmapCursorOzone> bitmap =
+      BitmapCursorFactoryOzone::GetBitmapCursor(cursor);
+  if (bitmap_ == bitmap)
+    return;
+
+  bitmap_ = bitmap;
+
+  if (bitmap_) {
+    connection_->SetCursorBitmap(bitmap_->bitmaps(), bitmap_->hotspot());
+  } else {
+    connection_->SetCursorBitmap(std::vector<SkBitmap>(), gfx::Point());
+  }
 }
 
 void WaylandWindow::MoveCursorTo(const gfx::Point& location) {
