@@ -5,6 +5,7 @@
 #ifndef UI_OZONE_PLATFORM_WAYLAND_WAYLAND_WINDOW_H_
 #define UI_OZONE_PLATFORM_WAYLAND_WAYLAND_WINDOW_H_
 
+#include "base/memory/ref_counted.h"
 #include "ui/events/platform/platform_event_dispatcher.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/native_widget_types.h"
@@ -13,6 +14,7 @@
 
 namespace ui {
 
+class BitmapCursorOzone;
 class PlatformWindowDelegate;
 class WaylandConnection;
 class XDGPopupWrapper;
@@ -137,6 +139,9 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   // know anything about the version.
   std::unique_ptr<XDGSurfaceWrapper> xdg_surface_;
   std::unique_ptr<XDGPopupWrapper> xdg_popup_;
+
+  // The current cursor bitmap (immutable).
+  scoped_refptr<BitmapCursorOzone> bitmap_;
 
   gfx::Rect bounds_;
   gfx::Rect pending_bounds_;

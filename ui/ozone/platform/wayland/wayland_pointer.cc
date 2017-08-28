@@ -24,6 +24,8 @@ WaylandPointer::WaylandPointer(wl_pointer* pointer,
   };
 
   wl_pointer_add_listener(obj_.get(), &listener, this);
+
+  cursor_.reset(new WaylandCursor);
 }
 
 WaylandPointer::~WaylandPointer() {}
