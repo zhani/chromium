@@ -415,7 +415,7 @@ void WaylandWindow::GetParentWindow() {
   // Wayland requires a menu window to be a parent of a submenu window. Thus,
   // check if the suggested parent has a child. If yes, take its child as a
   // parent of |this|.
-  if (parent_window_->child_window_)
+  if (parent_window_ && parent_window_->child_window_)
     parent_window_ = parent_window_->child_window_;
 }
 
