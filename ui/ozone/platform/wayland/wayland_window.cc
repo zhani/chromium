@@ -105,22 +105,11 @@ bool WaylandWindow::Initialize() {
   ui::PlatformWindowType ui_window_type =
       ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_WINDOW;
   delegate_->GetWindowType(&ui_window_type);
-  if (ui_window_type == ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_WINDOW) {
-    xdg_surface_ =
-        xdg_shell_objects_factory_->CreateXDGSurface(connection_, this);
-    if (!xdg_surface_ ||
-        !xdg_surface_->Initialize(connection_, surface_.get(), true)) {
-      LOG(ERROR) << "Failed to create xdg_surface";
-      return false;
-    }
-  } else {
-    GetParentWindow();
-    if (!CreatePopupWindow()) {
-      LOG(ERROR) << "Failed to create xdg_popup";
-      return false;
-    }
-    parent_window_->set_child_window(this);
-  }
+  if (ui_window_type == ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_WINDOW)
+    CreateXdgSurface();
+  else
+    CreateXdgPopup();
+
   connection_->ScheduleFlush();
 
   connection_->AddWindow(surface_.id(), this);
@@ -128,6 +117,34 @@ bool WaylandWindow::Initialize() {
   delegate_->OnAcceleratedWidgetAvailable(surface_.id(), 1.f);
 
   return true;
+}
+
+void WaylandWindow::CreateXdgPopup() {
+  if (!parent_window_)
+    parent_window_ = GetParentWindow();
+
+  DCHECK(parent_window_);
+
+  gfx::Rect bounds =
+      TranslateBoundsToScreenCoordinates(bounds_, parent_window_->GetBounds());
+
+  xdg_popup_ = xdg_shell_objects_factory_->CreateXDGPopup(connection_, this);
+  if (!xdg_popup_.get() ||
+      !xdg_popup_->Initialize(connection_, surface(), parent_window_->surface(),
+                              bounds)) {
+    CHECK(false) << "Failed to create xdg_popup";
+  }
+
+  parent_window_->set_child_window(this);
+}
+
+void WaylandWindow::CreateXdgSurface() {
+  xdg_surface_ =
+      xdg_shell_objects_factory_->CreateXDGSurface(connection_, this);
+  if (!xdg_surface_ ||
+      !xdg_surface_->Initialize(connection_, surface_.get(), true)) {
+    CHECK(false) << "Failed to create xdg_surface";
+  }
 }
 
 void WaylandWindow::ApplyPendingBounds() {
@@ -142,35 +159,19 @@ void WaylandWindow::ApplyPendingBounds() {
   connection_->ScheduleFlush();
 }
 
-bool WaylandWindow::CreatePopupWindow() {
-  DCHECK(parent_window_);
-  gfx::Rect bounds =
-      TranslateBoundsToScreenCoordinates(bounds_, parent_window_->GetBounds());
-  xdg_popup_ = xdg_shell_objects_factory_->CreateXDGPopup(connection_, this);
-  return xdg_popup_.get() &&
-         xdg_popup_->Initialize(connection_, surface(),
-                                parent_window_->surface(), bounds);
-}
-
 bool WaylandWindow::HasCapture() {
   return g_current_capture_ == this;
 }
 
-// TODO(msisov, tonikitoo): we will want to trigger show and hide of all
-// windows once we pass minimize events from chrome.
 void WaylandWindow::Show() {
   if (xdg_surface_)
     return;
   if (!xdg_popup_) {
-    if (!CreatePopupWindow())
-      CHECK(false) << "Failed to create popup window";
-    parent_window_->set_child_window(this);
+    CreateXdgPopup();
     connection_->ScheduleFlush();
   }
 }
 
-// TODO(msisov, tonikitoo): we will want to trigger show and hide of all
-// windows once we pass minimize events from chrome.
 void WaylandWindow::Hide() {
   if (child_window_)
     child_window_->Hide();
@@ -402,12 +403,10 @@ void WaylandWindow::ResetWindowStates() {
   is_fullscreen_ = false;
 }
 
-void WaylandWindow::GetParentWindow() {
-  DCHECK(!parent_window_);
-
+WaylandWindow* WaylandWindow::GetParentWindow() {
   gfx::AcceleratedWidget widget = gfx::kNullAcceleratedWidget;
   delegate_->GetParentWindowAcceleratedWidget(&widget);
-  parent_window_ = connection_->GetWindow(widget);
+  WaylandWindow* parent_window = connection_->GetWindow(widget);
 
   // If propagated parent has already had a child, it means that |this| is a
   // submenu of a 3-dot menu. In aura, the parent of a 3-dot menu and its
@@ -415,8 +414,9 @@ void WaylandWindow::GetParentWindow() {
   // Wayland requires a menu window to be a parent of a submenu window. Thus,
   // check if the suggested parent has a child. If yes, take its child as a
   // parent of |this|.
-  if (parent_window_ && parent_window_->child_window_)
-    parent_window_ = parent_window_->child_window_;
+  if (parent_window && parent_window->child_window_)
+    return parent_window->child_window_;
+  return parent_window;
 }
 
 }  // namespace ui

@@ -105,7 +105,9 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   void ConvertEventLocationToCurrentWindowLocation(ui::Event* located_event);
 
   // Creates a popup window, which is visible as a menu window.
-  bool CreatePopupWindow();
+  void CreateXdgPopup();
+  // Creates a surface window, which is visible as a main window.
+  void CreateXdgSurface();
 
   // Tells if |this| has capture.
   bool HasCapture();
@@ -118,8 +120,8 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   // Resets the maximized and fullscreen window states.
   void ResetWindowStates();
 
-  // May get a parent window for this window.
-  void GetParentWindow();
+  // Gets a parent window for this window.
+  WaylandWindow* GetParentWindow();
 
   PlatformWindowDelegate* delegate_;
   WaylandConnection* connection_;
