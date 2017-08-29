@@ -105,10 +105,21 @@ bool WaylandWindow::Initialize() {
   ui::PlatformWindowType ui_window_type =
       ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_WINDOW;
   delegate_->GetWindowType(&ui_window_type);
-  if (ui_window_type == ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_WINDOW)
-    CreateXdgSurface();
-  else
-    CreateXdgPopup();
+  switch (ui_window_type) {
+    case ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_MENU:
+    case ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_POPUP:
+      // TODO(msisov, tonikitoo): Handle notification windows, which are marked
+      // as popup windows as well. Those are the windows that do not have
+      // parents and popup when a browser receive a notification.
+      CreateXdgPopup();
+      break;
+    case ui::PlatformWindowType::PLATFORM_WINDOW_TYPE_WINDOW:
+      CreateXdgSurface();
+      break;
+    default:
+      NOTREACHED() << "Not supported window type: type=" << ui_window_type;
+      break;
+  }
 
   connection_->ScheduleFlush();
 
@@ -414,8 +425,13 @@ WaylandWindow* WaylandWindow::GetParentWindow() {
   // Wayland requires a menu window to be a parent of a submenu window. Thus,
   // check if the suggested parent has a child. If yes, take its child as a
   // parent of |this|.
+  // Another case is a notifcation window or a drop down window, which do not
+  // have a parent in aura. In this case, take the current focused window as a
+  // parent.
   if (parent_window && parent_window->child_window_)
     return parent_window->child_window_;
+  else if (!parent_window)
+    return connection_->GetCurrentFocusedWindow();
   return parent_window;
 }
 
