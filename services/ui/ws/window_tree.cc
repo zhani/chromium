@@ -1889,7 +1889,9 @@ void WindowTree::SetWindowProperty(
 }
 
 void WindowTree::SetNativeWindowHidden(Id window_id) {
-  ServerWindow* window = GetWindowByClientId(ClientWindowId(window_id));
+  ClientWindowId client_window_id(MakeClientWindowId(window_id));
+  ServerWindow* window = GetWindowByClientId(client_window_id);
+  DCHECK(window);
   window->SetNativeWindowHidden();
 }
 
