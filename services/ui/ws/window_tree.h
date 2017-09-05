@@ -27,8 +27,8 @@
 #include "services/ui/ws/ids.h"
 #include "services/ui/ws/user_id.h"
 #include "services/ui/ws/window_tree_binding.h"
-#include "services/viz/public/interfaces/compositing/surface_id.mojom.h"
 #include "services/ui/ws/window_tree_host_factory.h"
+#include "services/viz/public/interfaces/compositing/surface_id.mojom.h"
 
 namespace display {
 struct ViewportMetrics;

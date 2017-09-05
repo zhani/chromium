@@ -179,9 +179,9 @@ void WindowTree::DoOnEmbed(mojom::WindowTreePtr tree,
 
     const bool drawn =
         root_window->parent() && root_window->parent()->IsDrawn();
-    client()->OnEmbed(id_, WindowToWindowData(root_window),
+    client()->OnEmbed(WindowToWindowData(root_window),
                       nullptr /*mojom::WindowTreePtr*/, display_id,
-                      window_id.id, drawn,
+                      ClientWindowIdToTransportId(window_id), drawn,
                       root_window->current_local_surface_id());
     return;
   }
@@ -229,7 +229,7 @@ void WindowTree::ConfigureRootWindowTreeClient(
   DCHECK(window_server_->IsInExternalWindowMode());
   automatically_create_display_roots_ = automatically_create_display_roots;
   window_manager_internal_ = binding_->GetWindowManager();
-  window_manager_internal_->OnConnect(id_);
+  window_manager_internal_->OnConnect();
 
   window_tree_host_factory_.reset(
       new WindowTreeHostFactory(window_server_, user_id_));
@@ -295,7 +295,9 @@ void WindowTree::AddRoot(const ServerWindow* root) {
   DCHECK(pending_client_window_id_ != kInvalidClientId);
   DCHECK(window_server_->IsInExternalWindowMode());
 
-  const ClientWindowId client_window_id(pending_client_window_id_);
+  const ClientWindowId client_window_id(
+      MakeClientWindowId(pending_client_window_id_));
+
   DCHECK_EQ(0u, client_id_to_window_id_map_.count(client_window_id));
 
   client_id_to_window_id_map_[client_window_id] = root->id();
