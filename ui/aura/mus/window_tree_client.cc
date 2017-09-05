@@ -271,9 +271,6 @@ WindowTreeClient::~WindowTreeClient() {
 }
 
 void WindowTreeClient::ConnectViaWindowTreeHostFactory() {
-  // The client id doesn't really matter, we use 101 purely for debugging.
-  client_id_ = 101;
-
   ui::mojom::ExternalWindowTreeFactoryPtr factory;
   connector_->BindInterface(ui::mojom::kServiceName, &factory);
 

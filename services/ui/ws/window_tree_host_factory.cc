@@ -64,7 +64,8 @@ void WindowTreeHostFactory::CreatePlatformWindow(
       properties.find(ui::mojom::WindowManager::kParentWindowId_InitProperty);
   metrics.parent_window_widget_id = gfx::kNullAcceleratedWidget;
   if (iter != properties.end()) {
-    ClientWindowId client_window_id(mojo::ConvertTo<int32_t>(iter->second));
+    ClientWindowId client_window_id(
+        tree->MakeClientWindowId(mojo::ConvertTo<int32_t>(iter->second)));
     ServerWindow* server_window = tree->GetWindowByClientId(client_window_id);
     DCHECK(server_window);
     PlatformDisplay* platform_display = GetPlatformDisplay(server_window);
