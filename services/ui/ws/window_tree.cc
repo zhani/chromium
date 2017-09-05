@@ -910,7 +910,7 @@ void WindowTree::ProcessWindowBoundsChanged(
   }
 
   client()->OnWindowBoundsChanged(ClientWindowIdToTransportId(client_window_id),
-                                  old_bounds, new_bounds, local_surface_id);
+                                  old_bounds, newest_bounds, local_surface_id);
 }
 
 void WindowTree::ProcessWindowTransformChanged(
