@@ -2411,7 +2411,9 @@ void WindowTree::PerformWindowMove(uint32_t change_id,
 
 void WindowTree::PerformNativeWindowDragOrResize(Id window_id,
                                                  uint32_t hittest) {
-  ServerWindow* window = GetWindowByClientId(ClientWindowId(window_id));
+  ClientWindowId client_window_id(MakeClientWindowId(window_id));
+  ServerWindow* window = GetWindowByClientId(client_window_id);
+  DCHECK(window);
   WindowManagerDisplayRoot* display_root = GetWindowManagerDisplayRoot(window);
   if (!display_root) {
     // The window isn't parented. There's nothing to do.
