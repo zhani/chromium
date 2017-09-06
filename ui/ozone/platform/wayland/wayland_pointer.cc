@@ -7,6 +7,7 @@
 #include <linux/input.h>
 #include <wayland-client.h>
 
+#include "ui/events/base_event_utils.h"
 #include "ui/events/event.h"
 #include "ui/ozone/platform/wayland/wayland_connection.h"
 #include "ui/ozone/platform/wayland/wayland_window.h"
@@ -63,8 +64,7 @@ void WaylandPointer::Motion(void* data,
   pointer->location_.SetPoint(wl_fixed_to_double(surface_x),
                               wl_fixed_to_double(surface_y));
   MouseEvent event(ET_MOUSE_MOVED, gfx::Point(), gfx::Point(),
-                   base::TimeTicks() + base::TimeDelta::FromMilliseconds(time),
-                   pointer->flags_, 0);
+                   EventTimeForNow(), pointer->flags_, 0);
   event.set_location_f(pointer->location_);
   event.set_root_location_f(pointer->location_);
   pointer->callback_.Run(&event);
@@ -110,9 +110,8 @@ void WaylandPointer::Button(void* data,
     type = ET_MOUSE_RELEASED;
     pointer->flags_ &= ~flag;
   }
-  MouseEvent event(type, gfx::Point(), gfx::Point(),
-                   base::TimeTicks() + base::TimeDelta::FromMilliseconds(time),
-                   flags, flag);
+  MouseEvent event(type, gfx::Point(), gfx::Point(), EventTimeForNow(), flags,
+                   flag);
   event.set_location_f(pointer->location_);
   event.set_root_location_f(pointer->location_);
   pointer->callback_.Run(&event);
@@ -140,10 +139,8 @@ void WaylandPointer::Axis(void* data,
                  MouseWheelEvent::kWheelDelta);
   else
     return;
-  MouseWheelEvent event(
-      offset, gfx::Point(), gfx::Point(),
-      base::TimeTicks() + base::TimeDelta::FromMilliseconds(time),
-      pointer->flags_, 0);
+  MouseWheelEvent event(offset, gfx::Point(), gfx::Point(), EventTimeForNow(),
+                        pointer->flags_, 0);
   event.set_location_f(pointer->location_);
   event.set_root_location_f(pointer->location_);
   pointer->callback_.Run(&event);
