@@ -10,6 +10,7 @@
 
 #include "base/macros.h"
 #include "third_party/skia/include/core/SkBitmap.h"
+#include "ui/ozone/platform/wayland/wayland_object.h"
 
 namespace base {
 class SharedMemory;
@@ -34,18 +35,17 @@ class WaylandCursor {
                     const gfx::Point& location,
                     uint32_t serial);
 
-  wl_pointer* GetInputPointer() const { return input_pointer_; }
-
  private:
-  bool CreateSHMBuffer(int width, int height);
+  bool CreateSharedMemoryBuffer(int width, int height);
   void HideCursor(uint32_t serial);
 
-  struct wl_pointer* input_pointer_ = nullptr;
-  struct wl_surface* pointer_surface_ = nullptr;
-  struct wl_buffer* buffer_ = nullptr;
-  struct wl_shm* shm_ = nullptr;
+  wl_shm* shm_ = nullptr;                // Owned by WaylandConnection.
+  wl_pointer* input_pointer_ = nullptr;  // Owned by WaylandPointer.
 
-  base::SharedMemory* sh_memory_ = nullptr;
+  wl::Object<wl_buffer> buffer_;
+  wl::Object<wl_surface> pointer_surface_;
+
+  std::unique_ptr<base::SharedMemory> shared_memory_;
 
   int width_ = 0;
   int height_ = 0;
