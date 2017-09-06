@@ -14,33 +14,28 @@
 
 namespace ui {
 
-WaylandCursor::WaylandCursor()
-    : sh_memory_(new base::SharedMemory()) {}
+WaylandCursor::WaylandCursor() : shared_memory_(new base::SharedMemory()) {}
 
 void WaylandCursor::Init(wl_pointer* pointer, WaylandConnection* connection) {
   if (input_pointer_ == pointer)
     return;
 
-  DCHECK(connection);
-  if (input_pointer_)
-    wl_pointer_destroy(input_pointer_);
-
   input_pointer_ = pointer;
 
+  DCHECK(connection);
   shm_ = connection->shm();
-  pointer_surface_ = wl_compositor_create_surface(connection->compositor());
+  pointer_surface_.reset(
+      wl_compositor_create_surface(connection->compositor()));
 }
 
 WaylandCursor::~WaylandCursor() {
-  wl_surface_destroy(pointer_surface_);
-  if (buffer_)
-    wl_buffer_destroy(buffer_);
+  pointer_surface_.reset();
+  buffer_.reset();
 
-  if (sh_memory_->handle().GetHandle()) {
-    sh_memory_->Unmap();
-    sh_memory_->Close();
+  if (shared_memory_->handle().GetHandle()) {
+    shared_memory_->Unmap();
+    shared_memory_->Close();
   }
-  delete sh_memory_;
 }
 
 void WaylandCursor::UpdateBitmap(const std::vector<SkBitmap>& cursor_image,
@@ -62,48 +57,45 @@ void WaylandCursor::UpdateBitmap(const std::vector<SkBitmap>& cursor_image,
     return;
   }
 
-  if (!CreateSHMBuffer(width, height)) {
-    LOG(ERROR) << "Failed to create SHM buffer for Cursor Bitmap.";
+  if (!CreateSharedMemoryBuffer(width, height)) {
+    LOG(ERROR) << "Failed to create a share memory buffer for Cursor Bitmap.";
     wl_pointer_set_cursor(input_pointer_, serial, nullptr, 0, 0);
     return;
   }
 
   // The |bitmap| contains ARGB image, so just copy it.
-  memcpy(sh_memory_->memory(), image.getPixels(), width_ * height_ * 4);
+  memcpy(shared_memory_->memory(), image.getPixels(), width_ * height_ * 4);
 
-  wl_pointer_set_cursor(input_pointer_, serial, pointer_surface_, location.x(),
-                        location.y());
-  wl_surface_attach(pointer_surface_, buffer_, 0, 0);
-  wl_surface_damage(pointer_surface_, 0, 0, width_, height_);
-  wl_surface_commit(pointer_surface_);
+  wl_pointer_set_cursor(input_pointer_, serial, pointer_surface_.get(),
+                        location.x(), location.y());
+  wl_surface_attach(pointer_surface_.get(), buffer_.get(), 0, 0);
+  wl_surface_damage(pointer_surface_.get(), 0, 0, width_, height_);
+  wl_surface_commit(pointer_surface_.get());
 }
 
-bool WaylandCursor::CreateSHMBuffer(int width, int height) {
+bool WaylandCursor::CreateSharedMemoryBuffer(int width, int height) {
   if (width == width_ && height == height_)
     return true;
 
-  struct wl_shm_pool* pool;
-  int size, stride;
-
   width_ = width;
   height_ = height;
-  stride = width_ * 4;
+  int stride = width_ * 4;
   SkImageInfo info = SkImageInfo::MakeN32Premul(width_, height_);
-  size = info.getSafeSize(stride);
+  int size = info.getSafeSize(stride);
 
-  if (sh_memory_->handle().GetHandle()) {
-    sh_memory_->Unmap();
-    sh_memory_->Close();
+  if (shared_memory_->handle().GetHandle()) {
+    shared_memory_->Unmap();
+    shared_memory_->Close();
   }
 
-  if (!sh_memory_->CreateAndMapAnonymous(size)) {
+  if (!shared_memory_->CreateAndMapAnonymous(size)) {
     LOG(ERROR) << "Create and mmap failed.";
     return false;
   }
 
-  pool = wl_shm_create_pool(shm_, sh_memory_->handle().GetHandle(), size);
-  buffer_ = wl_shm_pool_create_buffer(pool, 0, width_, height_, stride,
-                                      WL_SHM_FORMAT_ARGB8888);
+  wl_shm_pool* pool = wl_shm_create_pool(shm_, shared_memory_->handle().GetHandle(), size);
+  buffer_.reset(wl_shm_pool_create_buffer(pool, 0, width_, height_, stride,
+                                          WL_SHM_FORMAT_ARGB8888));
   wl_shm_pool_destroy(pool);
   return true;
 }
@@ -113,14 +105,11 @@ void WaylandCursor::HideCursor(uint32_t serial) {
   height_ = 0;
   wl_pointer_set_cursor(input_pointer_, serial, nullptr, 0, 0);
 
-  if (buffer_) {
-    wl_buffer_destroy(buffer_);
-    buffer_ = nullptr;
-  }
+  buffer_.reset();
 
-  if (sh_memory_->handle().GetHandle()) {
-    sh_memory_->Unmap();
-    sh_memory_->Close();
+  if (shared_memory_->handle().GetHandle()) {
+    shared_memory_->Unmap();
+    shared_memory_->Close();
   }
 }
 
