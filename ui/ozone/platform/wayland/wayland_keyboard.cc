@@ -9,6 +9,7 @@
 
 #include "base/files/scoped_file.h"
 #include "ui/base/ui_features.h"
+#include "ui/events/base_event_utils.h"
 #include "ui/events/event.h"
 #include "ui/events/keycodes/dom/dom_code.h"
 #include "ui/events/keycodes/dom/keycode_converter.h"
@@ -109,7 +110,7 @@ void WaylandKeyboard::Key(void* data,
   ui::KeyEvent event(
       down ? ET_KEY_PRESSED : ET_KEY_RELEASED, key_code, dom_code,
       keyboard->modifiers_, dom_key,
-      base::TimeTicks() + base::TimeDelta::FromMilliseconds(time));
+      EventTimeForNow());
   event.set_source_device_id(keyboard->obj_.id());
   keyboard->callback_.Run(&event);
 }
