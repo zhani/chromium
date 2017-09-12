@@ -381,9 +381,8 @@ void Display::OnCloseRequest() {
   ServerWindow* server_window =
       display_root->window_manager_state()->GetWindowManagerRootForDisplayRoot(
           root_window());
-  ClientWindowId window_id;
-  if (window_tree && window_tree->IsWindowKnown(server_window, &window_id))
-    window_tree->client()->RequestClose(window_id.id);
+  if (window_tree)
+    window_tree->OnRequestClose(server_window);
 }
 
 void Display::OnWindowStateChanged(ui::mojom::ShowState new_state) {

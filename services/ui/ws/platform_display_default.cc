@@ -318,11 +318,11 @@ void PlatformDisplayDefault::DispatchEvent(ui::Event* event) {
 }
 
 void PlatformDisplayDefault::OnCloseRequest() {
-#if !defined(USE_OZONE) || defined(CHROMEOS)
+#if defined(USE_OZONE) && defined(OS_LINUX) && !defined(OS_CHROMEOS)
+  delegate_->OnCloseRequest();
+#else
   const int64_t display_id = delegate_->GetDisplay().id();
   display::ScreenManager::GetInstance()->RequestCloseDisplay(display_id);
-#else
-  delegate_->OnCloseRequest();
 #endif
 }
 
