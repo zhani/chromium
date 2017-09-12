@@ -131,6 +131,7 @@ void XDGSurfaceWrapperV5::Configure(void* data,
 
   bool is_maximized = false;
   bool is_fullscreen = false;
+  bool is_activated = false;
 
   // wl_array_for_each has a bug in upstream. It tries to assign void* to
   // uint32_t *, which is not allowed in C++. Explicit cast should be
@@ -149,6 +150,9 @@ void XDGSurfaceWrapperV5::Configure(void* data,
       case (XDG_SURFACE_STATE_FULLSCREEN):
         is_fullscreen = true;
         break;
+      case (XDG_SURFACE_STATE_ACTIVATED):
+        is_activated = true;
+        break;
       default:
         break;
     }
@@ -156,7 +160,7 @@ void XDGSurfaceWrapperV5::Configure(void* data,
 
   surface->pending_configure_serial_ = serial;
   surface->wayland_window_->HandleSurfaceConfigure(width, height, is_maximized,
-                                                   is_fullscreen);
+                                                   is_fullscreen, is_activated);
 }
 
 // static

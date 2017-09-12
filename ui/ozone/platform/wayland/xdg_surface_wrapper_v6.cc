@@ -186,6 +186,7 @@ void XDGSurfaceWrapperV6::ConfigureTopLevel(
 
   bool is_maximized = false;
   bool is_fullscreen = false;
+  bool is_activated = false;
 
   // wl_array_for_each has a bug in upstream. It tries to assign void* to
   // uint32_t *, which is not allowed in C++. Explicit cast should be
@@ -204,13 +205,16 @@ void XDGSurfaceWrapperV6::ConfigureTopLevel(
       case (ZXDG_TOPLEVEL_V6_STATE_FULLSCREEN):
         is_fullscreen = true;
         break;
+      case (ZXDG_TOPLEVEL_V6_STATE_ACTIVATED):
+        is_activated = true;
+        break;
       default:
         break;
     }
   }
 
   surface->wayland_window_->HandleSurfaceConfigure(width, height, is_maximized,
-                                                   is_fullscreen);
+                                                   is_fullscreen, is_activated);
 }
 
 // static
