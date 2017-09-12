@@ -350,6 +350,7 @@ void X11WindowBase::Restore() {
     ToggleFullscreen();
 
   if (IsMaximized()) {
+    restored_bounds_in_pixels_ = bounds_;
     SetWMSpecState(false, gfx::GetAtom("_NET_WM_STATE_MAXIMIZED_VERT"),
                    gfx::GetAtom("_NET_WM_STATE_MAXIMIZED_HORZ"));
   }
@@ -485,6 +486,7 @@ void X11WindowBase::OnWMStateUpdated() {
   ui::GetAtomArrayProperty(xwindow_, "_NET_WM_STATE", &atom_list);
 
   bool was_minimized = IsMinimized();
+  bool was_maximized = IsMaximized();
 
   window_properties_.clear();
   std::copy(atom_list.begin(), atom_list.end(),
@@ -493,17 +495,23 @@ void X11WindowBase::OnWMStateUpdated() {
   // Propagate the window minimization information to the client.
   ui::PlatformWindowState state =
       ui::PlatformWindowState::PLATFORM_WINDOW_STATE_NORMAL;
-  if (IsMinimized() != was_minimized) {
-    if (IsMinimized()) {
-      state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MINIMIZED;
-    } else if (IsMaximized()) {
-      // When the window is recovered from minimized state, set state to the
-      // previous maximized state if it was like that. Otherwise, NORMAL state
-      // will be set.
-      state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MAXIMIZED;
-    }
+  if (IsMaximized())
+    state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MAXIMIZED;
+  else if (IsMinimized())
+    state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MINIMIZED;
+
+  // |restored_bounds_in_pixels_| can tell if the maximize/restore has been
+  // triggered by client or not. Typically, if it was the client who triggered
+  // that, |restored_bounds_in_pixels_| had values stored. Thus, we can be
+  // sure the client is not flooded with window states when the sources of a
+  // change has been the client itself.
+  if ((restored_bounds_in_pixels_.IsEmpty() &&
+       IsMaximized() != was_maximized) ||
+      IsMinimized() != was_minimized) {
     delegate_->OnWindowStateChanged(state);
   }
+
+  restored_bounds_in_pixels_ = gfx::Rect();
 }
 
 bool X11WindowBase::HasWMSpecProperty(const char* property) const {
