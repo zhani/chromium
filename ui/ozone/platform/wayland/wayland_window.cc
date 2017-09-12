@@ -337,6 +337,10 @@ bool WaylandWindow::CanDispatchEvent(const PlatformEvent& native_event) {
   if (HasCapture())
     return true;
 
+  // If another window has capture, return early before checking focus.
+  if (g_current_capture_)
+    return false;
+
   Event* event = static_cast<Event*>(native_event);
   if (event->IsMouseEvent())
     return has_pointer_focus_;
