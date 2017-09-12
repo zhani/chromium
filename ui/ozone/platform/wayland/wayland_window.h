@@ -94,7 +94,8 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   void HandleSurfaceConfigure(int32_t widht,
                               int32_t height,
                               bool is_maximized,
-                              bool is_fullscreen);
+                              bool is_fullscreen,
+                              bool is_activated);
 
   void OnCloseRequest();
 
@@ -144,12 +145,14 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   scoped_refptr<BitmapCursorOzone> bitmap_;
 
   gfx::Rect bounds_;
+  gfx::Rect previous_bounds_in_pixels_;
   gfx::Rect pending_bounds_;
   bool has_pointer_focus_ = false;
   bool has_keyboard_focus_ = false;
   bool has_touch_focus_ = false;
 
   bool is_minimized_ = false;
+  bool was_minimized_ = false;
   bool is_maximized_ = false;
   bool is_fullscreen_ = false;
 
