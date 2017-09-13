@@ -395,12 +395,9 @@ void Display::OnWindowStateChanged(ui::mojom::ShowState new_state) {
   ServerWindow* server_window =
       display_root->window_manager_state()->GetWindowManagerRootForDisplayRoot(
           root_window());
-  ClientWindowId window_id;
-  // We are calling WindowTreeClient directly from here for the sake not
-  // changing WindowTree for such a simple call, adding less code as possible
-  // downstream.
-  if (window_tree && window_tree->IsWindowKnown(server_window, &window_id))
-    window_tree->client()->OnWindowStateChanged(window_id.id, new_state);
+
+  if (window_tree)
+    window_tree->OnWindowStateChanged(server_window, new_state);
 }
 
 OzonePlatform* Display::GetOzonePlatform() {
