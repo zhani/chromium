@@ -129,6 +129,8 @@ WaylandOutput* WaylandConnection::PrimaryOutput() const {
 
 void WaylandConnection::SetCursorBitmap(const std::vector<SkBitmap>& bitmaps,
                                         const gfx::Point& location) {
+  if (!pointer_ || !pointer_->cursor())
+    return;
   pointer_->cursor()->UpdateBitmap(bitmaps, location, serial_);
 }
 
