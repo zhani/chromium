@@ -41,7 +41,7 @@ and
 Here is the summary of commands to build and run Chrome for Wayland:
 
 ```
-gn args out/Ozone --args="use_ozone=true enable_package_mash_services=true"
+gn args out/Ozone --args="use_ozone=true enable_package_mash_services=true use_xkbcommon=true is_debug=false"
 ninja -C out/Ozone chrome
 ./out/Ozone/chrome --mus --ozone-platform=wayland
 ```
