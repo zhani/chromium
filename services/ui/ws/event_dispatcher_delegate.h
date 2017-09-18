@@ -10,7 +10,7 @@
 #include "services/ui/common/types.h"
 
 namespace gfx {
-class PointF;
+class Point;
 }
 
 namespace viz {
@@ -61,7 +61,7 @@ class EventDispatcherDelegate {
   virtual void OnCaptureChanged(ServerWindow* new_capture,
                                 ServerWindow* old_capture) = 0;
 
-  virtual void OnMouseCursorLocationChanged(const gfx::PointF& point,
+  virtual void OnMouseCursorLocationChanged(const gfx::Point& point,
                                             int64_t display_id) = 0;
 
   virtual void OnEventChangesCursorVisibility(const ui::Event& event,
@@ -73,7 +73,7 @@ class EventDispatcherDelegate {
   // Dispatches an event to the specific client.
   virtual void DispatchInputEventToWindow(ServerWindow* target,
                                           ClientSpecificId client_id,
-                                          const EventLocation& event_location,
+                                          int64_t display_id,
                                           const ui::Event& event,
                                           Accelerator* accelerator) = 0;
 
@@ -93,7 +93,8 @@ class EventDispatcherDelegate {
   // TODO(riajiang): No need to update |location_in_display| and |display_id|
   // after ozone drm can tell us the right display the cursor is on for
   // drag-n-drop events. crbug.com/726470
-  virtual ServerWindow* GetRootWindowForDisplay(int64_t display_id) = 0;
+  virtual ServerWindow* GetRootWindowContaining(gfx::Point* location_in_display,
+                                                int64_t* display_id) = 0;
 
   // Returns the root of |window| that is used for event dispatch. The returned
   // value is used for coordinate conversion.

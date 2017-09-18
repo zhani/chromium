@@ -7,6 +7,10 @@
 
 #include <stdint.h>
 
+namespace gfx {
+class Point;
+}
+
 namespace viz {
 class HitTestQuery;
 }
@@ -18,9 +22,10 @@ class ServerWindow;
 // Used by EventTargeter to talk to WindowManagerState.
 class EventTargeterDelegate {
  public:
-  // Calls EventDispatcherDelegate::GetRootWindowForDisplay(), see
+  // Calls EventDispatcherDelegate::GetRootWindowContaining, see
   // event_dispatcher_delegate.h for details.
-  virtual ServerWindow* GetRootWindowForDisplay(int64_t display_id) = 0;
+  virtual ServerWindow* GetRootWindowContaining(gfx::Point* location_in_display,
+                                                int64_t* display_id) = 0;
 
   // Calls EventDispatcherDelegate::ProcessNextAvailableEvent, see
   // event_dispatcher_delegate.h for details.
