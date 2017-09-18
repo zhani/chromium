@@ -54,8 +54,6 @@ class WindowManagerDisplayRoot;
 class WindowManagerState;
 class WindowServer;
 
-struct EventLocation;
-
 namespace test {
 class WindowTreeTestApi;
 }
@@ -202,7 +200,7 @@ class WindowTree : public mojom::WindowTree,
   using DispatchEventCallback = base::OnceCallback<void(mojom::EventResult)>;
   void DispatchInputEvent(ServerWindow* target,
                           const ui::Event& event,
-                          const EventLocation& event_location,
+                          int64_t display_id,
                           DispatchEventCallback callback);
 
   bool IsWaitingForNewTopLevelWindow(uint32_t wm_change_id);
@@ -403,7 +401,7 @@ class WindowTree : public mojom::WindowTree,
 
   void DispatchInputEventImpl(ServerWindow* target,
                               const ui::Event& event,
-                              const EventLocation& event_location,
+                              int64_t display_id,
                               DispatchEventCallback callback);
 
   // Returns true if the client has a pointer watcher and this event matches.
