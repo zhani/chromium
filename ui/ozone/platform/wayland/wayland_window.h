@@ -156,6 +156,9 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   bool is_maximized_ = false;
   bool is_fullscreen_ = false;
 
+  bool was_active_ = false;
+  bool is_active_ = false;
+
   DISALLOW_COPY_AND_ASSIGN(WaylandWindow);
 };
 
