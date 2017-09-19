@@ -491,34 +491,19 @@ void X11WindowBase::OnWMStateUpdated() {
             inserter(window_properties_, window_properties_.begin()));
 
   // Propagate the window minimization information to the client.
-  bool is_minimized = IsMinimized();
-  ui::PlatformWindowState state;
-  // Check state after minimization/restore.
-  if (is_minimized != was_minimized) {
-    if (is_minimized) {
+  ui::PlatformWindowState state =
+      ui::PlatformWindowState::PLATFORM_WINDOW_STATE_NORMAL;
+  if (IsMinimized() != was_minimized) {
+    if (IsMinimized()) {
       state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MINIMIZED;
-    } else {
+    } else if (IsMaximized()) {
       // When the window is recovered from minimized state, set state to the
-      // previous state.
-      state = IsMaximized()
-                  ? ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MAXIMIZED
-                  : ui::PlatformWindowState::PLATFORM_WINDOW_STATE_NORMAL;
+      // previous maximized state if it was like that. Otherwise, NORMAL state
+      // will be set.
+      state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MAXIMIZED;
     }
     delegate_->OnWindowStateChanged(state);
-    return;
   }
-
-  // If it hasn't been a restore or minimize state, then check if the window
-  // has been maximized or restored.
-  state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_NORMAL;
-  if (IsMaximized())
-    state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MAXIMIZED;
-
-  // If the window is in the fullscreen mode, there is no need to notify the
-  // client about the state as long as it has been the client who has changed
-  // the state.
-  if (!IsFullScreen())
-    delegate_->OnWindowStateChanged(state);
 }
 
 bool X11WindowBase::HasWMSpecProperty(const char* property) const {
