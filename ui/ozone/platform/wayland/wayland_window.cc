@@ -439,6 +439,11 @@ void WaylandWindow::HandleSurfaceConfigure(int32_t width,
     delegate_->OnWindowStateChanged(state);
   }
 
+  was_active_ = is_active_;
+  is_active_ = is_activated;
+  if (was_active_ != is_active_)
+    delegate_->OnActivationChanged(is_active_);
+
   // Rather than call SetBounds here for every configure event, just save the
   // most recent bounds, and have WaylandConnection call ApplyPendingBounds
   // when it has finished processing events. We may get many configure events

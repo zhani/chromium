@@ -338,6 +338,9 @@ void RendererWindowTreeClient::OnChangeCompleted(uint32_t change_id,
   // after unembedded, which means all operations will fail.
 }
 
+void RendererWindowTreeClient::OnActivationChanged(uint32_t window_id,
+                                                   bool is_active) {}
+
 void RendererWindowTreeClient::RequestClose(uint32_t window_id) {}
 
 void RendererWindowTreeClient::GetWindowManager(
