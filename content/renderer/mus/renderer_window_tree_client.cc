@@ -271,6 +271,9 @@ void RendererWindowTreeClient::OnWindowStateChanged(
     uint32_t window_id,
     ui::mojom::ShowState state) {}
 
+void RendererWindowTreeClient::OnActivationChanged(uint32_t window_id,
+                                                   bool is_active) {}
+
 void RendererWindowTreeClient::RequestClose(uint32_t window_id) {}
 
 void RendererWindowTreeClient::GetWindowManager(
