@@ -174,9 +174,14 @@ void WindowTreeHostMus::ConfineCursorToBounds(
                                                    display_id_);
 }
 
-display::Display WindowTreeHostMus::GetDisplay() const {
+display::Display WindowTreeHostMus::GetDisplay() {
   display::Display display;
-  display::Screen::GetScreen()->GetDisplayWithDisplayId(display_id_, &display);
+  auto* screen = display::Screen::GetScreen();
+  if (screen->GetDisplayWithDisplayId(display_id_, &display))
+    return display;
+  // Fallback: return the primary display.
+  display = screen->GetPrimaryDisplay();
+  display_id_ = display.id();
   return display;
 }
 
