@@ -58,6 +58,12 @@ void ScreenMus::Init(service_manager::Connector* connector) {
   display_manager_observer_binding_.Bind(mojo::MakeRequest(&observer));
   display_manager_->AddObserver(std::move(observer));
 
+#if defined(USE_OZONE) && defined(OS_LINUX) && !defined(OS_CHROMEOS)
+  // Install a default display and assume WS will update that the real value
+  // as soon as Ozone starts.
+  display_list().AddDisplay(
+      display::Display(0xFFFFFFFF, gfx::Rect(0, 0, 801, 802)), Type::PRIMARY);
+#else
   // We need the set of displays before we can continue. Wait for it.
   //
   // TODO(rockot): Do something better here. This should not have to block tasks
@@ -74,6 +80,7 @@ void ScreenMus::Init(service_manager::Connector* connector) {
     display_list().AddDisplay(
         display::Display(0xFFFFFFFF, gfx::Rect(0, 0, 801, 802)), Type::PRIMARY);
   }
+#endif
 }
 
 display::Display ScreenMus::GetDisplayNearestWindow(
