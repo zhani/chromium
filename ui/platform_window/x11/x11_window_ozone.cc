@@ -60,10 +60,13 @@ void X11WindowOzone::PrepareForShutdown() {
 
 void X11WindowOzone::SetCapture() {
   window_manager_->GrabEvents(this);
+  X11WindowBase::SetCapture();
 }
 
 void X11WindowOzone::ReleaseCapture() {
   window_manager_->UngrabEvents(this);
+  if (window_manager_->event_grabber() == this)
+    X11WindowBase::ReleaseCapture();
 }
 
 void X11WindowOzone::SetCursor(PlatformCursor cursor) {

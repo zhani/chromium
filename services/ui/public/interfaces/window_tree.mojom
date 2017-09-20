@@ -549,6 +549,10 @@ interface WindowTreeClient {
   // The WindowManager calls back after the client set proprties to minimize, maximize or restore
   // the window or after the window is restored back from minimized state by clicking on a tray.
   OnWindowStateChanged(uint32 window_id, ShowState state);
+  
+  // The WindowManager is requesting the specified window to change activation
+  // state.
+  OnActivationChanged(uint32 window_id, bool is_active);
 
   // The WindowManager is requesting the specified window to close. If the
   // client allows the change it should delete the window.

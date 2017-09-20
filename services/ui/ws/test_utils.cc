@@ -466,6 +466,9 @@ void TestWindowTreeClient::OnChangeCompleted(uint32_t change_id, bool success) {
 void TestWindowTreeClient::OnWindowStateChanged(uint32_t window_id,
                                                 ::ui::mojom::ShowState state) {}
 
+void TestWindowTreeClient::OnActivationChanged(uint32_t window_id,
+                                               bool is_active) {}
+
 void TestWindowTreeClient::RequestClose(uint32_t window_id) {}
 
 void TestWindowTreeClient::GetWindowManager(
