@@ -55,8 +55,6 @@ class AURA_EXPORT WindowPortLocal : public WindowPort {
   void OnEventTargetingPolicyChanged() override;
   bool ShouldRestackTransientChildren() override;
 
-  void OnWillHideNativeWindow() override;
-
  private:
   void OnSurfaceChanged(const viz::SurfaceInfo& surface_info);
 

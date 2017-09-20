@@ -274,7 +274,6 @@ class AURA_EXPORT WindowPortMus : public WindowPort, public WindowMus {
   const viz::LocalSurfaceId& GetLocalSurfaceId() override;
   void OnWindowAddedToRootWindow() override;
   void OnWillRemoveWindowFromRootWindow() override;
-  void OnWillHideNativeWindow() override;
   void OnEventTargetingPolicyChanged() override;
   bool ShouldRestackTransientChildren() override;
 

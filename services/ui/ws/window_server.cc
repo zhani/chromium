@@ -907,24 +907,9 @@ void WindowServer::OnWindowVisibilityChanged(ServerWindow* window) {
   if (display_root) {
     display_root->window_manager_state()
         ->ReleaseCaptureBlockedByAnyModalWindow();
-    bool visible = window->visible();
-    if (visible)
-      SetNativeWindowVisibility(display_root, visible);
+    if (display_root->GetClientVisibleRoot() == window)
+      SetNativeWindowVisibility(display_root, window->visible());
   }
-}
-
-void WindowServer::OnSetNativeWindowHidden(ServerWindow* window) {
-  if (in_destructor_)
-    return;
-
-  WindowManagerDisplayRoot* display_root =
-      display_manager_->GetWindowManagerDisplayRoot(window);
-  if (!display_root)
-    return;
-
-  bool visible = window->visible();
-  DCHECK(!visible);
-  SetNativeWindowVisibility(display_root, visible);
 }
 
 void WindowServer::OnWindowCursorChanged(ServerWindow* window,
