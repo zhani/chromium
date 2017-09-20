@@ -180,8 +180,6 @@ void TestWindowTree::SetWindowProperty(
   OnChangeReceived(change_id, WindowTreeChangeType::PROPERTY);
 }
 
-void TestWindowTree::SetNativeWindowHidden(Id window_id) {}
-
 void TestWindowTree::SetWindowOpacity(uint32_t change_id,
                                       uint32_t window_id,
                                       float opacity) {

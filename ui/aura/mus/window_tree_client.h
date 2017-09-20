@@ -349,7 +349,6 @@ class AURA_EXPORT WindowTreeClient
                                   const void* key,
                                   int64_t old_value,
                                   std::unique_ptr<ui::PropertyData> data);
-  void OnWindowMusHideNativeWindow(WindowMus* window);
   void OnWindowMusDeviceScaleFactorChanged(WindowMus* window,
                                            float old_scale_factor,
                                            float new_scale_factor);
