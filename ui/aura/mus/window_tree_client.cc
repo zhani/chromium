@@ -284,11 +284,6 @@ void WindowTreeClient::ConnectViaWindowTreeHostFactory() {
   in_external_window_mode_ = true;
 
   SetWindowTree(std::move(window_tree));
-
-  // Similarly in AshConfig::MUS, it is important to have
-  // the connection with the root window tree established before
-  // continuing. See chrome/browser/ui/ash/ash_init.cc @ CreateMusShell.
-  WaitForInitialDisplays();
 }
 
 void WindowTreeClient::ConnectViaWindowTreeFactory() {
