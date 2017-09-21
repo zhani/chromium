@@ -54,6 +54,9 @@ class X11_WINDOW_EXPORT X11WindowBase : public PlatformWindow {
  protected:
   void Destroy();
 
+  void SetPointerGrab();
+  void ReleasePointerGrab();
+
   PlatformWindowDelegate* delegate() { return delegate_; }
   XDisplay* xdisplay() { return xdisplay_; }
   XID xwindow() const { return xwindow_; }
