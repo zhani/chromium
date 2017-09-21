@@ -69,15 +69,6 @@ class WaylandWindowTest : public WaylandTest {
     return xdg_surface->xdg_toplevel.get();
   }
 
-  void RestoreOnStateChanged(PlatformWindowState expected_state) {
-    ON_CALL(delegate, OnWindowStateChanged(_))
-        .WillByDefault(testing::Invoke(
-            [this, expected_state](PlatformWindowState new_state) {
-              EXPECT_EQ(new_state, expected_state);
-              window.Restore();
-            }));
-  }
-
   void SetWlArrayWithState(uint32_t state, wl_array* states) {
     uint32_t* s;
     s = (uint32_t*)wl_array_add(states, sizeof *s);
@@ -107,7 +98,9 @@ TEST_P(WaylandWindowTest, MaximizeAndRestore) {
   EXPECT_CALL(*GetXdgSurface(), UnsetMaximized());
   window.Maximize();
   SendConfigureEvent(0, 0, serial, &states);
-  RestoreOnStateChanged(PlatformWindowState::PLATFORM_WINDOW_STATE_MAXIMIZED);
+  Sync();
+
+  window.Restore();
 }
 
 TEST_P(WaylandWindowTest, Minimize) {
@@ -124,23 +117,31 @@ TEST_P(WaylandWindowTest, SetFullScreenAndRestore) {
   EXPECT_CALL(*GetXdgSurface(), UnsetFullScreen());
   window.ToggleFullscreen();
   SendConfigureEvent(0, 0, 1, &states);
-  RestoreOnStateChanged(PlatformWindowState::PLATFORM_WINDOW_STATE_FULLSCREEN);
+  Sync();
+
+  window.Restore();
 }
 
 TEST_P(WaylandWindowTest, SetMaximizedFullScreenAndRestore) {
   wl_array states;
   wl_array_init(&states);
-  SetWlArrayWithState(XDG_SURFACE_STATE_MAXIMIZED, &states);
-  SetWlArrayWithState(XDG_SURFACE_STATE_FULLSCREEN, &states);
 
   EXPECT_CALL(*GetXdgSurface(), SetFullScreen());
   EXPECT_CALL(*GetXdgSurface(), UnsetFullScreen());
   EXPECT_CALL(*GetXdgSurface(), SetMaximized());
   EXPECT_CALL(*GetXdgSurface(), UnsetMaximized());
+
   window.Maximize();
-  window.ToggleFullscreen();
+  SetWlArrayWithState(XDG_SURFACE_STATE_MAXIMIZED, &states);
   SendConfigureEvent(0, 0, 2, &states);
-  RestoreOnStateChanged(PlatformWindowState::PLATFORM_WINDOW_STATE_FULLSCREEN);
+  Sync();
+
+  window.ToggleFullscreen();
+  SetWlArrayWithState(XDG_SURFACE_STATE_FULLSCREEN, &states);
+  SendConfigureEvent(0, 0, 3, &states);
+  Sync();
+
+  window.Restore();
 }
 
 TEST_P(WaylandWindowTest, CanDispatchMouseEventDefault) {
