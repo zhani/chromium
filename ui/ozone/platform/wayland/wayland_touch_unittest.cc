@@ -57,7 +57,7 @@ class WaylandTouchTest : public WaylandTest {
   DISALLOW_COPY_AND_ASSIGN(WaylandTouchTest);
 };
 
-TEST_F(WaylandTouchTest, KeypressAndMotion) {
+TEST_P(WaylandTouchTest, KeypressAndMotion) {
   std::unique_ptr<Event> event;
   EXPECT_CALL(delegate, DispatchEvent(_)).WillRepeatedly(CloneEvent(&event));
 
@@ -78,5 +78,12 @@ TEST_F(WaylandTouchTest, KeypressAndMotion) {
   Sync();
   CheckEventType(ui::ET_TOUCH_RELEASED, event.get());
 }
+
+INSTANTIATE_TEST_CASE_P(XdgVersionV5Test,
+                        WaylandTouchTest,
+                        ::testing::Values(kXdgShellV5));
+INSTANTIATE_TEST_CASE_P(XdgVersionV6Test,
+                        WaylandTouchTest,
+                        ::testing::Values(kXdgShellV6));
 
 }  // namespace ui
