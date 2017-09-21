@@ -123,6 +123,17 @@ void X11WindowBase::Destroy() {
   XDestroyWindow(xdisplay, xwindow);
 }
 
+void X11WindowBase::SetPointerGrab() {
+  if (has_pointer_grab_)
+    return;
+  has_pointer_grab_ |= !ui::GrabPointer(xwindow_, true, None);
+}
+
+void X11WindowBase::ReleasePointerGrab() {
+  ui::UngrabPointer();
+  has_pointer_grab_ = false;
+}
+
 void X11WindowBase::Create() {
   DCHECK(!bounds_.size().IsEmpty());
 
