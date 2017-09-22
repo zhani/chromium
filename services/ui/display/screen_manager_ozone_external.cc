@@ -20,10 +20,8 @@ std::unique_ptr<ScreenManager> ScreenManager::Create() {
 }
 
 ScreenManagerOzoneExternal::ScreenManagerOzoneExternal()
-    : screen_owned_(base::MakeUnique<ScreenBase>()),
-      screen_(screen_owned_.get()),
+    : screen_(base::MakeUnique<ScreenBase>()),
       weak_ptr_factory_(this) {
-  Screen::SetScreenInstance(screen_owned_.get());
 }
 
 ScreenManagerOzoneExternal::~ScreenManagerOzoneExternal() {}
@@ -44,7 +42,7 @@ void ScreenManagerOzoneExternal::OnHostDisplaysReady(
 
   screen_->display_list().AddDisplay(display, DisplayList::Type::PRIMARY);
 
-  // TODO(tonikitoo): Before calling out to ScreenManagerDelegate check if
+  // TODO(tonikitoo, msisov): Before calling out to ScreenManagerDelegate check if
   // more than one host display is available.
   delegate_->OnHostDisplaysReady(service_manager::mojom::kRootUserID);
 }
@@ -64,7 +62,7 @@ void ScreenManagerOzoneExternal::Init(ScreenManagerDelegate* delegate) {
 void ScreenManagerOzoneExternal::RequestCloseDisplay(int64_t display_id) {}
 
 display::ScreenBase* ScreenManagerOzoneExternal::GetScreen() {
-  return screen_;
+  return screen_.get();
 }
 
 }  // namespace display
