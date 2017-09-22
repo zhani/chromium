@@ -242,8 +242,6 @@ void X11WindowBase::Create() {
   ui::SetUseOSWindowFrame(xwindow_, false);
 #endif
 
-  has_window_focus_ = true;
-  window_mapped_in_server_ = true;
   // TODO(sky): provide real scale factor.
   delegate_->OnAcceleratedWidgetAvailable(xwindow_, 1.f);
 }
