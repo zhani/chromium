@@ -155,8 +155,6 @@ class RendererWindowTreeClient : public ui::mojom::WindowTreeClient {
                                   uint32_t action_taken) override;
   void OnDragDropDone() override;
   void OnChangeCompleted(uint32_t change_id, bool success) override;
-  void OnWindowStateChanged(uint32_t window_id,
-                            ui::mojom::ShowState state) override;
   void OnActivationChanged(uint32_t window_id, bool is_active) override;
   void RequestClose(uint32_t window_id) override;
   void GetWindowManager(

@@ -764,7 +764,7 @@ void WindowServer::SetNativeWindowState(ServerWindow* window,
                                         ui::mojom::ShowState state) {
   WindowManagerDisplayRoot* display_root =
       display_manager_->GetWindowManagerDisplayRoot(window);
-  if (!display_root)
+  if (!display_root || display_root->GetClientVisibleRoot() != window)
     return;
   PlatformDisplay* display = display_root->display()->platform_display();
   DCHECK(display);

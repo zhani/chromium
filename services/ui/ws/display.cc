@@ -13,6 +13,7 @@
 #include "services/service_manager/public/interfaces/connector.mojom.h"
 #include "services/ui/common/types.h"
 #include "services/ui/display/viewport_metrics.h"
+#include "services/ui/public/cpp/property_type_converters.h"
 #include "services/ui/public/interfaces/cursor/cursor.mojom.h"
 #include "services/ui/ws/debug_utils.h"
 #include "services/ui/ws/display_binding.h"
@@ -389,15 +390,14 @@ void Display::OnWindowStateChanged(ui::mojom::ShowState new_state) {
   if (!window_server_->IsInExternalWindowMode())
     return;
 
-  WindowTree* window_tree = window_server_->GetTreeForExternalWindowMode();
+  std::vector<uint8_t> transport_value =
+      mojo::ConvertTo<std::vector<uint8_t>>(static_cast<int64_t>(new_state));
+
   WindowManagerDisplayRoot* display_root =
       window_manager_display_root_map_.begin()->second;
-  ServerWindow* server_window =
-      display_root->window_manager_state()->GetWindowManagerRootForDisplayRoot(
-          root_window());
-
-  if (window_tree)
-    window_tree->OnWindowStateChanged(server_window, new_state);
+  ServerWindow* server_window = display_root->GetClientVisibleRoot();
+  server_window->SetProperty(mojom::WindowManager::kShowState_Property,
+                             &transport_value);
 }
 
 void Display::OnActivationChanged(bool is_active) {

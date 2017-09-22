@@ -1209,15 +1209,6 @@ void WindowTree::OnRequestClose(ServerWindow* target_window) {
     client()->RequestClose(ClientWindowIdToTransportId(client_window_id));
 }
 
-void WindowTree::OnWindowStateChanged(ServerWindow* target_window,
-                                      ui::mojom::ShowState new_state) {
-  DCHECK(window_server_->IsInExternalWindowMode());
-  ClientWindowId client_window_id;
-  if (IsWindowKnown(target_window, &client_window_id))
-    client()->OnWindowStateChanged(
-        ClientWindowIdToTransportId(client_window_id), new_state);
-}
-
 void WindowTree::OnActivationChanged(ServerWindow* target_window,
                                      bool is_active) {
   DCHECK(window_server_->IsInExternalWindowMode());
