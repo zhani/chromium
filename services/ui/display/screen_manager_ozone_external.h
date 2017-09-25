@@ -37,13 +37,9 @@ class ScreenManagerOzoneExternal : public ScreenManager {
   void RequestCloseDisplay(int64_t display_id) override;
   display::ScreenBase* GetScreen() override;
 
-  // A Screen instance is created in the constructor because it might be
-  // accessed early. The ownership of this object will be transfered to
-  // |display_manager_| when that gets initialized.
-  std::unique_ptr<ScreenBase> screen_owned_;
-
-  // Used to add/remove/modify displays.
-  ScreenBase* screen_;
+  // Internal control for displays added/removed/modified.
+  // THIS IS NOT INSTALLED IN Screen::SetScreenInstancce.
+  std::unique_ptr<ScreenBase> screen_;
 
   ScreenManagerDelegate* delegate_ = nullptr;
   int next_display_id_ = 0;
