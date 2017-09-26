@@ -50,7 +50,9 @@ bool WaylandConnection::Initialize() {
   }
 
   wl_registry_add_listener(registry_.get(), &registry_listener, this);
-  wl_display_roundtrip(display_.get());
+
+  while (!PrimaryOutput() || PrimaryOutput()->Geometry().IsEmpty())
+    wl_display_roundtrip(display_.get());
 
   if (!compositor_) {
     LOG(ERROR) << "No wl_compositor object";
@@ -230,10 +232,6 @@ void WaylandConnection::Global(void* data,
 
     connection->output_list_.push_back(
         base::WrapUnique(new WaylandOutput(output.release())));
-
-    // By the time the Wayland output is instantiated, it must be able
-    // to receive and process events from the Wayland server.
-    connection->StartProcessingEvents();
   }
 
   connection->ScheduleFlush();
