@@ -98,6 +98,10 @@ void* GenericV4L2Device::Mmap(void* addr,
                               int flags,
                               unsigned int offset) {
   DCHECK(device_fd_.is_valid());
+#if defined(USE_LIBV4L2)
+  if (use_libv4l2_)
+    return v4l2_mmap(addr, len, prot, flags, device_fd_.get(), offset);
+#endif
   return mmap(addr, len, prot, flags, device_fd_.get(), offset);
 }
 
@@ -465,9 +469,8 @@ bool GenericV4L2Device::OpenDevicePath(const std::string& path, Type type) {
     return false;
 
 #if BUILDFLAG(USE_LIBV4L2)
-  if (type == Type::kEncoder &&
-      HANDLE_EINTR(v4l2_fd_open(device_fd_.get(), V4L2_DISABLE_CONVERSION)) !=
-          -1) {
+  if (HANDLE_EINTR(v4l2_fd_open(device_fd_.get(), V4L2_DISABLE_CONVERSION)) !=
+      -1) {
     DVLOG(2) << "Using libv4l2 for " << path;
     use_libv4l2_ = true;
   }
