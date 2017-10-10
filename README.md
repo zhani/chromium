@@ -11,7 +11,8 @@ and patches are upstreamed as soon as possible.
 
 The implementation also relies on actively developed Chromium technologies:
 
-* [Aura](https://www.chromium.org/developers/design-documents/aura/aura-overview) and [MUS](https://www.chromium.org/developers/mus-ash) for the user interface.
+* [Aura](https://www.chromium.org/developers/design-documents/aura/aura-overview) for the user interface.
+* [UI Service (MUS)](https://www.chromium.org/developers/mus-ash) for windowing.
 * [Ozone](https://chromium.googlesource.com/chromium/src/+/master/docs/ozone_overview.md) as a platform abstraction layer together with the [upstream Wayland backend](https://chromium.googlesource.com/chromium/src.git/+/master/ui/ozone/platform/wayland/).
 * [Mojo](https://chromium.googlesource.com/chromium/src/+/master/mojo) to perform IPC communication.
 
@@ -22,10 +23,8 @@ Linux Desktop for X11.
 
 ![Logo](chrome/app/theme/chromium/product_logo_64.png) Chromium
 
-Chromium is an open-source browser project that aims to build a safer, faster,
-and more stable way for all users to experience the web.
-
-The project's web site is https://www.chromium.org.
+[Chromium](https://www.chromium.org) is an open-source browser project that aims to build a safer, faster,
+and more stable way for all users to experience the Web.
 
 Documentation in the source is rooted in [docs/README.md](docs/README.md).
 
@@ -41,12 +40,13 @@ and
 Here is the summary of commands to build and run Chrome for Wayland:
 
 ```
-gn args out/Ozone --args="use_ozone=true enable_package_mash_services=true use_xkbcommon=true is_debug=false"
+gn args out/Ozone --args="use_ozone=true enable_package_mash_services=true use_xkbcommon=true"
 ninja -C out/Ozone chrome
 ./out/Ozone/chrome --mus --ozone-platform=wayland
 
 Note that GN defaults to debug builds, which naturally take longer to finish and produce slower binaries at runtime. The 'is_debug=false' GN arguments disables it.
 
+It is also possible to enable proprietary codecs (so that mp4, h264 medias play) with the following GN args: 'proprietary_codecs=true ffmpeg_branding=\"Chrome\"'.
 ```
 
 By default, the `headless`, `x11` and `wayland` Ozone backends are
@@ -69,9 +69,9 @@ One can also run automated unit tests. For example to check the MUS demo and
 window server:
 
 ```
-ninja -C out/Ozone mus_ws_unittests mus_demo_unittests
-./out/Ozone/mus_demo_unittests
-./out/Ozone/mus_ws_unittests
+ninja -C out/Ozone ozone_unittests services_unittests # which includes 'mus_demo_unittests'
+./out/Ozone/services_unittests
+./out/Ozone/ozone_unittests
 ```
 
 Note that `--ozone-platform` can be passed to all the programs above to select
@@ -122,11 +122,11 @@ Chromium baseline of the branch.
 compilation targets:
 
 ```
-chrome mash:all  mus_ws_unittests  base_unittests services/ui/demo mus_*_unittests ozone_unittests mus_demo_unittests
+chrome mash:all services_unittests base_unittests ozone_unittests
 ```
 ... on LinuxOS and ChromeOS builds.
 
-Pass `mus_demo` and `mus_demo_unittests` tests.
+Pass `mus_demo`, `services_unittests` and `ozone_unittests` tests.
 
 Run chrome --mash / --mus on the configurations above, and performance some sanity tests:
 basic mouse clicking / keyboard; basic navigation; multi window creation; etc.
