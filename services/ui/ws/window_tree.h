@@ -164,7 +164,12 @@ class WindowTree : public mojom::WindowTree,
   WindowServer* window_server() { return window_server_; }
   const WindowServer* window_server() const { return window_server_; }
 
-  void WillCreateRootDisplay(Id transport_window_id) {
+  // Called from WindowTreeHostFactory when creating a new ws::Display.
+  // The Id is stored, and set to the WindowManagerDisplayRoot::root_,
+  // which hosts the content embedded by the client.
+  //
+  // Used in external window mode.
+  void prepare_to_create_root_display(Id transport_window_id) {
     pending_client_window_id_ = transport_window_id;
   }
 
@@ -758,7 +763,8 @@ class WindowTree : public mojom::WindowTree,
       base::flat_map<base::UnguessableToken, mojom::WindowTreeClientPtr>;
   ScheduledEmbeds scheduled_embeds_;
 
-  // TODO(tonikitoo,msisov): Add a comment.
+  // Temporarily stores the Id to be set to the WindowManagerDisplayRoot::root_,
+  // which hosts the content embedded by the client.
   Id pending_client_window_id_ = kInvalidClientId;
 
   // A weak ptr factory for callbacks from the window manager for when we send

@@ -219,6 +219,12 @@ void WindowTree::ConfigureWindowManager(
   automatically_create_display_roots_ = automatically_create_display_roots;
   window_manager_internal_ = binding_->GetWindowManager();
   window_manager_internal_->OnConnect();
+
+  if (window_server_->IsInExternalWindowMode()) {
+    window_tree_host_factory_.reset(
+        new WindowTreeHostFactory(window_server_, user_id_));
+    return;
+  }
   window_manager_state_ = base::MakeUnique<WindowManagerState>(this);
 }
 

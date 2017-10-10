@@ -116,8 +116,8 @@ class AURA_EXPORT WindowTreeClient
   // Establishes the connection by way of the WindowTreeFactory.
   void ConnectViaWindowTreeFactory();
 
-  // Establishes the connection by way of the WindowTreeFactoryHost.
-  void ConnectViaWindowTreeHostFactory();
+  // Establishes the connection by way of the ExternalWindowTreeFactory.
+  void ConnectViaExternalWindowTreeFactory();
 
   // Establishes the connection by way of WindowManagerWindowTreeFactory.
   // See mojom for details on |automatically_create_display_roots|.
