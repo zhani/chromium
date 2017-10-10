@@ -28,7 +28,7 @@ void WindowTreeHostFactory::CreatePlatformWindow(
     mojom::WindowTreeHostRequest tree_host_request,
     Id transport_window_id) {
   WindowTree* tree = window_server_->GetTreeForExternalWindowMode();
-  tree->WillCreateRootDisplay(transport_window_id);
+  tree->prepare_to_create_root_display(transport_window_id);
 
   Display* ws_display = new Display(window_server_);
 

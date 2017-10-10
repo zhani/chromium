@@ -286,7 +286,7 @@ WindowTreeClient::~WindowTreeClient() {
   CHECK(windows_.empty());
 }
 
-void WindowTreeClient::ConnectViaWindowTreeHostFactory() {
+void WindowTreeClient::ConnectViaExternalWindowTreeFactory() {
   ui::mojom::ExternalWindowTreeFactoryPtr factory;
   connector_->BindInterface(ui::mojom::kServiceName, &factory);
 
@@ -1153,8 +1153,8 @@ void WindowTreeClient::OnEmbed(
     bool drawn,
     const base::Optional<viz::LocalSurfaceId>& local_surface_id) {
   if (in_external_window_mode_) {
-    // No need to set 'tree_ptr_' whether it was already set during
-    // ConnectViaWindowTreeHostFactory.
+    // No need to set 'tree_ptr_' since it was already set during
+    // ConnectViaExternalWindowTreeFactory.
     DCHECK(tree_ptr_);
     DCHECK(!tree);
 

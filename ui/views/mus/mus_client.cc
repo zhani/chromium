@@ -118,7 +118,7 @@ MusClient::MusClient(service_manager::Connector* connector,
       nullptr /* window_tree_client_request */, std::move(io_task_runner),
       create_discardable_memory);
   aura::Env::GetInstance()->SetWindowTreeClient(window_tree_client_.get());
-  window_tree_client_->ConnectViaWindowTreeHostFactory();
+  window_tree_client_->ConnectViaExternalWindowTreeFactory();
 #else
   window_tree_client_ = std::make_unique<aura::WindowTreeClient>(
       connector, this, nullptr /* window_manager_delegate */,

@@ -66,7 +66,7 @@ void MusDemoExternal::OnStartImpl() {
     }
   }
 
-  window_tree_client()->ConnectViaWindowTreeHostFactory();
+  window_tree_client()->ConnectViaExternalWindowTreeFactory();
 
   // TODO(tonikitoo,fwang): Implement management of displays in external mode.
   // For now, a fake display is created in order to work around an assertion in
