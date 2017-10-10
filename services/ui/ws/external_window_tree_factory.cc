@@ -4,9 +4,7 @@
 
 #include "services/ui/ws/external_window_tree_factory.h"
 
-#include "services/ui/ws/window_manager_access_policy.h"
 #include "services/ui/ws/window_server.h"
-#include "services/ui/ws/window_server_delegate.h"
 #include "services/ui/ws/window_tree.h"
 
 namespace ui {
@@ -22,40 +20,12 @@ ExternalWindowTreeFactory::~ExternalWindowTreeFactory() {}
 void ExternalWindowTreeFactory::Register(
     mojom::WindowTreeRequest tree_request,
     mojom::WindowTreeClientPtr tree_client) {
-  // NOTE: The code below is analogous to WS::CreateTreeForWindowManager,
-  // but for the sake of an easier rebase, we are concentrating additions
-  // like this here.
-
+  // TODO(tonikitoo,msisov): Propose removing the bulk of "window manager"
+  // suffix in methods and class names.
   bool automatically_create_display_roots = true;
-
-  // TODO(tonikitoo,msisov): Maybe remove the "window manager" suffix
-  // if the method name?
-  window_server_->delegate()->OnWillCreateTreeForWindowManager(
+  window_server_->CreateTreeForWindowManager(
+      user_id_, std::move(tree_request), std::move(tree_client),
       automatically_create_display_roots);
-
-  // FIXME(tonikitoo,msisov,fwang): Do we need our own AccessPolicy?
-  std::unique_ptr<ws::WindowTree> tree(
-      new ws::WindowTree(window_server_, user_id_, nullptr /*ServerWindow*/,
-                         base::WrapUnique(new WindowManagerAccessPolicy)));
-
-  std::unique_ptr<ws::DefaultWindowTreeBinding> tree_binding(
-      new ws::DefaultWindowTreeBinding(tree.get(), window_server_,
-                                       std::move(tree_request),
-                                       std::move(tree_client)));
-
-  // Pass nullptr as mojom::WindowTreePtr (3rd parameter), because in external
-  // window mode, the WindowTreePtr is created on the aura/WindowTreeClient
-  // side.
-  //
-  // NOTE: WindowServer::AddTree calls WindowTree::Init, which can trigger a
-  // WindowTreeClient::OnEmbed call. In the particular flow though, WTC::OnEmbed
-  // will not get called because the WindowTree instance was created above
-  // taking 'nullptr' as the ServerWindow parameter, hence the WindowTree has no
-  // 'root' yet.
-  WindowTree* tree_ptr = tree.get();
-  window_server_->AddTree(std::move(tree), std::move(tree_binding),
-                          nullptr /*mojom::WindowTreePtr*/);
-  tree_ptr->ConfigureRootWindowTreeClient(automatically_create_display_roots);
 }
 
 }  // namespace ws
