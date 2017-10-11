@@ -33,7 +33,7 @@ void WindowTreeHostFactory::CreatePlatformWindow(
     Id transport_window_id,
     const TransportProperties& transport_properties) {
   WindowTree* tree = window_server_->GetTreeForExternalWindowMode();
-  tree->WillCreateRootDisplay(transport_window_id);
+  tree->prepare_to_create_root_display(transport_window_id);
 
   Display* ws_display = new Display(window_server_);
 
