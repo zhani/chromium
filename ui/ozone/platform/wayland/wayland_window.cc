@@ -294,6 +294,7 @@ void WaylandWindow::Restore() {
     ToggleFullscreen();
 
   if (IsMaximized()) {
+    previous_bounds_in_pixels_ = bounds_;
     xdg_surface_->UnSetMaximized();
     connection_->ScheduleFlush();
   }
@@ -425,18 +426,17 @@ void WaylandWindow::HandleSurfaceConfigure(int32_t width,
 
   ui::PlatformWindowState state =
       ui::PlatformWindowState::PLATFORM_WINDOW_STATE_NORMAL;
-  if (is_minimized_ != was_minimized_) {
-    if (is_minimized_) {
-      state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MINIMIZED;
-    } else {
-      was_minimized_ = false;
-      // When the window is recovered from minimized state, set state to the
-      // previous state.
-      state = IsMaximized()
-                  ? ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MAXIMIZED
-                  : ui::PlatformWindowState::PLATFORM_WINDOW_STATE_NORMAL;
-    }
+  if (IsMaximized())
+    state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MAXIMIZED;
+  else if (IsMinimized())
+    state = ui::PlatformWindowState::PLATFORM_WINDOW_STATE_MINIMIZED;
+
+  if ((previous_bounds_in_pixels_.IsEmpty() &&
+       IsMaximized() != was_maximized) ||
+      IsMinimized() != was_minimized_) {
     delegate_->OnWindowStateChanged(state);
+    if (!is_minimized_)
+      was_minimized_ = false;
   }
 
   was_active_ = is_active_;
@@ -449,6 +449,7 @@ void WaylandWindow::HandleSurfaceConfigure(int32_t width,
   // when it has finished processing events. We may get many configure events
   // in a row during an interactive resize, and only the last one matters.
   pending_bounds_ = gfx::Rect(0, 0, width, height);
+  previous_bounds_in_pixels_ = gfx::Rect();
 }
 
 void WaylandWindow::OnCloseRequest() {
