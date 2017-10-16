@@ -81,7 +81,10 @@ bool WaylandCursor::CreateSharedMemoryBuffer(int width, int height) {
   height_ = height;
   int stride = width_ * 4;
   SkImageInfo info = SkImageInfo::MakeN32Premul(width_, height_);
-  int size = info.getSafeSize(stride);
+
+  size_t size = info.computeByteSize(stride);
+  if (size == SK_MaxSizeT)
+    return false;
 
   if (shared_memory_->handle().GetHandle()) {
     shared_memory_->Unmap();
