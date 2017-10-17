@@ -19,6 +19,15 @@ source_set("platform_window") {
     "//ui/base/ime:text_input_types",
     "//ui/gfx",
   ]
+
+  if (use_ozone && !is_chromeos) {
+    sources += [
+      "whole_screen_move_loop.cc",
+      "whole_screen_move_loop.h",
+      "window_move_loop_client.cc",
+      "window_move_loop_client.h",
+    ]
+  }
 }
 
 group("platform_impls") {
