@@ -146,6 +146,15 @@ gfx::Rect DrmWindowHost::GetRestoredBoundsInPixels() const {
   return gfx::Rect();
 }
 
+void DrmWindowHost::StartWindowMoveOrResize(int hittest,
+                                            gfx::Point pointer_location) {}
+
+bool DrmWindowHost::RunMoveLoop(const gfx::Vector2d& drag_offset) {
+  return false;
+}
+
+void DrmWindowHost::StopMoveLoop() {}
+
 bool DrmWindowHost::CanDispatchEvent(const PlatformEvent& event) {
   DCHECK(event);
 

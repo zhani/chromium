@@ -79,6 +79,10 @@ class DrmWindowHost : public PlatformWindow,
   PlatformImeController* GetPlatformImeController() override;
   void SetRestoredBoundsInPixels(const gfx::Rect& bounds) override;
   gfx::Rect GetRestoredBoundsInPixels() const override;
+  void StartWindowMoveOrResize(int hittest,
+                               gfx::Point pointer_location) override;
+  bool RunMoveLoop(const gfx::Vector2d& drag_offset) override;
+  void StopMoveLoop() override;
 
   // PlatformEventDispatcher:
   bool CanDispatchEvent(const PlatformEvent& event) override;
