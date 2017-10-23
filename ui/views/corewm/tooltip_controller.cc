@@ -334,10 +334,6 @@ void TooltipController::UpdateIfRequired() {
 }
 
 void TooltipController::ShowTooltip() {
-#if defined(USE_OZONE) && defined(OS_LINUX) && !defined(OS_CHROMEOS)
-  return;
-#endif
-
   if (!tooltip_window_)
     return;
   gfx::Point widget_loc =
