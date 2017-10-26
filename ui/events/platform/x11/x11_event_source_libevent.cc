@@ -99,11 +99,10 @@ std::unique_ptr<ui::Event> TranslateXEventToEvent(const XEvent& xev) {
   switch (xev.type) {
     case LeaveNotify:
     case EnterNotify:
-      return std::make_unique<MouseEvent>(ET_MOUSE_MOVED,
-                                          EventLocationFromXEvent(xev),
-                                          EventSystemLocationFromXEvent(xev),
-                                          EventTimeFromXEvent(xev), flags, 0);
-
+      return std::make_unique<MouseEvent>(
+          xev.type == EnterNotify ? ET_MOUSE_MOVED : ET_MOUSE_EXITED,
+          EventLocationFromXEvent(xev), EventSystemLocationFromXEvent(xev),
+          EventTimeFromXEvent(xev), flags, 0);
     case KeyPress:
     case KeyRelease:
       return std::make_unique<KeyEvent>(EventTypeFromXEvent(xev),

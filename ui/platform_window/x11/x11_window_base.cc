@@ -184,6 +184,7 @@ void X11WindowBase::Create() {
   // Setup XInput event mask.
   long event_mask = ButtonPressMask | ButtonReleaseMask | FocusChangeMask |
                     KeyPressMask | KeyReleaseMask | ExposureMask |
+                    EnterWindowMask | LeaveWindowMask |
                     VisibilityChangeMask | StructureNotifyMask |
                     PropertyChangeMask | PointerMotionMask;
 
