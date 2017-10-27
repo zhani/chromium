@@ -2,9 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ui/platform_window/whole_screen_move_loop.h"
-
-#include "ui/platform_window/window_move_loop_client.h"
+#include "ui/platform_window/x11/whole_screen_move_loop.h"
 
 #include <stddef.h>
 #include <X11/keysym.h>

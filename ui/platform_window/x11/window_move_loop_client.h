@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef UI_PLATFORM_WINDOW_WINDOW_MOVE_LOOP_CLIENT_H_
-#define UI_PLATFORM_WINDOW_WINDOW_MOVE_LOOP_CLIENT_H_
+#ifndef UI_PLATFORM_WINDOW_X11_WINDOW_MOVE_LOOP_CLIENT_H_
+#define UI_PLATFORM_WINDOW_X11_WINDOW_MOVE_LOOP_CLIENT_H_
 
 #include <X11/Xlib.h>
 
@@ -12,7 +12,7 @@
 #include "base/message_loop/message_loop.h"
 #include "ui/gfx/geometry/point.h"
 #include "ui/views/views_export.h"
-#include "ui/platform_window/whole_screen_move_loop.h"
+#include "ui/platform_window/x11/whole_screen_move_loop.h"
 #include "ui/wm/public/window_move_client.h"
 
 namespace ui {
@@ -50,4 +50,4 @@ class WindowMoveLoopClient : public views::X11MoveLoopDelegate {
 
 }  // namespace ui
 
-#endif  // UI_PLATFORM_WINDOW_WINDOW_MOVE_LOOP_CLIENT_H_
+#endif  // UI_PLATFORM_WINDOW_X11_WINDOW_MOVE_LOOP_CLIENT_H_
