@@ -50,6 +50,8 @@ class X11_WINDOW_EXPORT X11WindowBase : public PlatformWindow {
   void ConfineCursorToBounds(const gfx::Rect& bounds) override;
   PlatformImeController* GetPlatformImeController() override;
   void PerformNativeWindowDragOrResize(uint32_t hittest) override;
+  bool RunMoveLoop(const gfx::Vector2d& drag_offset) override;
+  void StopMoveLoop() override;
 
  protected:
   void Destroy();

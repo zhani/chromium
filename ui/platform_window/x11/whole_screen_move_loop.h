@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef UI_PLATFORM_WINDOW_WHOLE_SCREEN_MOVE_LOOP_H_
-#define UI_PLATFORM_WINDOW_WHOLE_SCREEN_MOVE_LOOP_H_
+#ifndef UI_PLATFORM_WINDOW_X11_WHOLE_SCREEN_MOVE_LOOP_H_
+#define UI_PLATFORM_WINDOW_X11_WHOLE_SCREEN_MOVE_LOOP_H_
 
 #include <stdint.h>
 
@@ -87,4 +87,4 @@ class WholeScreenMoveLoop : public ui::PlatformEventDispatcher {
 
 }  // namespace ui
 
-#endif  // UI_PLATFORM_WINDOW_WHOLE_SCREEN_MOVE_LOOP_H_
+#endif  // UI_PLATFORM_WINDOW_X11_WHOLE_SCREEN_MOVE_LOOP_H_

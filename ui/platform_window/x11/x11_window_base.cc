@@ -419,6 +419,12 @@ void X11WindowBase::PerformNativeWindowDragOrResize(uint32_t hittest) {
              SubstructureRedirectMask | SubstructureNotifyMask, &event);
 }
 
+bool X11WindowBase::RunMoveLoop(const gfx::Vector2d& drag_offset) {
+  return false;
+}
+
+void X11WindowBase::StopMoveLoop() {}
+
 bool X11WindowBase::IsEventForXWindow(const XEvent& xev) const {
   return xwindow_ != None && FindXEventTarget(xev) == xwindow_;
 }
