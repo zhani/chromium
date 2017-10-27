@@ -26,5 +26,10 @@ bool ExternalWindowAccessPolicy::CanSetWindowProperties(
          delegate_->HasRootForAccessPolicy(window);
 }
 
+bool ExternalWindowAccessPolicy::CanInitiateMoveLoop(
+    const ServerWindow* window) const {
+  return delegate_->HasRootForAccessPolicy(window);
+}
+
 }  // namespace ws
 }  // namespace ui
