@@ -2344,7 +2344,7 @@ void WindowTreeClient::OnWindowTreeHostConfineCursorToBounds(
 std::unique_ptr<WindowPortMus> WindowTreeClient::CreateWindowPortForTopLevel(
     const std::map<std::string, std::vector<uint8_t>>* properties) {
   WindowMusType window_type = in_external_window_mode_
-                                  ? WindowMusType::EMBED
+                                  ? WindowMusType::DISPLAY_MANUALLY_CREATED
                                   : WindowMusType::TOP_LEVEL;
 
   std::unique_ptr<WindowPortMus> window_port =
