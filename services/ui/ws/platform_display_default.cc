@@ -95,7 +95,12 @@ void PlatformDisplayDefault::Init(PlatformDisplayDelegate* delegate) {
   // a cursor loader after display is sent to it. Otherwise, Show()
   // triggers a delegate call to OnBoundsChanged(), which end up to
   // changing cursor location for not existing cursor loader.
+  //
+  // On Linux desktop defer PlatformWindow::Show call to the client,
+  // when reacting to 'ShowState' changes.
+#if !(defined(OS_LINUX) && defined(USE_OZONE) && !defined(OS_CHROMEOS))
   platform_window_->Show();
+#endif
 }
 
 void PlatformDisplayDefault::SetViewportSize(const gfx::Size& size) {
@@ -126,6 +131,9 @@ void PlatformDisplayDefault::SetWindowVisibility(bool visible) {
 }
 
 void PlatformDisplayDefault::SetNativeWindowState(ui::mojom::ShowState state) {
+  // TODO(tonikitoo,msisov): Rename to ShowWithState, as in WindowTreeHost{XXX}?
+  platform_window_->Show();
+
   switch (state) {
     case (ui::mojom::ShowState::MINIMIZED):
       platform_window_->ReleaseCapture();
