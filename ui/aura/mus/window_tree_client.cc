@@ -1155,8 +1155,9 @@ void WindowTreeClient::OnEmbed(
     // be initialized. It is done during start up as soon as
     // BrowserFrame::InitBrowserFrame() is called.
     DCHECK(window_tree_host->compositor()->root_layer());
-    ConfigureWindowDataFromServer(window_tree_host, *root_data,
-                                  local_surface_id);
+    // TODO(tonikitoo,msisov): We should probably call OnTopLevelCreated
+    // instead of OnEmbed.
+    OnTopLevelCreatedImpl(it->second, std::move(root_data), drawn, local_surface_id);
 
     // Pass a raw pointer to WindowTreeHostMus, which helps delegate to identify
     // which WindowTreeHostMus to use in case if there are many of them.
@@ -1246,6 +1247,14 @@ void WindowTreeClient::OnTopLevelCreated(
   // modified locally).
   window_tree_host->set_display_id(display_id);
 
+  OnTopLevelCreatedImpl(window, std::move(data), drawn, local_surface_id);
+}
+
+void WindowTreeClient::OnTopLevelCreatedImpl(
+    WindowMus* window,
+    ui::mojom::WindowDataPtr data,
+    bool drawn,
+    const base::Optional<viz::LocalSurfaceId>& local_surface_id) {
   // The default visibilty is false, we only need update visibility if it
   // differs from that.
   if (data->visible) {
