@@ -1869,10 +1869,10 @@ void WindowTree::SetWindowBounds(
       WindowManagerDisplayRoot* display_root =
           GetWindowManagerDisplayRoot(window);
       if (display_root && display_root->GetClientVisibleRoot() == window) {
+        Operation op(this, window_server_, OperationType::SET_WINDOW_BOUNDS);
         Display* display = GetDisplay(window);
         DCHECK(display);
         display->SetBounds(bounds);
-
         client()->OnChangeCompleted(change_id, success);
         return;
       }
