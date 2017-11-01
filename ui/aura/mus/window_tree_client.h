@@ -302,6 +302,13 @@ class AURA_EXPORT WindowTreeClient
                    bool drawn,
                    const base::Optional<viz::LocalSurfaceId>& local_surface_id);
 
+  // Called by OnTopLevelCreated() and OnEmbed() when in 'external window mode'.
+  void OnTopLevelCreatedImpl(
+      WindowMus* window,
+      ui::mojom::WindowDataPtr data,
+      bool drawn,
+      const base::Optional<viz::LocalSurfaceId>& local_surface_id);
+
   // Called by WmNewDisplayAdded().
   WindowTreeHostMus* WmNewDisplayAddedImpl(
       const display::Display& display,

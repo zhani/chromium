@@ -26,6 +26,11 @@ bool ExternalWindowAccessPolicy::CanSetWindowProperties(
          delegate_->HasRootForAccessPolicy(window);
 }
 
+bool ExternalWindowAccessPolicy::CanStackAtTop(const ServerWindow* window) const {
+  return WasCreatedByThisClient(window) ||
+         delegate_->HasRootForAccessPolicy(window);
+}
+
 bool ExternalWindowAccessPolicy::CanInitiateMoveLoop(
     const ServerWindow* window) const {
   return delegate_->HasRootForAccessPolicy(window);
