@@ -146,7 +146,7 @@ void WaylandWindow::CreateXdgPopup() {
       TranslateBoundsToScreenCoordinates(bounds_, parent_window_->GetBounds());
 
   xdg_popup_ = xdg_shell_objects_factory_->CreateXDGPopup(connection_, this);
-  if (!xdg_popup_.get() ||
+  if (!xdg_popup_ ||
       !xdg_popup_->Initialize(connection_, surface(), parent_window_->surface(),
                               bounds)) {
     CHECK(false) << "Failed to create xdg_popup";
