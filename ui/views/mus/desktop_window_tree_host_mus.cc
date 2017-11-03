@@ -220,7 +220,7 @@ DesktopWindowTreeHostMus::DesktopWindowTreeHostMus(
   NativeWidgetAura::RegisterNativeWidgetForWindow(desktop_native_widget_aura,
                                                   window());
 
-#if defined(OS_LINUX) && defined(USE_OZONE) && !(OS_CHROMEOS)
+#if defined(OS_LINUX) && defined(USE_OZONE) && !defined(OS_CHROMEOS)
   window()->AddObserver(this);
 #endif
 
@@ -875,7 +875,7 @@ void DesktopWindowTreeHostMus::OnWindowPropertyChanged(aura::Window* window,
   if (!this->window())
     return;
 
-#if defined(OS_LINUX) && defined(USE_OZONE) && !(OS_CHROMEOS)
+#if defined(OS_LINUX) && defined(USE_OZONE) && !defined(OS_CHROMEOS)
   // In ozone, the widget's client and non-client views must be updated once the
   // root window has its window state updated. Otherwise, once the host window
   // manager updates the window state, the views are out-dated and do not
