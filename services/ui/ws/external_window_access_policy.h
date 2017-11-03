@@ -25,7 +25,7 @@ class ExternalWindowAccessPolicy : public WindowManagerAccessPolicy {
   // WindowManagerAccessPolicy:
   bool CanSetWindowBounds(const ServerWindow* window) const override;
   bool CanSetWindowProperties(const ServerWindow* window) const override;
-  bool CanStackAtTop(const ServerWindow* window) const;
+  bool CanStackAtTop(const ServerWindow* window) const override;
   bool CanInitiateMoveLoop(const ServerWindow* window) const override;
 
   DISALLOW_COPY_AND_ASSIGN(ExternalWindowAccessPolicy);
