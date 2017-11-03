@@ -529,7 +529,7 @@ WaylandWindow* WaylandWindow::GetParentWindow() {
   // parent.
   if (parent_window && parent_window->child_window_)
     return parent_window->child_window_;
-  else if (!parent_window)
+  if (!parent_window)
     return connection_->GetCurrentFocusedWindow();
   return parent_window;
 }
