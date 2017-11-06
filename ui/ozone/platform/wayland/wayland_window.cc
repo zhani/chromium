@@ -212,9 +212,12 @@ void WaylandWindow::Show() {
 
 void WaylandWindow::Hide() {
   if (is_tooltip_) {
-    tooltip_subsurface_.reset();
     wl_surface_attach(surface_.get(), NULL, 0, 0);
     wl_surface_commit(surface_.get());
+    // Tooltip subsurface must be reset only after the buffer is detached.
+    // Otherwise, gnome shell, for example, can end up with broken event
+    // pipe.
+    tooltip_subsurface_.reset();
     return;
   }
   if (child_window_)
