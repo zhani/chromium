@@ -80,6 +80,8 @@ class Display : public PlatformDisplayDelegate,
   // PlatformDisplayDelegate:
   const display::Display& GetDisplay() override;
 
+  const display::ViewportMetrics& GetViewportMetrics() const;
+
   DisplayManager* display_manager();
   const DisplayManager* display_manager() const;
 
