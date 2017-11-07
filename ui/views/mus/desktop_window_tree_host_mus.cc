@@ -835,10 +835,6 @@ bool DesktopWindowTreeHostMus::ShouldCreateVisibilityController() const {
   return false;
 }
 
-void DesktopWindowTreeHostMus::PerformNativeWindowDragOrResize(int hittest) {
-  WindowTreeHostMus::PerformNativeWindowDragOrResize(hittest);
-}
-
 void DesktopWindowTreeHostMus::OnWindowManagerFrameValuesChanged() {
   NonClientView* non_client_view =
       native_widget_delegate_->AsWidget()->non_client_view();

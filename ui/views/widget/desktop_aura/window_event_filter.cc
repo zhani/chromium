@@ -18,6 +18,7 @@
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host.h"
 #include "ui/views/widget/native_widget_aura.h"
 #include "ui/views/widget/widget.h"
+#include "ui/aura/mus/window_tree_host_mus.h"
 
 namespace views {
 
@@ -175,7 +176,12 @@ void WindowEventFilter::MaybeDispatchHostWindowDragMovement(int hittest,
   if ((event->type() == ui::ET_TOUCH_PRESSED ||
        event->AsMouseEvent()->IsLeftMouseButton()) &&
       CanPerformDragOrResize(hittest)) {
-    window_tree_host_->PerformNativeWindowDragOrResize(hittest);
+    auto* target = static_cast<aura::Window*>(event->target());
+    if (target) {
+      aura::WindowTreeHostMus* wth = aura::WindowTreeHostMus::ForWindow(target);
+      DCHECK(wth);
+      wth->PerformNativeWindowDragOrResize(hittest);
+    }
     event->StopPropagation();
   }
 }

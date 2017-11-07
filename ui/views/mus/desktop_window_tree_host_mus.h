@@ -133,7 +133,6 @@ class VIEWS_MUS_EXPORT DesktopWindowTreeHostMus
   bool ShouldUpdateWindowTransparency() const override;
   bool ShouldUseDesktopNativeCursorManager() const override;
   bool ShouldCreateVisibilityController() const override;
-  void PerformNativeWindowDragOrResize(int hittest) override;
 
   // MusClientObserver:
   void OnWindowManagerFrameValuesChanged() override;
