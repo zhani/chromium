@@ -585,16 +585,6 @@ std::unique_ptr<WindowTreeHostMus> WindowTreeClient::CreateWindowTreeHost(
   std::unique_ptr<WindowTreeHostMus> window_tree_host =
       std::make_unique<WindowTreeHostMus>(std::move(init_params));
   window_tree_host->InitHost();
-
-  ConfigureWindowDataFromServer(window_tree_host.get(), window_data,
-                                local_surface_id);
-  return window_tree_host;
-}
-
-void WindowTreeClient::ConfigureWindowDataFromServer(
-    WindowTreeHostMus* window_tree_host,
-    const ui::mojom::WindowData& window_data,
-    const base::Optional<viz::LocalSurfaceId>& local_surface_id) {
   SetLocalPropertiesFromServerProperties(
       WindowMus::Get(window_tree_host->window()), window_data);
   if (window_data.visible) {
@@ -604,6 +594,7 @@ void WindowTreeClient::ConfigureWindowDataFromServer(
   WindowMus* window = WindowMus::Get(window_tree_host->window());
 
   SetWindowBoundsFromServer(window, window_data.bounds, local_surface_id);
+  return window_tree_host;
 }
 
 WindowMus* WindowTreeClient::NewWindowFromWindowData(
