@@ -50,6 +50,11 @@ void WaylandPointer::Leave(void* data,
                            wl_pointer* obj,
                            uint32_t serial,
                            wl_surface* surface) {
+  WaylandPointer* pointer = static_cast<WaylandPointer*>(data);
+  MouseEvent event(ET_MOUSE_EXITED, gfx::Point(), gfx::Point(),
+                   EventTimeForNow(), pointer->flags_, 0);
+  pointer->callback_.Run(&event);
+
   if (surface)
     WaylandWindow::FromSurface(surface)->set_pointer_focus(false);
 }

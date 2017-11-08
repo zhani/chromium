@@ -166,7 +166,15 @@ void WaylandWindow::CreateXdgSurface() {
 
 void WaylandWindow::CreateTooltipSubSurface() {
   parent_window_ = GetParentWindow();
-  DCHECK(parent_window_);
+
+  // Tooltip creation is an async operation. By the time Mus actually start to
+  // create the tooltip, it is possible that user has already moved the
+  // mouse/pointer out of the window who triggered the tooptip. In this case,
+  // parent_window_ is NULL.
+  if (!parent_window_) {
+    Hide();
+    return;
+  }
 
   wl_subcompositor* subcompositor = connection_->subcompositor();
   DCHECK(subcompositor);
