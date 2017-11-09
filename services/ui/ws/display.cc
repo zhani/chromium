@@ -92,7 +92,10 @@ void Display::Init(const display::ViewportMetrics& metrics,
 }
 
 int64_t Display::GetId() const {
-  // TODO(tonikitoo): Implement a different ID for external window mode.
+  if (window_server_->IsInExternalWindowMode()) {
+    DCHECK_NE(external_window_id_, -1);
+    return external_window_id_;
+  }
   return display_.id();
 }
 
@@ -104,6 +107,10 @@ void Display::SetDisplay(const display::Display& display) {
 
 const display::Display& Display::GetDisplay() {
   return display_;
+}
+
+const display::ViewportMetrics& Display::GetViewportMetrics() const {
+  return platform_display_->GetViewportMetrics();
 }
 
 DisplayManager* Display::display_manager() {
@@ -322,6 +329,11 @@ void Display::CreateRootWindow(const gfx::Rect& bounds) {
   root_->SetVisible(true);
   focus_controller_ = base::MakeUnique<FocusController>(root_.get());
   focus_controller_->AddObserver(this);
+
+  if (window_server_->IsInExternalWindowMode()) {
+    DCHECK_EQ(external_window_id_, -1);
+    external_window_id_ = (id.client_id << 16) | id.window_id;
+  }
 }
 
 void Display::UpdateCursorConfig() {
@@ -543,7 +555,7 @@ EventDispatchDetails Display::OnEventFromSource(Event* event) {
   WindowManagerDisplayRoot* display_root = GetActiveWindowManagerDisplayRoot();
   if (display_root) {
     WindowManagerState* wm_state = display_root->window_manager_state();
-    wm_state->ProcessEvent(*event, GetId());
+    wm_state->ProcessEvent(event, GetId());
   }
 
   UserActivityMonitor* activity_monitor =
