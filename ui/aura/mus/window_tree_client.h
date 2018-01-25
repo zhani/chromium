@@ -369,6 +369,8 @@ class AURA_EXPORT WindowTreeClient
   void OnWmMoveLoopCompleted(uint32_t change_id, bool completed);
 
   // Overridden from WindowTreeClient:
+  void OnAcceleratedWidgetAvailable(Id window_id,
+                                    gpu::SurfaceHandle surface_handle) override;
   void OnEmbed(
       ui::mojom::WindowDataPtr root,
       ui::mojom::WindowTreePtr tree,

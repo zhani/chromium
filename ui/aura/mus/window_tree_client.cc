@@ -1192,6 +1192,18 @@ void WindowTreeClient::SetEventTargetingPolicy(
   tree_->SetEventTargetingPolicy(window->server_id(), policy);
 }
 
+void WindowTreeClient::OnAcceleratedWidgetAvailable(
+    Id window_id,
+    gpu::SurfaceHandle surface_handle) {
+  WindowMus* window = GetWindowByServerId(window_id);
+  if (!window)
+    return;
+
+  WindowTreeHostMus* host = GetWindowTreeHostMus(window);
+  DCHECK(host);
+  host->OverrideAcceleratedWidget(surface_handle);
+}
+
 void WindowTreeClient::OnEmbed(
     ui::mojom::WindowDataPtr root_data,
     ui::mojom::WindowTreePtr tree,
