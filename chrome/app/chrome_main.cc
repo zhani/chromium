@@ -76,6 +76,11 @@ void ConfigureMus(content::ContentMainParams* params) {
   if (command_line->HasSwitch(switches::kMus)) {
     params->create_discardable_memory = true;
     params->env_mode = aura::Env::Mode::MUS;
+    // TODO(786453): Remove when mus no longer needs to host viz.
+    base::CommandLine::ForCurrentProcess()->AppendSwitch(
+        switches::kMus);
+    base::CommandLine::ForCurrentProcess()->AppendSwitch(
+        switches::kMusHostingViz);
   }
 }
 #endif  // BUILDFLAG(ENABLE_MUS)
