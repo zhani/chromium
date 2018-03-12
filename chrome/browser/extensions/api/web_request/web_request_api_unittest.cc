@@ -139,19 +139,6 @@ void GetPartOfMessageArguments(IPC::Message* message,
   ASSERT_TRUE(list.GetDictionary(0, out));
 }
 
-base::Value FormBinaryValue(base::StringPiece str) {
-  base::Value list(base::Value::Type::LIST);
-  list.GetList().emplace_back(base::Value(
-      base::Value::BlobStorage(str.data(), str.data() + str.size())));
-  return list;
-}
-
-base::Value FormStringValue(base::StringPiece str) {
-  base::Value list(base::Value::Type::LIST);
-  list.GetList().emplace_back(base::Value(str));
-  return list;
-}
-
 }  // namespace
 
 // A mock event router that responds to events with a pre-arranged queue of
@@ -605,26 +592,17 @@ TEST_F(ExtensionWebRequestTest, AccessRequestBodyData) {
   const size_t kPlainBlock2Length = sizeof(kPlainBlock2) - 1;
   std::vector<char> plain_2(kPlainBlock2, kPlainBlock2 + kPlainBlock2Length);
 #define kBoundary "THIS_IS_A_BOUNDARY"
-  const char kFormBlock1[] =
-      "--" kBoundary
-      "\r\n"
+  const char kFormBlock1[] = "--" kBoundary "\r\n"
       "Content-Disposition: form-data; name=\"A\"\r\n"
       "\r\n"
       "test text\r\n"
-      "--" kBoundary
-      "\r\n"
+      "--" kBoundary "\r\n"
       "Content-Disposition: form-data; name=\"B\"; filename=\"\"\r\n"
       "Content-Type: application/octet-stream\r\n"
-      "\r\n"
-      "--" kBoundary
-      "\r\n"
-      "Content-Disposition: form-data; name=\"B_content\"\r\n"
-      "Content-Type: application/octet-stream\r\n"
-      "\r\n"
-      "\uffff\uffff\uffff\uffff\r\n"
-      "--" kBoundary "\r\n";
+      "\r\n";
   std::vector<char> form_1(kFormBlock1, kFormBlock1 + sizeof(kFormBlock1) - 1);
-  const char kFormBlock2[] =
+  const char kFormBlock2[] = "\r\n"
+      "--" kBoundary "\r\n"
       "Content-Disposition: form-data; name=\"C\"\r\n"
       "\r\n"
       "test password\r\n"
