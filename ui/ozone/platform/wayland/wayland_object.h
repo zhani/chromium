@@ -38,6 +38,13 @@ struct zxdg_positioner_v6;
 struct zwp_text_input_manager_v1;
 struct zwp_text_input_v1;
 
+#if defined(OS_WEBOS)
+struct wl_shell;
+struct wl_shell_surface;
+struct wl_webos_shell;
+struct wl_webos_shell_surface;
+#endif
+
 namespace wl {
 
 template <typename T>
@@ -216,6 +223,32 @@ struct ObjectTraits<zwp_text_input_v1> {
   static const wl_interface* interface;
   static void (*deleter)(zwp_text_input_v1*);
 };
+
+#if defined(OS_WEBOS)
+template <>
+struct ObjectTraits<wl_shell> {
+  static const wl_interface* interface;
+  static void (*deleter)(wl_shell*);
+};
+
+template <>
+struct ObjectTraits<wl_shell_surface> {
+  static const wl_interface* interface;
+  static void (*deleter)(wl_shell_surface*);
+};
+
+template <>
+struct ObjectTraits<wl_webos_shell> {
+  static const wl_interface* interface;
+  static void (*deleter)(wl_webos_shell*);
+};
+
+template <>
+struct ObjectTraits<wl_webos_shell_surface> {
+  static const wl_interface* interface;
+  static void (*deleter)(wl_webos_shell_surface*);
+};
+#endif
 
 struct Deleter {
   template <typename T>

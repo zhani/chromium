@@ -6,8 +6,13 @@
 
 // This doesn't matter for aura, which has different tiling.
 // static
+#if defined(OS_WEBOS)
+const int WindowSizer::kWindowTilePixels = 0;
+const int WindowSizer::kWindowMaxDefaultWidth = 1920;
+#else
 const int WindowSizer::kWindowTilePixels = 10;
 const int WindowSizer::kWindowMaxDefaultWidth = 1050;
+#endif
 
 // static
 gfx::Point WindowSizer::GetDefaultPopupOrigin(const gfx::Size& size) {

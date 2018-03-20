@@ -19,6 +19,10 @@
 #include "ui/ozone/platform/wayland/xdg_surface_wrapper_v5.h"
 #include "ui/ozone/platform/wayland/xdg_surface_wrapper_v6.h"
 
+#if defined(OS_WEBOS)
+#include "ui/ozone/platform/wayland/webos_surface_wrapper.h"
+#endif
+
 namespace ui {
 
 namespace {
@@ -156,8 +160,12 @@ void WaylandWindow::CreateXdgPopup() {
 }
 
 void WaylandWindow::CreateXdgSurface() {
+#if !defined(OS_WEBOS)
   xdg_surface_ =
       xdg_shell_objects_factory_->CreateXDGSurface(connection_, this);
+#else
+  xdg_surface_ =  std::make_unique<WebOSSurfaceWrapper>(this);
+#endif
   if (!xdg_surface_ ||
       !xdg_surface_->Initialize(connection_, surface_.get(), true)) {
     CHECK(false) << "Failed to create xdg_surface";

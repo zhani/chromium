@@ -299,7 +299,7 @@ void WindowSizer::GetDefaultWindowBounds(const display::Display& display,
                                kWindowMaxDefaultWidth);
   int default_height = work_area.height() - 2 * kWindowTilePixels;
 
-#if !defined(OS_MACOSX)
+#if !defined(OS_MACOSX) && !defined(OS_WEBOS)
   // For wider aspect ratio displays at higher resolutions, we might size the
   // window narrower to allow two windows to easily be placed side-by-side.
   gfx::Rect screen_size = screen_->GetPrimaryDisplay().bounds();

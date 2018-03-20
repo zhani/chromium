@@ -131,7 +131,7 @@ declare_args() {
   is_official_build = false
 
   # Whether we're a traditional desktop unix.
-  is_desktop_linux = current_os == "linux"
+  is_desktop_linux = current_os == "linux" || current_os == "webos"
 
   # Set to true when compiling with the Clang compiler. Typically this is used
   # to configure warnings.
@@ -225,7 +225,8 @@ if (target_os == "android") {
   assert(host_os == "linux" || host_os == "mac",
          "Android builds are only supported on Linux and Mac hosts.")
   _default_toolchain = "//build/toolchain/android:android_clang_$target_cpu"
-} else if (target_os == "chromeos" || target_os == "linux") {
+} else if (target_os == "chromeos" || target_os == "webos" ||
+           target_os == "linux") {
   # See comments in build/toolchain/cros/BUILD.gn about board compiles.
   if (is_clang) {
     _default_toolchain = "//build/toolchain/linux:clang_$target_cpu"
@@ -297,6 +298,7 @@ if (current_os == "win" || current_os == "winuwp") {
   is_mac = false
   is_nacl = false
   is_posix = false
+  is_webos = false
   is_win = true
 } else if (current_os == "mac") {
   is_android = false
@@ -307,6 +309,7 @@ if (current_os == "win" || current_os == "winuwp") {
   is_mac = true
   is_nacl = false
   is_posix = true
+  is_webos = false
   is_win = false
 } else if (current_os == "android") {
   is_android = true
@@ -317,6 +320,7 @@ if (current_os == "win" || current_os == "winuwp") {
   is_mac = false
   is_nacl = false
   is_posix = true
+  is_webos = false
   is_win = false
 } else if (current_os == "chromeos") {
   is_android = false
@@ -327,6 +331,7 @@ if (current_os == "win" || current_os == "winuwp") {
   is_mac = false
   is_nacl = false
   is_posix = true
+  is_webos = false
   is_win = false
 } else if (current_os == "nacl") {
   # current_os == "nacl" will be passed by the nacl toolchain definition.
@@ -340,6 +345,7 @@ if (current_os == "win" || current_os == "winuwp") {
   is_mac = false
   is_nacl = true
   is_posix = true
+  is_webos = false
   is_win = false
 } else if (current_os == "fuchsia") {
   is_android = false
@@ -350,6 +356,7 @@ if (current_os == "win" || current_os == "winuwp") {
   is_mac = false
   is_nacl = false
   is_posix = true
+  is_webos = false
   is_win = false
 } else if (current_os == "ios") {
   is_android = false
@@ -360,6 +367,7 @@ if (current_os == "win" || current_os == "winuwp") {
   is_mac = false
   is_nacl = false
   is_posix = true
+  is_webos = false
   is_win = false
 } else if (current_os == "linux") {
   is_android = false
@@ -370,6 +378,7 @@ if (current_os == "win" || current_os == "winuwp") {
   is_mac = false
   is_nacl = false
   is_posix = true
+  is_webos = false
   is_win = false
 } else if (current_os == "aix") {
   is_android = false
@@ -380,6 +389,18 @@ if (current_os == "win" || current_os == "winuwp") {
   is_mac = false
   is_nacl = false
   is_posix = true
+  is_webos = false
+  is_win = false
+} else if (current_os == "webos") {
+  is_android = false
+  is_chromeos = false
+  is_fuchsia = false
+  is_ios = false
+  is_linux = true
+  is_mac = false
+  is_nacl = false
+  is_posix = true
+  is_webos = true
   is_win = false
 }
 

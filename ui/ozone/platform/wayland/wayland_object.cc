@@ -9,6 +9,10 @@
 #include <xdg-shell-unstable-v5-client-protocol.h>
 #include <xdg-shell-unstable-v6-client-protocol.h>
 
+#if defined(OS_WEBOS)
+#include <wayland-webos-shell-client-protocol.h>
+#endif
+
 namespace wl {
 namespace {
 
@@ -161,5 +165,19 @@ const wl_interface* ObjectTraits<zwp_text_input_v1>::interface =
     &zwp_text_input_v1_interface;
 void (*ObjectTraits<zwp_text_input_v1>::deleter)(zwp_text_input_v1*) =
     &zwp_text_input_v1_destroy;
+
+#if defined(OS_WEBOS)
+const wl_interface* ObjectTraits<wl_shell>::interface = &wl_shell_interface;
+void (*ObjectTraits<wl_shell>::deleter)(wl_shell*) = &wl_shell_destroy;
+
+const wl_interface* ObjectTraits<wl_shell_surface>::interface = &wl_shell_surface_interface;
+void (*ObjectTraits<wl_shell_surface>::deleter)(wl_shell_surface*) = &wl_shell_surface_destroy;
+
+const wl_interface* ObjectTraits<wl_webos_shell>::interface = &wl_webos_shell_interface;
+void (*ObjectTraits<wl_webos_shell>::deleter)(wl_webos_shell*) = &wl_webos_shell_destroy;
+
+const wl_interface* ObjectTraits<wl_webos_shell_surface>::interface = &wl_webos_shell_surface_interface;
+void (*ObjectTraits<wl_webos_shell_surface>::deleter)(wl_webos_shell_surface*) = &wl_webos_shell_surface_destroy;
+#endif
 
 }  // namespace wl

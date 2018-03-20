@@ -7,6 +7,11 @@
 #include <xdg-shell-unstable-v5-client-protocol.h>
 #include <xdg-shell-unstable-v6-client-protocol.h>
 
+#if defined(OS_WEBOS)
+#include <wayland-webos-shell-client-protocol.h>
+#endif
+
+
 #include "base/bind.h"
 #include "base/logging.h"
 #include "base/memory/ptr_util.h"
@@ -25,6 +30,12 @@ const uint32_t kMaxSeatVersion = 4;
 const uint32_t kMaxShmVersion = 1;
 const uint32_t kMaxXdgShellVersion = 1;
 const uint32_t kMaxTextInputManagerVersion = 1;
+
+#if defined(OS_WEBOS)
+const uint32_t kMaxWlShellVersion = 1;
+const uint32_t kMaxWebOsShellVersion = 1;
+#endif
+
 }  // namespace
 
 WaylandConnection::WaylandConnection() : controller_(FROM_HERE) {}
@@ -67,10 +78,17 @@ bool WaylandConnection::Initialize() {
     LOG(ERROR) << "No wl_seat object";
     return false;
   }
+#if !defined(OS_WEBOS)
   if (!shell_v6_ && !shell_) {
     LOG(ERROR) << "No xdg_shell object";
     return false;
   }
+#else
+  if (!webos_shell_ && !wl_shell_) {
+    LOG(ERROR) << "No webos_shell object";
+    return false;
+  }
+#endif
 
   return true;
 }
@@ -353,6 +371,17 @@ void WaylandConnection::Global(void* data,
     connection->data_device_manager_ =
         wl::Bind<wl_data_device_manager>(registry, name, 1);
   }
+#if defined(OS_WEBOS)
+  else if (!connection->wl_shell_ &&
+             strcmp(interface, "wl_shell") == 0) {
+    connection->wl_shell_ = wl::Bind<wl_shell>(
+        registry, name, std::min(version, kMaxWlShellVersion));
+  } else if (!connection->webos_shell_ &&
+             strcmp(interface, "wl_webos_shell") == 0) {
+    connection->webos_shell_ = wl::Bind<wl_webos_shell>(
+        registry, name, std::min(version, kMaxWebOsShellVersion));
+  }
+#endif
 
   connection->ScheduleFlush();
 }

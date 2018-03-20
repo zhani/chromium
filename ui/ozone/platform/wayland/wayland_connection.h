@@ -48,6 +48,11 @@ class WaylandConnection : public PlatformEventSource,
   }
   wl_data_device* data_device() { return data_device_->data_device(); }
 
+#if defined(OS_WEBOS)
+  wl_shell* wayland_shell() { return wl_shell_.get(); }
+  wl_webos_shell* webos_shell() { return webos_shell_.get(); }
+#endif
+
   WaylandWindow* GetWindow(gfx::AcceleratedWidget widget);
   WaylandWindow* GetLastWindow();
   WaylandWindow* GetCurrentFocusedWindow();
@@ -131,6 +136,11 @@ class WaylandConnection : public PlatformEventSource,
   wl::Object<xdg_shell> shell_;
   wl::Object<zxdg_shell_v6> shell_v6_;
   wl::Object<zwp_text_input_manager_v1> text_input_manager_v1_;
+
+#if defined(OS_WEBOS)
+  wl::Object<wl_shell> wl_shell_;
+  wl::Object<wl_webos_shell> webos_shell_;
+#endif
 
   std::unique_ptr<WaylandDataDevice> data_device_;
   std::unique_ptr<WaylandDataSource> data_source_;

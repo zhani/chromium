@@ -25,6 +25,8 @@ config("runtime_library") {
   # OS_LINUX and the like.
   if (is_chromeos) {
     defines = [ "OS_CHROMEOS" ]
+  } else if (is_webos) {
+    defines = [ "OS_WEBOS" ]
   }
 
   if ((!is_chromeos || default_toolchain != "//build/toolchain/cros:target") &&

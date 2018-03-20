@@ -7,7 +7,7 @@ visibility = [ "//ui/ozone/*" ]
 import("//build/config/linux/pkg_config.gni")
 
 pkg_config("wayland-egl") {
-  packages = [ "wayland-egl" ]
+  packages = [ "wayland-egl", "wayland-webos-client" ]
 }
 
 source_set("wayland") {
@@ -44,6 +44,8 @@ source_set("wayland") {
     "wayland_touch.h",
     "wayland_window.cc",
     "wayland_window.h",
+    "webos_surface_wrapper.cc",
+    "webos_surface_wrapper.h",
     "xdg_surface_wrapper.cc",
     "xdg_popup_wrapper.h",
     "xdg_popup_wrapper_v5.cc",
