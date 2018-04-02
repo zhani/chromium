@@ -228,3 +228,4 @@
 -PluginPowerSaverBrowserTest.ExpandingSmallPlugin
 -PrintExtensionBrowserTest.PrintOptionPage
 -SitePerProcessPrintExtensionBrowserTest.PrintOptionPage
+-ServiceWorkerBackgroundSyncTestWithNativeBindings/ServiceWorkerBackgroundSyncTest.Sync/0
