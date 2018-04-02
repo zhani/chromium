@@ -280,3 +280,5 @@
 -CompositorEventAckBrowserTest.TouchStart
 -ResourceDispatcherHostBrowserTest.DynamicTitle1
 -WebContentsImplBrowserTest.HasOriginalOpenerTracksThroughClosedWebContents
+-ResourceDispatcherHostBrowserTest.DynamicTitle2
+-WebContentsImplBrowserTest.ViewSourceWindowOpen_ShouldBeBlocked
