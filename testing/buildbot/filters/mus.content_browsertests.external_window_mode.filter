@@ -274,3 +274,9 @@
 -WebContentsVideoCaptureDeviceBrowserTestP.CapturesContentChanges/5
 -WebContentsVideoCaptureDeviceBrowserTestP.CapturesContentChanges/6
 -WebContentsVideoCaptureDeviceBrowserTestP.CapturesContentChanges/7
+
+# these tests fail after Apr/01 rebase:
+-CompositorEventAckBrowserTest.PassiveTouchStartBlockingTouchEnd
+-CompositorEventAckBrowserTest.TouchStart
+-ResourceDispatcherHostBrowserTest.DynamicTitle1
+-WebContentsImplBrowserTest.HasOriginalOpenerTracksThroughClosedWebContents

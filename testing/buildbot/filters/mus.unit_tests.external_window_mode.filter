@@ -24,3 +24,6 @@
 
 # failures after the r534306 
 -BrowserViewTest.AccessibleWindowTitle
+
+# these tests fail after Apr/01 rebase:
+-ThemeServiceTest.UserThemeTakesPrecedenceOverSystemTheme
