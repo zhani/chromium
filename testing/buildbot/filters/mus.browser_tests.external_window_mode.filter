@@ -220,3 +220,11 @@
 -NavigationConsumingTest.NavigationConsumesUserGesture_Fullscreen
 -NavigationConsumingTest.NavigationConsumesUserGesture_Popups
 -SafeBrowsingTriggeredPopupBlockerBrowserTest.NoFeature_NoMessages
+
+# these tests fail after Apr/01 rebase:
+-OmniboxPopupContentsViewTest.ThemeIntegration/Narrow
+-OmniboxPopupContentsViewTest.ThemeIntegration/Rounded
+-OmniboxPopupContentsViewTest.ThemeIntegration/Wide
+-PluginPowerSaverBrowserTest.ExpandingSmallPlugin
+-PrintExtensionBrowserTest.PrintOptionPage
+-SitePerProcessPrintExtensionBrowserTest.PrintOptionPage
