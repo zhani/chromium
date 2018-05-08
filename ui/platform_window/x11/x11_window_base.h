@@ -52,6 +52,8 @@ class X11_WINDOW_EXPORT X11WindowBase : public PlatformWindow {
   gfx::Rect GetRestoredBoundsInPixels() const override;
   bool RunMoveLoop(const gfx::Vector2d& drag_offset) override;
   void StopMoveLoop() override;
+  void StartWindowMoveOrResize(int hittest,
+                               gfx::Point pointer_location) override;
 
  protected:
   // Creates new underlying XWindow. Does not map XWindow.

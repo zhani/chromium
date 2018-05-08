@@ -146,6 +146,13 @@ class WaylandConnection : public PlatformEventSource,
   void RequestDragData(const std::string& mime_type,
                        base::OnceCallback<void(const std::string&)> callback);
 
+  // Resets flags and keyboard modifiers.
+  //
+  // This method is specially handy for cases when the WaylandPointer state is
+  // modified by a POINTER_DOWN event, but the respective POINTER_UP event is
+  // not delivered.
+  void ResetPointerFlags();
+
  private:
   // WaylandInputMethodContextFactory needs access to DispatchUiEvent
   friend class WaylandInputMethodContextFactory;

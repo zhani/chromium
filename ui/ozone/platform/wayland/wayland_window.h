@@ -97,6 +97,8 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   gfx::Rect GetRestoredBoundsInPixels() const override;
   bool RunMoveLoop(const gfx::Vector2d& drag_offset) override;
   void StopMoveLoop() override;
+  void StartWindowMoveOrResize(int hittest,
+                               gfx::Point pointer_location) override;
 
   // PlatformEventDispatcher
   bool CanDispatchEvent(const PlatformEvent& event) override;

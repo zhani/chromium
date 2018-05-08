@@ -86,4 +86,8 @@ bool StubWindow::RunMoveLoop(const gfx::Vector2d& drag_offset) {
 
 void StubWindow::StopMoveLoop() {}
 
+void StubWindow::StartWindowMoveOrResize(int hittest,
+                                         gfx::Point pointer_location) {}
+
+
 }  // namespace ui

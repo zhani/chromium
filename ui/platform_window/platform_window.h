@@ -75,6 +75,11 @@ class PlatformWindow {
   virtual bool RunMoveLoop(const gfx::Vector2d& drag_offset) = 0;
 
   virtual void StopMoveLoop() = 0;
+
+  // The window manager starts interactive drag or resize of a window based on
+  // the |hittest|.
+  virtual void StartWindowMoveOrResize(int hittest,
+                                       gfx::Point pointer_location) = 0;
 };
 
 }  // namespace ui
