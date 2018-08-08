@@ -11,6 +11,7 @@
 
 #include "base/callback.h"
 #include "base/containers/flat_set.h"
+#include "ui/base/dragdrop/os_exchange_data.h"
 #include "base/macros.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/x/x11.h"
@@ -54,6 +55,10 @@ class X11_WINDOW_EXPORT X11WindowBase : public PlatformWindow {
   void StopMoveLoop() override;
   void StartWindowMoveOrResize(int hittest,
                                gfx::Point pointer_location) override;
+  // Initiates Drag Action.
+  void StartDrag(const ui::OSExchangeData& data,
+                 const int operation,
+                 gfx::NativeCursor cursor) override;
 
  protected:
   // Creates new underlying XWindow. Does not map XWindow.
