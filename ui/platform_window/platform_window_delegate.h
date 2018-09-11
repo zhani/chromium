@@ -51,6 +51,11 @@ class PlatformWindowDelegate {
   virtual void OnAcceleratedWidgetDestroyed() = 0;
 
   virtual void OnActivationChanged(bool active) = 0;
+
+  // Notifies the delegate that Drag and Drop is completed or canceled and the
+  // session is finished. If Drag and Drop is completed, |operation| has the
+  // result operation.
+  virtual void OnDragSessionClosed(int operation) = 0;
 };
 
 }  // namespace ui

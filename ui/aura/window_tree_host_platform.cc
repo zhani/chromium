@@ -273,4 +273,6 @@ void WindowTreeHostPlatform::OnActivationChanged(bool active) {
     OnHostActivated();
 }
 
+void WindowTreeHostPlatform::OnDragSessionClosed(int operation) {}
+
 }  // namespace aura

@@ -146,6 +146,10 @@ gfx::Rect WinWindow::GetRestoredBoundsInPixels() const {
   return gfx::Rect();
 }
 
+void WinWindow::StartDrag(const ui::OSExchangeData& data,
+                          const int operation,
+                          gfx::NativeCursor cursor) {}
+
 LRESULT WinWindow::OnMouseRange(UINT message, WPARAM w_param, LPARAM l_param) {
   MSG msg = { hwnd(), message, w_param, l_param,
               static_cast<DWORD>(GetMessageTime()),

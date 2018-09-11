@@ -99,6 +99,9 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   void StopMoveLoop() override;
   void StartWindowMoveOrResize(int hittest,
                                gfx::Point pointer_location) override;
+  void StartDrag(const ui::OSExchangeData& data,
+                 const int operation,
+                 gfx::NativeCursor cursor) override;
 
   // PlatformEventDispatcher
   bool CanDispatchEvent(const PlatformEvent& event) override;

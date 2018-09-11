@@ -189,6 +189,12 @@ gfx::Rect ScenicWindow::GetRestoredBoundsInPixels() const {
   return gfx::Rect();
 }
 
+void ScenicWindow::StartDrag(const ui::OSExchangeData& data,
+                             const int operation,
+                             gfx::NativeCursor cursor) {
+  NOTREACHED();
+}
+
 void ScenicWindow::UpdateSize() {
   gfx::SizeF scaled = ScaleSize(size_dips_, device_pixel_ratio_);
   size_pixels_ = gfx::Size(ceilf(scaled.width()), ceilf(scaled.height()));

@@ -49,6 +49,9 @@ class WIN_WINDOW_EXPORT WinWindow : public PlatformWindow,
   PlatformImeController* GetPlatformImeController() override;
   void SetRestoredBoundsInPixels(const gfx::Rect& bounds) override;
   gfx::Rect GetRestoredBoundsInPixels() const override;
+  void StartDrag(const ui::OSExchangeData& data,
+                 const int operation,
+                 gfx::NativeCursor cursor) override;
 
   CR_BEGIN_MSG_MAP_EX(WinWindow)
     CR_MESSAGE_RANGE_HANDLER_EX(WM_MOUSEFIRST, WM_MOUSELAST, OnMouseRange)

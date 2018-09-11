@@ -70,6 +70,9 @@ class OZONE_EXPORT ScenicWindow : public PlatformWindow,
   PlatformImeController* GetPlatformImeController() override;
   void SetRestoredBoundsInPixels(const gfx::Rect& bounds) override;
   gfx::Rect GetRestoredBoundsInPixels() const override;
+  void StartDrag(const ui::OSExchangeData& data,
+                 const int operation,
+                 gfx::NativeCursor cursor) override;
 
  private:
   // views::ViewListener interface.

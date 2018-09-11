@@ -13,6 +13,7 @@
 #include "ui/platform_window/platform_window.h"
 #include "ui/platform_window/platform_window_init_properties.h"
 #include "ui/views/corewm/tooltip_aura.h"
+#include "ui/views/widget/desktop_aura/desktop_drag_drop_client_ozone.h"
 #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
 #include "ui/views/widget/desktop_aura/window_event_filter.h"
 #include "ui/views/widget/widget_aura_utils.h"
@@ -117,9 +118,9 @@ DesktopWindowTreeHostPlatform::CreateTooltip() {
 std::unique_ptr<aura::client::DragDropClient>
 DesktopWindowTreeHostPlatform::CreateDragDropClient(
     DesktopNativeCursorManager* cursor_manager) {
-  // TODO: needs PlatformWindow support.
-  NOTIMPLEMENTED_LOG_ONCE();
-  return nullptr;
+  drag_drop_client_ = new DesktopDragDropClientOzone(window(), cursor_manager,
+                                                     platform_window());
+  return base::WrapUnique(drag_drop_client_);
 }
 
 void DesktopWindowTreeHostPlatform::Close() {
@@ -524,6 +525,10 @@ void DesktopWindowTreeHostPlatform::OnActivationChanged(bool active) {
   is_active_ = active;
   aura::WindowTreeHostPlatform::OnActivationChanged(active);
   desktop_native_widget_aura_->HandleActivationChanged(active);
+}
+
+void DesktopWindowTreeHostPlatform::OnDragSessionClosed(int operation) {
+  drag_drop_client_->OnDragSessionClosed(operation);
 }
 
 void DesktopWindowTreeHostPlatform::Relayout() {

@@ -410,6 +410,12 @@ void WaylandWindow::StartWindowMoveOrResize(int hittest,
     xdg_surface_->SurfaceResize(connection_, hittest);
 }
 
+void WaylandWindow::StartDrag(const ui::OSExchangeData& data,
+                              const int operation,
+                              gfx::NativeCursor cursor) {
+  connection_->StartDrag(data, operation);
+}
+
 bool WaylandWindow::CanDispatchEvent(const PlatformEvent& event) {
   // This window is a nested popup window, all the events must be forwarded
   // to the main popup window.
@@ -556,7 +562,7 @@ void WaylandWindow::OnDragLeave() {
 }
 
 void WaylandWindow::OnDragSessionClose(uint32_t dnd_action) {
-  NOTIMPLEMENTED_LOG_ONCE();
+  delegate_->OnDragSessionClosed(dnd_action);
 }
 
 bool WaylandWindow::IsMinimized() const {
