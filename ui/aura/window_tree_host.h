@@ -123,6 +123,10 @@ class AURA_EXPORT WindowTreeHost : public ui::internal::InputMethodDelegate,
   // host window's.
   virtual void ConvertDIPToPixels(gfx::Point* point) const;
 
+  // Converts |pointf| from the root window's coordinate system to the
+  // host window's.
+  virtual void ConvertDIPToPixels(gfx::PointF* pointf) const;
+
   // Converts |point| from the host window's coordinate system to the
   // root window's.
   virtual void ConvertPixelsToDIP(gfx::Point* point) const;

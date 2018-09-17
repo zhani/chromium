@@ -543,22 +543,22 @@ void WaylandWindow::OnCloseRequest() {
 void WaylandWindow::OnDragEnter(const gfx::PointF& point,
                                 std::unique_ptr<OSExchangeData> data,
                                 int operation) {
-  NOTIMPLEMENTED_LOG_ONCE();
+  delegate_->OnDragEnter(this, point, std::move(data), operation);
 }
 
 int WaylandWindow::OnDragMotion(const gfx::PointF& point,
                                 uint32_t time,
                                 int operation) {
-  NOTIMPLEMENTED_LOG_ONCE();
-  return 0;
+  gfx::AcceleratedWidget widget = gfx::kNullAcceleratedWidget;
+  return delegate_->OnDragMotion(point, time, operation, &widget);
 }
 
 void WaylandWindow::OnDragDrop(std::unique_ptr<OSExchangeData> data) {
-  NOTIMPLEMENTED_LOG_ONCE();
+  delegate_->OnDragDrop(std::move(data));
 }
 
 void WaylandWindow::OnDragLeave() {
-  NOTIMPLEMENTED_LOG_ONCE();
+  delegate_->OnDragLeave();
 }
 
 void WaylandWindow::OnDragSessionClose(uint32_t dnd_action) {

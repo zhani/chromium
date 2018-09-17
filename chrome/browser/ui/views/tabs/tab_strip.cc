@@ -2212,6 +2212,7 @@ TabStrip::DropArrow::DropArrow(const BrowserRootView::DropIndex& index,
   params.accept_events = false;
   params.bounds = gfx::Rect(g_drop_indicator_width, g_drop_indicator_height);
   params.context = context->GetNativeWindow();
+  params.parent = context->GetNativeWindow();
   arrow_window->Init(params);
   arrow_window->SetContentsView(arrow_view);
 }

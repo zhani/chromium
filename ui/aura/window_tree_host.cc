@@ -179,9 +179,15 @@ void WindowTreeHost::ConvertScreenInPixelsToDIP(gfx::Point* point) const {
 }
 
 void WindowTreeHost::ConvertDIPToPixels(gfx::Point* point) const {
-  auto point_3f = gfx::Point3F(gfx::PointF(*point));
+  gfx::PointF pointf = gfx::PointF(*point);
+  ConvertDIPToPixels(&pointf);
+  *point = gfx::ToFlooredPoint(pointf);
+}
+
+void WindowTreeHost::ConvertDIPToPixels(gfx::PointF* point) const {
+  auto point_3f = gfx::Point3F(*point);
   GetRootTransform().TransformPoint(&point_3f);
-  *point = gfx::ToFlooredPoint(point_3f.AsPointF());
+  *point = point_3f.AsPointF();
 }
 
 void WindowTreeHost::ConvertPixelsToDIP(gfx::Point* point) const {

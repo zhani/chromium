@@ -118,8 +118,8 @@ DesktopWindowTreeHostPlatform::CreateTooltip() {
 std::unique_ptr<aura::client::DragDropClient>
 DesktopWindowTreeHostPlatform::CreateDragDropClient(
     DesktopNativeCursorManager* cursor_manager) {
-  drag_drop_client_ = new DesktopDragDropClientOzone(window(), cursor_manager,
-                                                     platform_window());
+  drag_drop_client_ = new DesktopDragDropClientOzone(
+      window(), cursor_manager, platform_window(), GetAcceleratedWidget());
   return base::WrapUnique(drag_drop_client_);
 }
 
@@ -525,6 +525,37 @@ void DesktopWindowTreeHostPlatform::OnActivationChanged(bool active) {
   is_active_ = active;
   aura::WindowTreeHostPlatform::OnActivationChanged(active);
   desktop_native_widget_aura_->HandleActivationChanged(active);
+}
+
+void DesktopWindowTreeHostPlatform::OnDragEnter(
+    ui::PlatformWindow* window,
+    const gfx::PointF& point,
+    std::unique_ptr<ui::OSExchangeData> data,
+    int operation) {
+  drag_drop_client_->OnDragEnter(window, point, std::move(data), operation);
+}
+
+int DesktopWindowTreeHostPlatform::OnDragMotion(
+    const gfx::PointF& point,
+    uint32_t time,
+    int operation,
+    gfx::AcceleratedWidget* widget) {
+  return drag_drop_client_->OnDragMotion(point, time, operation, widget);
+}
+
+void DesktopWindowTreeHostPlatform::OnDragDrop(
+    std::unique_ptr<ui::OSExchangeData> data) {
+  drag_drop_client_->OnDragDrop(std::move(data));
+}
+
+void DesktopWindowTreeHostPlatform::OnDragLeave() {
+  drag_drop_client_->OnDragLeave();
+}
+
+void DesktopWindowTreeHostPlatform::OnMouseMoved(
+    const gfx::Point& point,
+    gfx::AcceleratedWidget* widget) {
+  drag_drop_client_->OnMouseMoved(point, widget);
 }
 
 void DesktopWindowTreeHostPlatform::OnDragSessionClosed(int operation) {

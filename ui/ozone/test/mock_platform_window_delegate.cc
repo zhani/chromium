@@ -10,4 +10,11 @@ MockPlatformWindowDelegate::MockPlatformWindowDelegate() {}
 
 MockPlatformWindowDelegate::~MockPlatformWindowDelegate() {}
 
+int MockPlatformWindowDelegate::OnDragMotion(const gfx::PointF& point,
+                                             uint32_t time,
+                                             int operation,
+                                             gfx::AcceleratedWidget* widget) {
+  return 0;
+}
+
 }  // namespace ui

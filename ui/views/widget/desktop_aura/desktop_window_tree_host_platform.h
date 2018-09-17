@@ -12,6 +12,7 @@
 
 namespace views {
 class DesktopDragDropClientOzone;
+class PlatformWindow;
 
 class VIEWS_EXPORT DesktopWindowTreeHostPlatform
     : public aura::WindowTreeHostPlatform,
@@ -98,7 +99,21 @@ class VIEWS_EXPORT DesktopWindowTreeHostPlatform
   void OnWindowStateChanged(ui::PlatformWindowState new_state) override;
   void OnCloseRequest() override;
   void OnActivationChanged(bool active) override;
+
   void OnDragSessionClosed(int operation) override;
+
+  void OnDragEnter(ui::PlatformWindow* window,
+                   const gfx::PointF& point,
+                   std::unique_ptr<ui::OSExchangeData> data,
+                   int operation) override;
+  int OnDragMotion(const gfx::PointF& point,
+                   uint32_t time,
+                   int operation,
+                   gfx::AcceleratedWidget* widget) override;
+  void OnDragDrop(std::unique_ptr<ui::OSExchangeData> data) override;
+  void OnDragLeave() override;
+  void OnMouseMoved(const gfx::Point& point,
+                    gfx::AcceleratedWidget* widget) override;
 
  private:
   void Relayout();

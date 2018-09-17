@@ -5,15 +5,19 @@
 #ifndef UI_PLATFORM_WINDOW_PLATFORM_WINDOW_DELEGATE_H_
 #define UI_PLATFORM_WINDOW_PLATFORM_WINDOW_DELEGATE_H_
 
+#include "base/callback.h"
 #include "ui/gfx/native_widget_types.h"
 
 namespace gfx {
 class Rect;
+class PointF;
 }
 
 namespace ui {
 
 class Event;
+class PlatformWindow;
+class OSExchangeData;
 
 enum PlatformWindowState {
   PLATFORM_WINDOW_STATE_UNKNOWN,
@@ -56,6 +60,33 @@ class PlatformWindowDelegate {
   // session is finished. If Drag and Drop is completed, |operation| has the
   // result operation.
   virtual void OnDragSessionClosed(int operation) = 0;
+
+  // TODO(jkim): Make them pure virtual functions.
+  // Notifies the delegate that dragging is entered to |window|.
+  virtual void OnDragEnter(ui::PlatformWindow* window,
+                           const gfx::PointF& point,
+                           std::unique_ptr<OSExchangeData> data,
+                           int operation) {}
+
+  // Notifies the delegate that dragging is moved. |widget| will be set with the
+  // widget located at |point|. It returns the operation selected by client.
+  virtual int OnDragMotion(const gfx::PointF& point,
+                           uint32_t time,
+                           int operation,
+                           gfx::AcceleratedWidget* widget) = 0;
+
+  // Notifies the delegate that dragged data is dropped. When it doesn't deliver
+  // the dragged data on OnDragEnter, it should put it to |data|.
+  virtual void OnDragDrop(std::unique_ptr<ui::OSExchangeData> data) {}
+
+  // Notifies the delegate that dragging is left.
+  virtual void OnDragLeave() {}
+
+  // Notifies the delegate that mouse is moved generally and expects that
+  // |widget| is filled with the widget located at |point|.
+  virtual void OnMouseMoved(const gfx::Point& point,
+                            gfx::AcceleratedWidget* widget) {}
+
 };
 
 }  // namespace ui
