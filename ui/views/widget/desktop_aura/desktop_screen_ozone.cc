@@ -4,6 +4,7 @@
 
 #include "ui/views/widget/desktop_aura/desktop_screen_ozone.h"
 
+#include "ui/aura/screen_ozone.h"
 #include "ui/display/display.h"
 #include "ui/display/types/display_constants.h"
 #include "ui/display/types/display_snapshot.h"
@@ -55,7 +56,14 @@ void DesktopScreenOzone::OnDisplaySnapshotsInvalidated() {}
 //////////////////////////////////////////////////////////////////////////////
 
 display::Screen* CreateDesktopScreen() {
-  return new DesktopScreenOzone;
+  auto platform_screen = ui::OzonePlatform::GetInstance()->CreateScreen();
+  if (!platform_screen) {
+    LOG(ERROR) << "PlatformScreen is not implemented for this ozone platform. "
+                  "Falling back to old DesktopScreenOzone implementation. See "
+                  "https://crbug.com/872339 for details";
+    return new DesktopScreenOzone;
+  }
+  return new aura::ScreenOzone(std::move(platform_screen));
 }
 
 }  // namespace views
