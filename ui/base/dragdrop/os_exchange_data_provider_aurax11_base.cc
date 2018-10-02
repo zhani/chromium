@@ -86,14 +86,6 @@ SelectionFormatMap OSExchangeDataProviderAuraX11Base::GetFormatMap() const {
   return selection_owner_.selection_format_map();
 }
 
-std::unique_ptr<OSExchangeData::Provider>
-OSExchangeDataProviderAuraX11Base::Clone() const {
-  std::unique_ptr<OSExchangeDataProviderAuraX11Base> ret(
-      new OSExchangeDataProviderAuraX11Base());
-  ret->format_map_ = format_map_;
-  return std::move(ret);
-}
-
 void OSExchangeDataProviderAuraX11Base::MarkOriginatedFromRenderer() {
   std::string empty;
   format_map_.Insert(gfx::GetAtom(kRendererTaint),

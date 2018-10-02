@@ -9,6 +9,7 @@
 #include "base/logging.h"
 #include "ui/base/x/selection_utils.h"
 #include "ui/events/platform/platform_event_source.h"
+#include "ui/gfx/x/x11_atom_cache.h"
 
 // Note: the GetBlah() methods are used immediately by the
 // web_contents_view_aura.cc:PrepareDropData(), while the omnibox is a
@@ -30,6 +31,14 @@ OSExchangeDataProviderAuraX11::OSExchangeDataProviderAuraX11()
 OSExchangeDataProviderAuraX11::~OSExchangeDataProviderAuraX11() {
   if (own_window_)
     PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
+}
+
+std::unique_ptr<OSExchangeData::Provider>
+OSExchangeDataProviderAuraX11::Clone() const {
+  std::unique_ptr<OSExchangeDataProviderAuraX11> ret(
+      new OSExchangeDataProviderAuraX11());
+  ret->format_map_ = format_map_;
+  return std::move(ret);
 }
 
 void OSExchangeDataProviderAuraX11::SetFileContents(

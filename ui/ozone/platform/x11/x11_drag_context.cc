@@ -26,6 +26,22 @@ const char kChromiumDragReciever[] = "_CHROMIUM_DRAG_RECEIVER";
 
 }  // namespace
 
+class X11OSExchangeDataProvider : public OSExchangeDataProviderAuraX11Base {
+ public:
+  X11OSExchangeDataProvider(::Window x_window,
+                            const SelectionFormatMap& selection)
+      : OSExchangeDataProviderAuraX11Base(x_window, selection) {}
+
+  X11OSExchangeDataProvider() {}
+
+  std::unique_ptr<Provider> Clone() const override {
+    std::unique_ptr<X11OSExchangeDataProvider> ret(
+        new X11OSExchangeDataProvider());
+    ret->format_map_ = format_map_;
+    return std::move(ret);
+  }
+};
+
 X11DragContext::X11DragContext(X11WindowOzone* window,
                                XID local_window,
                                const XClientMessageEvent& event,
@@ -90,11 +106,10 @@ void X11DragContext::OnXdndPosition(const XClientMessageEvent& event) {
                         gfx::PointF(x_root_window, y_root_window));
 }
 
-void X11DragContext::OnXdndPositionMessage(
-    ::Atom suggested_action,
-    XID source_window,
-    ::Time time_stamp,
-    const gfx::PointF& screen_point) {
+void X11DragContext::OnXdndPositionMessage(::Atom suggested_action,
+                                           XID source_window,
+                                           ::Time time_stamp,
+                                           const gfx::PointF& screen_point) {
   DCHECK_EQ(source_window_, source_window);
   suggested_action_ = suggested_action;
 
@@ -147,7 +162,7 @@ void X11DragContext::OnSelectionNotify(const XSelectionEvent& event) {
     // parlance) that we asked for. This happens, even though we only ask for
     // the formats advertised by the source. http://crbug.com/628099
     DVLOG(1) << "XConvertSelection failed for source-advertised target "
-               << event.target;
+             << event.target;
   }
 
   if (!unfetched_targets_.empty()) {
@@ -193,8 +208,8 @@ void X11DragContext::CompleteXdndPosition(XID source_window,
                                           const gfx::PointF& screen_point) {
   // int drag_operation = ui::DragDropTypes::DRAG_COPY;
   std::unique_ptr<OSExchangeData> data = std::make_unique<OSExchangeData>(
-      std::make_unique<OSExchangeDataProviderAuraX11Base>(local_window_,
-                                                          fetched_targets()));
+      std::make_unique<X11OSExchangeDataProvider>(local_window_,
+                                                  fetched_targets()));
   int drag_operation = GetDragOperation();
   // KDE-based file browsers such as Dolphin change the drag operation depending
   // on whether alt/ctrl/shift was pressed. However once Chromium gets control

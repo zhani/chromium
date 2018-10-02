@@ -26,6 +26,7 @@ class UI_BASE_EXPORT OSExchangeDataProviderAuraX11
 
   ~OSExchangeDataProviderAuraX11() override;
 
+  std::unique_ptr<Provider> Clone() const override;
   void SetFileContents(const base::FilePath& filename,
                        const std::string& file_contents) override;
 

@@ -57,7 +57,6 @@ class UI_BASE_EXPORT OSExchangeDataProviderAuraX11Base
   }
 
   // Overridden from OSExchangeData::Provider:
-  std::unique_ptr<Provider> Clone() const override;
   void MarkOriginatedFromRenderer() override;
   bool DidOriginateFromRenderer() const override;
   void SetString(const base::string16& data) override;
