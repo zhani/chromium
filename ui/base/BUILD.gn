@@ -460,9 +460,12 @@ jumbo_component("base") {
     deps += [ "//ui/events" ]
   }
 
+  if (use_x11 || ozone_platform_x11) {
+    configs += [ "//build/config/linux:x11" ]
+  }
+
   if (use_x11) {
     public_deps += [ "//ui/base/x" ]
-    configs += [ "//build/config/linux:x11" ]
 
     if (!is_chromeos) {
       sources += [
@@ -476,7 +479,7 @@ jumbo_component("base") {
     }
   }
 
-  if (use_x11 && use_aura || ozone_platform_x11) {
+  if ((use_x11 || ozone_platform_x11) && use_aura) {
     sources += [
       "x/selection_utils.cc",
       "x/selection_utils.h",
@@ -509,8 +512,6 @@ jumbo_component("base") {
         ]
       }
     }
-
-    configs += [ "//build/config/linux:x11" ]
 
     deps += [
       "//ui/events/platform/x11",
