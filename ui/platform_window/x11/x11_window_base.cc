@@ -424,8 +424,8 @@ void X11WindowBase::StartWindowMoveOrResize(int hittest,
   event.xclient.window = xwindow_;
   event.xclient.message_type = gfx::GetAtom("_NET_WM_MOVERESIZE");
   event.xclient.format = 32;
-  event.xclient.data.l[0] = pointer_location.x();
-  event.xclient.data.l[1] = pointer_location.y();
+  event.xclient.data.l[0] = bounds_.x() + pointer_location.x();
+  event.xclient.data.l[1] = bounds_.y() + pointer_location.y();
   event.xclient.data.l[2] = direction;
   event.xclient.data.l[3] = 0;
   event.xclient.data.l[4] = 0;
